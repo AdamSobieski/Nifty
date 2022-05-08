@@ -916,9 +916,25 @@ namespace Nifty
             }
         }
 
+        internal sealed class SettingImpl<T> : ISetting<T>
+        {
+            public SettingImpl(ITerm term, T defaultValue)
+            {
+                m_term = term;
+                m_defaultValue = defaultValue;            
+            }
+
+            private readonly ITerm m_term;
+            private readonly T m_defaultValue;
+
+            public ITerm Term => m_term;
+
+            public T DefaultValue => m_defaultValue;
+        }
+
         public static ISetting<T> Setting<T>(string uri, T defaultValue)
         {
-            throw new NotImplementedException();
+            return new SettingImpl<T>(Uri(uri), defaultValue);
         }
 
         private static readonly IAnyTerm s_any = new AnyTerm();
