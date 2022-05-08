@@ -210,24 +210,21 @@ namespace Nifty.Events
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyKnowledgeCollection : IQueryable<ICompound>, IEventSource, INotifyChanged
+    public interface IReadOnlyKnowledgeCollection : IEventSource, INotifyChanged
     {
-        public IEnumerable<ITerm> Predicates { get { return this.Select(s => s.Predicate).Distinct(); } }
+        public IEnumerable<ITerm> Predicates { get { return this.Statements.Select(s => s.Predicate).Distinct(); } }
+
+        public IQueryable<ICompound> Statements { get; }
 
         public int Count { get; }
         public bool IsConcrete { get; }
         public bool IsReadOnly { get; }
 
-        public bool Contains(ITerm predicate, params ITerm[] arguments)
-        {
-            return Find(predicate, arguments).Any();
-        }
         public bool Contains(ICompound statement)
         {
             return Find(statement).Any();
         }
 
-        public IEnumerable<ICompound> Find(ITerm predicate, params ITerm[] arguments);
         public IEnumerable<ICompound> Find(ICompound statement);
 
         public IReadOnlyKnowledgeCollection Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
@@ -332,36 +329,19 @@ namespace Nifty.Knowledge.Semantics
         public bool Matches(ITriple other);
     }
 
-    public interface IReadOnlyGraph : IQueryable<ITriple>, IHasReadOnlyOntology, IEventSource, INotifyChanged
+    public interface IReadOnlyGraph : IReadOnlyKnowledgeCollection, IHasReadOnlyOntology, IEventSource, INotifyChanged
     {
-        public IEnumerable<ITerm> Predicates { get { return this.Select(t => t.Predicate).Distinct(); } }
-        public IEnumerable<ITerm> Subjects { get { return this.Select(t => t.Subject).Distinct(); } }
-        public IEnumerable<ITerm> Objects { get { return this.Select(t => t.Object).Distinct(); } }
+        //public IEnumerable<ITerm> Predicates { get { return this.Statements.Select(t => t.Predicate).Distinct(); } }
+        public IEnumerable<ITerm> Subjects { get { return this.Statements.Select(t => t.Subject).Distinct(); } }
+        public IEnumerable<ITerm> Objects { get { return this.Statements.Select(t => t.Object).Distinct(); } }
 
-        public int Count { get; }
-        public bool IsConcrete { get; }
-        public bool IsReadOnly { get; }
+        public new IQueryable<ITriple> Statements { get; }
+
+        //public int Count { get; }
+        //public bool IsConcrete { get; }
+        //public bool IsReadOnly { get; }
         public bool IsValid { get; }
 
-        public bool Contains(ITerm predicate, ITerm subject, ITerm @object)
-        {
-            return Find(predicate, subject, @object).Any();
-        }
-        public bool Contains(ITerm predicate, ITerm subject, ITerm @object, [NotNullWhen(true)] out ITerm? reified)
-        {
-            var x = Factory.Variable("x");
-            var query = Factory.ReadOnlyGraph(new ITriple[] { Factory.Triple(Keys.Semantics.Rdf.type, x, Keys.Semantics.Rdf.Statement), Factory.Triple(Keys.Semantics.Rdf.subject, x, subject), Factory.Triple(Keys.Semantics.Rdf.predicate, x, predicate), Factory.Triple(Keys.Semantics.Rdf.@object, x, @object) });
-            if (Contains(predicate, subject, @object))
-            {
-                reified = Query(query).Single()[x];
-                return true;
-            }
-            else
-            {
-                reified = null;
-                return false;
-            }
-        }
         public bool Contains(ITriple triple)
         {
             return Find(triple).Any();
@@ -382,16 +362,12 @@ namespace Nifty.Knowledge.Semantics
             }
         }
 
-        public IEnumerable<ITriple> Find(ITerm predicate, ITerm subject, ITerm @object)
-        {
-            return this.Where(t => predicate.Matches(t.Predicate) && subject.Matches(t.Subject) && @object.Matches(t.Object));
-        }
         public IEnumerable<ITriple> Find(ITriple triple)
         {
-            return this.Where(t => triple.Predicate.Matches(t.Predicate) && triple.Subject.Matches(t.Subject) && triple.Object.Matches(t.Object));
+            return this.Statements.Where(t => triple.Predicate.Matches(t.Predicate) && triple.Subject.Matches(t.Subject) && triple.Object.Matches(t.Object));
         }
 
-        public IReadOnlyGraph Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+        public new IReadOnlyGraph Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
         public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlyGraph query);
         public IEnumerable<IReadOnlyGraph> Query2(IReadOnlyGraph query)
@@ -399,13 +375,10 @@ namespace Nifty.Knowledge.Semantics
             return Query(query).Select(result => query.Replace(result));
         }
     }
-    public interface IGraph : IReadOnlyGraph
+    public interface IGraph : IKnowledgeCollection, IReadOnlyGraph
     {
-        public bool Add(ITerm predicate, ITerm subject, ITerm @object);
         public bool Add(ITriple triple);
-        public bool Add(ITerm predicate, ITerm subject, ITerm @object, [NotNullWhen(true)] out ITerm? reified);
         public bool Add(ITriple triple, [NotNullWhen(true)] out ITerm? reified);
-        public bool Remove(ITerm predicate, ITerm subject, ITerm @object);
         public bool Remove(ITriple triple);
 
         public bool Add(IReadOnlyGraph graph);
@@ -1087,77 +1060,77 @@ namespace Nifty
     {
         public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, bool value)
         {
-            return graph.Add(predicate, subject, Factory.Literal(value));
+            return graph.Add(Factory.Triple(predicate, subject, Factory.Literal(value)));
         }
         public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, sbyte value)
         {
-            return graph.Add(predicate, subject, Factory.Literal(value));
+            return graph.Add(Factory.Triple(predicate, subject, Factory.Literal(value)));
         }
         public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, byte value)
         {
-            return graph.Add(predicate, subject, Factory.Literal(value));
+            return graph.Add(Factory.Triple(predicate, subject, Factory.Literal(value)));
         }
         public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, short value)
         {
-            return graph.Add(predicate, subject, Factory.Literal(value));
+            return graph.Add(Factory.Triple(predicate, subject, Factory.Literal(value)));
         }
         public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, ushort value)
         {
-            return graph.Add(predicate, subject, Factory.Literal(value));
+            return graph.Add(Factory.Triple(predicate, subject, Factory.Literal(value)));
         }
         public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, int value)
         {
-            return graph.Add(predicate, subject, Factory.Literal(value));
+            return graph.Add(Factory.Triple(predicate, subject, Factory.Literal(value)));
         }
         public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, uint value)
         {
-            return graph.Add(predicate, subject, Factory.Literal(value));
+            return graph.Add(Factory.Triple(predicate, subject, Factory.Literal(value)));
         }
         public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, long value)
         {
-            return graph.Add(predicate, subject, Factory.Literal(value));
+            return graph.Add(Factory.Triple(predicate, subject, Factory.Literal(value)));
         }
         public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, ulong value)
         {
-            return graph.Add(predicate, subject, Factory.Literal(value));
+            return graph.Add(Factory.Triple(predicate, subject, Factory.Literal(value)));
         }
         public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, float value)
         {
-            return graph.Add(predicate, subject, Factory.Literal(value));
+            return graph.Add(Factory.Triple(predicate, subject, Factory.Literal(value)));
         }
         public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, double value)
         {
-            return graph.Add(predicate, subject, Factory.Literal(value));
+            return graph.Add(Factory.Triple(predicate, subject, Factory.Literal(value)));
         }
         public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, string value)
         {
-            return graph.Add(predicate, subject, Factory.Literal(value));
+            return graph.Add(Factory.Triple(predicate, subject, Factory.Literal(value)));
         }
         //...
 
         public static IEnumerable<ITerm> GetClasses(this IHasReadOnlyGraph thing)
         {
-            return thing.About.Find(Keys.Semantics.Rdf.type, thing.Term, Factory.Any()).Select(t => t.Object).Distinct();
+            return thing.About.Find(Factory.Triple(Keys.Semantics.Rdf.type, thing.Term, Factory.Any())).Select(t => t.Object).Distinct();
         }
         public static bool HasClass(this IHasReadOnlyGraph thing, ITerm type)
         {
-            return thing.About.Contains(Keys.Semantics.Rdf.type, thing.Term, type);
+            return thing.About.Contains(Factory.Triple(Keys.Semantics.Rdf.type, thing.Term, type));
         }
         public static IEnumerable<ITerm> GetProperties(this IHasReadOnlyGraph thing)
         {
-            return thing.About.Find(Factory.Any(), thing.Term, Factory.Any()).Select(t => t.Predicate).Distinct();
+            return thing.About.Find(Factory.Triple(Factory.Any(), thing.Term, Factory.Any())).Select(t => t.Predicate).Distinct();
         }
         public static bool HasProperty(this IHasReadOnlyGraph thing, ITerm predicate)
         {
-            return thing.About.Contains(predicate, thing.Term, Factory.Any());
+            return thing.About.Contains(Factory.Triple(predicate, thing.Term, Factory.Any()));
         }
         public static IEnumerable<ITerm> GetEvents(this IEventSource thing)
         {
-            return thing.About.Find(Keys.Semantics.Eo.hasEventCategory, thing.Term, Factory.Any()).Select(t => t.Object).Distinct();
+            return thing.About.Find(Factory.Triple(Keys.Semantics.Eo.hasEventCategory, thing.Term, Factory.Any())).Select(t => t.Object).Distinct();
         }
         public static bool HasEvent(this IEventSource thing, ITerm eventCategory)
         {
-            return thing.About.Contains(Keys.Semantics.Eo.hasEventCategory, thing.Term, eventCategory);
+            return thing.About.Contains(Factory.Triple(Keys.Semantics.Eo.hasEventCategory, thing.Term, eventCategory));
         }
 
         public static T Setting<T>(this ISession session, ISetting<T> setting)
@@ -1179,13 +1152,13 @@ namespace Nifty
                 {
                     if (language == null)
                     {
-                        title = (about.Find(Keys.Semantics.Dc.title, term, Factory.Any()).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-                        description = (about.Find(Keys.Semantics.Dc.description, term, Factory.Any()).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                        title = (about.Find(Factory.Triple(Keys.Semantics.Dc.title, term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                        description = (about.Find(Factory.Triple(Keys.Semantics.Dc.description, term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
                     }
                     else
                     {
-                        title = (about.Find(Keys.Semantics.Dc.title, term, Factory.Any(language)).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-                        description = (about.Find(Keys.Semantics.Dc.description, term, Factory.Any(language)).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                        title = (about.Find(Factory.Triple(Keys.Semantics.Dc.title, term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                        description = (about.Find(Factory.Triple(Keys.Semantics.Dc.description, term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
                     }
                     return true;
                 }
@@ -1208,22 +1181,22 @@ namespace Nifty
         {
             if (language == null)
             {
-                return (activity.About.Find(Keys.Semantics.Dc.title, activity.Term, Factory.Any()).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                return (activity.About.Find(Factory.Triple(Keys.Semantics.Dc.title, activity.Term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
             }
             else
             {
-                return (activity.About.Find(Keys.Semantics.Dc.title, activity.Term, Factory.Any(language)).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                return (activity.About.Find(Factory.Triple(Keys.Semantics.Dc.title, activity.Term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
             }
         }
         public static string? GetDescription(this IActivity activity, string? language = null)
         {
             if (language == null)
             {
-                return (activity.About.Find(Keys.Semantics.Dc.description, activity.Term, Factory.Any()).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                return (activity.About.Find(Factory.Triple(Keys.Semantics.Dc.description, activity.Term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
             }
             else
             {
-                return (activity.About.Find(Keys.Semantics.Dc.description, activity.Term, Factory.Any(language)).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                return (activity.About.Find(Factory.Triple(Keys.Semantics.Dc.description, activity.Term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
             }
         }
 
@@ -1231,27 +1204,27 @@ namespace Nifty
         {
             if (language == null)
             {
-                return (algorithm.About.Find(Keys.Semantics.Dc.title, algorithm.Term, Factory.Any()).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                return (algorithm.About.Find(Factory.Triple(Keys.Semantics.Dc.title, algorithm.Term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
             }
             else
             {
-                return (algorithm.About.Find(Keys.Semantics.Dc.title, algorithm.Term, Factory.Any(language)).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                return (algorithm.About.Find(Factory.Triple(Keys.Semantics.Dc.title, algorithm.Term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
             }
         }
         public static string? GetDescription(this IAlgorithm algorithm, string? language = null)
         {
             if (language == null)
             {
-                return (algorithm.About.Find(Keys.Semantics.Dc.description, algorithm.Term, Factory.Any()).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                return (algorithm.About.Find(Factory.Triple(Keys.Semantics.Dc.description, algorithm.Term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
             }
             else
             {
-                return (algorithm.About.Find(Keys.Semantics.Dc.description, algorithm.Term, Factory.Any(language)).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                return (algorithm.About.Find(Factory.Triple(Keys.Semantics.Dc.description, algorithm.Term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
             }
         }
         public static string? GetVersion(this IAlgorithm algorithm)
         {
-            return (algorithm.About.Find(Keys.Semantics.Swo.version, algorithm.Term, Factory.Any()).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+            return (algorithm.About.Find(Factory.Triple(Keys.Semantics.Swo.version, algorithm.Term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
         }
     }
 }
