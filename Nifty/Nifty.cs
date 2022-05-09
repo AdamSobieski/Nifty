@@ -215,12 +215,12 @@ namespace Nifty.Interop.ExperienceAPI
     // https://github.com/adlnet/xAPI-Spec
 }
 
-namespace Nifty.Interop.LearningManagementSystem
+namespace Nifty.Interop.LearningManagementSystems
 {
 
 }
 
-namespace Nifty.Interop.LearningRecordStore
+namespace Nifty.Interop.LearningRecordStores
 {
 
 }
