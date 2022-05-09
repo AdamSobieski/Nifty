@@ -12,7 +12,6 @@ using Nifty.Knowledge.Semantics.Ontology;
 using Nifty.Logging;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
-using Nifty.Transactions;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
 using System.Xml;
@@ -211,6 +210,21 @@ namespace Nifty.Events
     }
 }
 
+namespace Nifty.Interop.ExperienceAPI
+{
+    // https://github.com/adlnet/xAPI-Spec
+}
+
+namespace Nifty.Interop.LearningManagementSystem
+{
+
+}
+
+namespace Nifty.Interop.LearningRecordStore
+{
+
+}
+
 namespace Nifty.Knowledge
 {
     public interface IReadOnlyCompoundCollection : IEventSource, INotifyChanged
@@ -256,7 +270,7 @@ namespace Nifty.Knowledge
         Variable,
         Compound,
         Triple,
-        KnowledgeCollection,
+        CompoundCollection,
         Graph
     }
     public interface ITerm
@@ -319,8 +333,9 @@ namespace Nifty.Knowledge
         public object Visit(IBlankTerm term);
         public object Visit(ILiteralTerm term);
         public object Visit(IVariableTerm term);
-        // public object Visit(ISentence sentence);
+        //public object Visit(ICompound compound);
         //public object Visit(ITriple triple);
+        //public object Visit(IReadOnlyCompoundCollection collection);
         //public object Visit(IReadOnlyGraph graph);
     }
 
@@ -354,21 +369,7 @@ namespace Nifty.Knowledge.Semantics
         {
             return Find(triple).Any();
         }
-        public bool Contains(ITriple triple, [NotNullWhen(true)] out ITerm? reified)
-        {
-            var x = Factory.Variable("x");
-            var query = Factory.ReadOnlyGraph(new ITriple[] { Factory.Triple(Keys.Semantics.Rdf.type, x, Keys.Semantics.Rdf.Statement), Factory.Triple(Keys.Semantics.Rdf.subject, x, triple.Subject), Factory.Triple(Keys.Semantics.Rdf.predicate, x, triple.Predicate), Factory.Triple(Keys.Semantics.Rdf.@object, x, triple.Object) });
-            if (Contains(triple))
-            {
-                reified = Query(query).Single()[x];
-                return true;
-            }
-            else
-            {
-                reified = null;
-                return false;
-            }
-        }
+        public bool Contains(ITriple triple, [NotNullWhen(true)] out ITerm? reified);
 
         public IEnumerable<ITriple> Find(ITriple triple)
         {
@@ -447,7 +448,7 @@ namespace Nifty.Logging
     // see also: https://developer.mozilla.org/en-US/docs/Web/API/console
     public interface ILog : ISessionInitializable, IEventHandler, ISessionDisposable
     {
-        public void WriteLine(string format, params object?[]? arg);
+        public void WriteLine(string format, params object?[]? args);
     }
 }
 
@@ -519,8 +520,6 @@ namespace Nifty.Sessions
                 Algorithm.Optimize(this, hints)
             );
         }
-
-        public IActivityExecutionContext CreateActivityExecutionContext();
 
         public Task SaveStateInBackground(CancellationToken cancellationToken);
 
@@ -889,7 +888,7 @@ namespace Nifty
             public SettingImpl(ITerm term, T defaultValue)
             {
                 m_term = term;
-                m_defaultValue = defaultValue;            
+                m_defaultValue = defaultValue;
             }
 
             private readonly ITerm m_term;
