@@ -210,21 +210,6 @@ namespace Nifty.Events
     }
 }
 
-namespace Nifty.Interop.ExperienceAPI
-{
-    // https://github.com/adlnet/xAPI-Spec
-}
-
-namespace Nifty.Interop.LearningManagementSystems
-{
-
-}
-
-namespace Nifty.Interop.LearningRecordStores
-{
-
-}
-
 namespace Nifty.Knowledge
 {
     public interface IReadOnlyCompoundCollection : IEventSource, INotifyChanged
