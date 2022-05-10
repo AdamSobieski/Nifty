@@ -182,8 +182,8 @@ namespace Nifty.Configuration
 
     public interface IConfiguration : ISessionInitializable, ISessionOptimizable, ISessionDisposable, INotifyChanged
     {
-        public bool About(IUriTerm setting, [NotNullWhen(true)] out ITerm? term, [NotNullWhen(true)] out IReadOnlyGraph? about);
-        public bool About(IUriTerm setting, [NotNullWhen(true)] out ITerm? term, [NotNullWhen(true)] out IReadOnlyGraph? about, string language);
+        public bool About(IUriTerm setting, [NotNullWhen(true)] out IReadOnlyGraph? about);
+        public bool About(IUriTerm setting, [NotNullWhen(true)] out IReadOnlyGraph? about, string language);
         public bool TryGetSetting(IUriTerm setting, [NotNullWhen(true)] out IConvertible? value);
         public bool TryGetSetting(IUriTerm setting, [NotNullWhen(true)] out IConvertible? value, string language);
     }
@@ -372,15 +372,11 @@ namespace Nifty.Knowledge.Semantics
 
     public interface IReadOnlyGraph : IReadOnlyCompoundCollection, IHasReadOnlyOntology, IEventSource, INotifyChanged
     {
-        //public IEnumerable<ITerm> Predicates { get { return this.Statements.Select(t => t.Predicate).Distinct(); } }
         public IEnumerable<ITerm> Subjects { get { return this.Statements.Select(t => t.Subject).Distinct(); } }
         public IEnumerable<ITerm> Objects { get { return this.Statements.Select(t => t.Object).Distinct(); } }
 
         public new IQueryable<ITriple> Statements { get; }
 
-        //public int Count { get; }
-        //public bool IsConcrete { get; }
-        //public bool IsReadOnly { get; }
         public bool IsValid { get; }
 
         public bool Contains(ITriple triple)
@@ -671,24 +667,24 @@ namespace Nifty
 
         public static class Events
         {
-            public static readonly ITerm All = Factory.Uri("http://www.w3.org/2002/07/owl#Thing");
+            public static readonly IUriTerm All = Factory.Uri("http://www.w3.org/2002/07/owl#Thing");
 
-            public static readonly ITerm InitializedSession = Factory.Uri("http://www.events.org/events/InitializedSession");
-            public static readonly ITerm ObtainedGenerator = Factory.Uri("http://www.events.org/events/ObtainedGenerator");
-            public static readonly ITerm GeneratingActivity = Factory.Uri("http://www.events.org/events/GeneratingActivity");
-            public static readonly ITerm GeneratedActivity = Factory.Uri("http://www.events.org/events/GeneratedActivity");
-            public static readonly ITerm ExecutingActivity = Factory.Uri("http://www.events.org/events/ExecutingActivity");
-            public static readonly ITerm ExecutedActivity = Factory.Uri("http://www.events.org/events/ExecutedActivity");
-            public static readonly ITerm DisposingSession = Factory.Uri("http://www.events.org/events/DisposingSession");
-        }
+            public static readonly IUriTerm InitializedSession = Factory.Uri("http://www.events.org/events/InitializedSession");
+            public static readonly IUriTerm ObtainedGenerator = Factory.Uri("http://www.events.org/events/ObtainedGenerator");
+            public static readonly IUriTerm GeneratingActivity = Factory.Uri("http://www.events.org/events/GeneratingActivity");
+            public static readonly IUriTerm GeneratedActivity = Factory.Uri("http://www.events.org/events/GeneratedActivity");
+            public static readonly IUriTerm ExecutingActivity = Factory.Uri("http://www.events.org/events/ExecutingActivity");
+            public static readonly IUriTerm ExecutedActivity = Factory.Uri("http://www.events.org/events/ExecutedActivity");
+            public static readonly IUriTerm DisposingSession = Factory.Uri("http://www.events.org/events/DisposingSession");
 
-        public static class Data
-        {
-            public static readonly ITerm Algorithm = Factory.Uri("urn:eventdata:Algorithm");
-            public static readonly ITerm Generator = Factory.Uri("urn:eventdata:Generator");
-            public static readonly ITerm Activity = Factory.Uri("urn:eventdata:Activity");
-            public static readonly ITerm User = Factory.Uri("urn:eventdata:User");
-            public static readonly ITerm Result = Factory.Uri("urn:eventdata:Result");
+            public static class Data
+            {
+                public static readonly IUriTerm Algorithm = Factory.Uri("urn:eventdata:Algorithm");
+                public static readonly IUriTerm Generator = Factory.Uri("urn:eventdata:Generator");
+                public static readonly IUriTerm Activity = Factory.Uri("urn:eventdata:Activity");
+                public static readonly IUriTerm User = Factory.Uri("urn:eventdata:User");
+                public static readonly IUriTerm Result = Factory.Uri("urn:eventdata:Result");
+            }
         }
     }
 
@@ -1179,18 +1175,23 @@ namespace Nifty
         }
         public static bool About<T>(this ISession session, ISetting<T> setting, out string? title, out string? description, string? language = null)
         {
-            if (session.Configuration.About(setting.Term, out ITerm? term, out IReadOnlyGraph? about))
+            var term = setting.Term;
+            bool b;
+            IReadOnlyGraph? about;
+
+            if (language == null)
             {
-                if (language == null)
-                {
-                    title = (about.Find(Factory.Triple(Keys.Semantics.Dc.title, term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-                    description = (about.Find(Factory.Triple(Keys.Semantics.Dc.description, term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-                }
-                else
-                {
-                    title = (about.Find(Factory.Triple(Keys.Semantics.Dc.title, term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-                    description = (about.Find(Factory.Triple(Keys.Semantics.Dc.description, term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-                }
+                b = session.Configuration.About(term, out about);
+            }
+            else
+            {
+                b = session.Configuration.About(term, out about, language);
+            }
+
+            if (b)
+            {
+                title = (about?.Find(Factory.Triple(Keys.Semantics.Dc.title, term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                description = (about?.Find(Factory.Triple(Keys.Semantics.Dc.description, term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
                 return true;
             }
             else
