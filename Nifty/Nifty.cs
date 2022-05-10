@@ -7,12 +7,14 @@ using Nifty.Configuration;
 using Nifty.Dialogue;
 using Nifty.Events;
 using Nifty.Knowledge;
+using Nifty.Knowledge.Reasoning;
 using Nifty.Knowledge.Semantics;
 using Nifty.Knowledge.Semantics.Ontology;
 using Nifty.Logging;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
 using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Tracing;
 using System.Net.Mime;
 using System.Xml;
 
@@ -208,6 +210,12 @@ namespace Nifty.Events
     {
         public Task Handle(IEventSource source, ITerm eventCategory, ITerm data, IReadOnlyGraph dataGraph);
     }
+
+    public interface IReport : IHasReadOnlyGraph
+    {
+        public EventLevel Level { get; }
+        public string Description { get; }
+    }
 }
 
 namespace Nifty.Knowledge
@@ -327,6 +335,29 @@ namespace Nifty.Knowledge
     public interface IKnowledgebase : ICompoundCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
 }
 
+namespace Nifty.Knowledge.Reasoning
+{
+    public interface IReasoner
+    {
+        Task<IReasoner> BindRules(IReadOnlyCompoundCollection rules);
+
+        Task<IInferredReadOnlyCompoundCollection> Bind(IReadOnlyCompoundCollection collection);
+    }
+
+    public interface IInferredReadOnlyCompoundCollection : IReadOnlyCompoundCollection
+    {
+        public IReasoner Reasoner { get; }
+        public IReadOnlyCompoundCollection Base { get; }
+
+        public IEnumerable<IDerivation> GetDerivations(ICompound statement);
+    }
+
+    public interface IDerivation
+    {
+
+    }
+}
+
 namespace Nifty.Knowledge.Semantics
 {
     public interface ITriple : ICompound
@@ -391,11 +422,30 @@ namespace Nifty.Knowledge.Semantics
     }
 }
 
+namespace Nifty.Knowledge.Semantics.Reasoning
+{
+    public interface IGraphReasoner : IReasoner
+    {
+        Task<IReasoner> BindRules(IReadOnlyGraph rules);
+
+        Task<IInferredReadOnlyGraph> Bind(IReadOnlyGraph graph);
+    }
+
+    public interface IInferredReadOnlyGraph : IReadOnlyGraph, IInferredReadOnlyCompoundCollection
+    {
+        public new IGraphReasoner Reasoner { get; }
+        public new IReadOnlyGraph Base { get; }
+
+        public IEnumerable<IDerivation> GetDerivations(ITriple statement);
+    }
+}
+
 namespace Nifty.Knowledge.Semantics.Ontology
 {
     public interface IReadOnlyOntology : IReadOnlyGraph
     {
-        public bool Validate(IReadOnlyGraph graph);
+        public Task<bool> Validate(IReadOnlyGraph graph);
+        public Task<bool> Validate(IReadOnlyGraph graph, IObserver<IReport> observer);
     }
     public interface IOntology : IReadOnlyOntology, IGraph { }
 
