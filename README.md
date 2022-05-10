@@ -5,8 +5,9 @@ This project is a framework for creating adaptive instructional systems, e.g., i
 ## Related Projects
 
 1. [GIFT](https://gifttutoring.org/)
-2. [Jena](https://jena.apache.org/)
-3. [DotNetRdf](https://github.com/dotnetrdf/dotnetrdf/)
-4. [LinqToRdf](https://github.com/aabs/LinqToRdf)
-5. [TinCan.NET](https://github.com/RusticiSoftware/TinCan.NET)
-6. [OpenXes.Net](https://bitbucket.org/sabien/openxes.net/)
+2. [Bot Framework](https://github.com/microsoft/botframework-sdk)
+3. [Jena](https://jena.apache.org/)
+4. [DotNetRdf](https://github.com/dotnetrdf/dotnetrdf/)
+5. [LinqToRdf](https://github.com/aabs/LinqToRdf)
+6. [TinCan.NET](https://github.com/RusticiSoftware/TinCan.NET)
+7. [OpenXes.Net](https://bitbucket.org/sabien/openxes.net/)
