@@ -176,16 +176,16 @@ namespace Nifty.Configuration
 {
     public interface ISetting<out T>
     {
-        public ITerm Term { get; }
+        public IUriTerm Term { get; }
         public T DefaultValue { get; }
     }
 
     public interface IConfiguration : ISessionInitializable, ISessionOptimizable, ISessionDisposable, INotifyChanged
     {
-        public bool About(string setting, [NotNullWhen(true)] out ITerm? term, [NotNullWhen(true)] out IReadOnlyGraph? about);
-        public bool About(string setting, [NotNullWhen(true)] out ITerm? term, [NotNullWhen(true)] out IReadOnlyGraph? about, string language);
-        public bool TryGetSetting(string setting, [NotNullWhen(true)] out IConvertible? value);
-        public bool TryGetSetting(string setting, [NotNullWhen(true)] out IConvertible? value, string language);
+        public bool About(IUriTerm setting, [NotNullWhen(true)] out ITerm? term, [NotNullWhen(true)] out IReadOnlyGraph? about);
+        public bool About(IUriTerm setting, [NotNullWhen(true)] out ITerm? term, [NotNullWhen(true)] out IReadOnlyGraph? about, string language);
+        public bool TryGetSetting(IUriTerm setting, [NotNullWhen(true)] out IConvertible? value);
+        public bool TryGetSetting(IUriTerm setting, [NotNullWhen(true)] out IConvertible? value, string language);
     }
 }
 
@@ -201,8 +201,6 @@ namespace Nifty.Events
 {
     public interface IEventSource : IHasReadOnlyGraph
     {
-        public Task Raise(ITerm eventCategory, ITerm data, IReadOnlyGraph dataGraph);
-
         public bool Subscribe(ITerm eventCategory, IEventHandler listener);
         public bool Unsubscribe(ITerm eventCategory, IEventHandler listener);
     }
@@ -229,6 +227,8 @@ namespace Nifty.Knowledge
         public int Count { get; }
         public bool IsConcrete { get; }
         public bool IsReadOnly { get; }
+        public bool IsInferred { get; }
+        public bool IsGraph { get; }
 
         public bool Contains(ICompound statement)
         {
@@ -337,8 +337,10 @@ namespace Nifty.Knowledge
 
 namespace Nifty.Knowledge.Reasoning
 {
-    public interface IReasoner
+    public interface IReasoner : IHasReadOnlyGraph
     {
+        public IConfiguration Configuration { get; }
+
         Task<IReasoner> BindRules(IReadOnlyCompoundCollection rules);
 
         Task<IInferredReadOnlyCompoundCollection> Bind(IReadOnlyCompoundCollection collection);
@@ -426,7 +428,7 @@ namespace Nifty.Knowledge.Semantics.Reasoning
 {
     public interface IGraphReasoner : IReasoner
     {
-        Task<IReasoner> BindRules(IReadOnlyGraph rules);
+        Task<IGraphReasoner> BindRules(IReadOnlyGraph rules);
 
         Task<IInferredReadOnlyGraph> Bind(IReadOnlyGraph graph);
     }
@@ -920,16 +922,16 @@ namespace Nifty
 
         internal sealed class SettingImpl<T> : ISetting<T>
         {
-            public SettingImpl(ITerm term, T defaultValue)
+            public SettingImpl(IUriTerm term, T defaultValue)
             {
                 m_term = term;
                 m_defaultValue = defaultValue;
             }
 
-            private readonly ITerm m_term;
+            private readonly IUriTerm m_term;
             private readonly T m_defaultValue;
 
-            public ITerm Term => m_term;
+            public IUriTerm Term => m_term;
 
             public T DefaultValue => m_defaultValue;
         }
@@ -1173,46 +1175,30 @@ namespace Nifty
 
         public static T Setting<T>(this ISession session, ISetting<T> setting)
         {
-            if (setting.Term is IUriTerm uri)
-            {
-                return session.Configuration.TryGetSetting(uri.Uri, out IConvertible? value) ? (T)value.ToType(typeof(T), System.Globalization.CultureInfo.CurrentCulture) : setting.DefaultValue;
-            }
-            else
-            {
-                throw new ArgumentException("Invalid setting.", nameof(setting));
-            }
+            return session.Configuration.TryGetSetting(setting.Term, out IConvertible? value) ? (T)value.ToType(typeof(T), System.Globalization.CultureInfo.CurrentCulture) : setting.DefaultValue;
         }
         public static bool About<T>(this ISession session, ISetting<T> setting, out string? title, out string? description, string? language = null)
         {
-            if (setting.Term is IUriTerm uri)
+            if (session.Configuration.About(setting.Term, out ITerm? term, out IReadOnlyGraph? about))
             {
-                if (session.Configuration.About(uri.Uri, out ITerm? term, out IReadOnlyGraph? about))
+                if (language == null)
                 {
-                    if (language == null)
-                    {
-                        title = (about.Find(Factory.Triple(Keys.Semantics.Dc.title, term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-                        description = (about.Find(Factory.Triple(Keys.Semantics.Dc.description, term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-                    }
-                    else
-                    {
-                        title = (about.Find(Factory.Triple(Keys.Semantics.Dc.title, term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-                        description = (about.Find(Factory.Triple(Keys.Semantics.Dc.description, term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-                    }
-                    return true;
+                    title = (about.Find(Factory.Triple(Keys.Semantics.Dc.title, term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                    description = (about.Find(Factory.Triple(Keys.Semantics.Dc.description, term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
                 }
+                else
+                {
+                    title = (about.Find(Factory.Triple(Keys.Semantics.Dc.title, term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                    description = (about.Find(Factory.Triple(Keys.Semantics.Dc.description, term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
+                }
+                return true;
             }
             else
             {
-                throw new ArgumentException("Invalid setting.", nameof(setting));
+                title = null;
+                description = null;
+                return false;
             }
-            title = null;
-            description = null;
-            return false;
-        }
-
-        internal static Task Raise(this IEventSource source, ITerm eventCategory, IHasReadOnlyGraph data)
-        {
-            return source.Raise(eventCategory, data.Term, data.About);
         }
 
         public static string? GetTitle(this IActivity activity, string? language = null)
