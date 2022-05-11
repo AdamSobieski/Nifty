@@ -201,12 +201,13 @@ namespace Nifty.Events
 {
     public interface IEventSource : IHasReadOnlyGraph
     {
-        public bool Subscribe(ITerm eventCategory, IEventHandler listener);
-        public bool Unsubscribe(ITerm eventCategory, IEventHandler listener);
+        public bool Subscribe(ITerm eventType, IEventHandler listener);
+        public bool Unsubscribe(ITerm eventType, IEventHandler listener);
     }
     public interface IEventHandler
     {
-        public Task Handle(IEventSource source, ITerm eventCategory, ITerm data, IReadOnlyGraph dataGraph);
+        //public Task Handle(IEventSource source, ITerm eventType, ITerm data, IReadOnlyGraph dataGraph);
+        public Task Handle(IEventSource source, ITerm eventInstance, IReadOnlyGraph aboutEventInstance, ITerm eventData, IReadOnlyGraph aboutEventData);
     }
 
     public interface IReport : IHasReadOnlyGraph
@@ -655,7 +656,7 @@ namespace Nifty
             }
             public static class Eo
             {
-                public static readonly IUriTerm hasEventCategory = Factory.Uri("http://www.event-ontology.org/hasEventCategory");
+                public static readonly IUriTerm raisesEventType = Factory.Uri("http://www.event-ontology.org/raisesEventType");
             }
         }
 
@@ -1162,11 +1163,11 @@ namespace Nifty
         }
         public static IEnumerable<ITerm> GetEvents(this IEventSource thing)
         {
-            return thing.About.Find(Factory.Triple(Keys.Semantics.Eo.hasEventCategory, thing.Term, Factory.Any())).Select(t => t.Object).Distinct();
+            return thing.About.Find(Factory.Triple(Keys.Semantics.Eo.raisesEventType, thing.Term, Factory.Any())).Select(t => t.Object).Distinct();
         }
         public static bool HasEvent(this IEventSource thing, ITerm eventCategory)
         {
-            return thing.About.Contains(Factory.Triple(Keys.Semantics.Eo.hasEventCategory, thing.Term, eventCategory));
+            return thing.About.Contains(Factory.Triple(Keys.Semantics.Eo.raisesEventType, thing.Term, eventCategory));
         }
 
         public static T Setting<T>(this ISession session, ISetting<T> setting)
