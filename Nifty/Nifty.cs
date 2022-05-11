@@ -84,9 +84,9 @@ namespace Nifty.Analytics
 
         public void Tick();
 
-        public long Ticks { get; }
+        public ulong Ticks { get; }
         public TimeSpan Time { get; }
-        public long SectionTicks { get; }
+        public ulong SectionTicks { get; }
         public TimeSpan SectionTime { get; }
 
         public string Status { get; }
@@ -201,8 +201,8 @@ namespace Nifty.Events
 {
     public interface IEventSource : IHasReadOnlyGraph
     {
-        public bool Subscribe(ITerm eventType, IEventHandler listener);
-        public bool Unsubscribe(ITerm eventType, IEventHandler listener);
+        public void Subscribe(ITerm eventType, IEventHandler listener);
+        public void Unsubscribe(ITerm eventType, IEventHandler listener);
     }
     public interface IEventHandler
     {
