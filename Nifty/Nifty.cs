@@ -238,6 +238,8 @@ namespace Nifty.Knowledge
 
         public IEnumerable<ICompound> Find(ICompound statement);
 
+        public IEnumerable<IDerivation> GetDerivations(ICompound statement);
+
         public IReadOnlyCompoundCollection Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
         public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlyCompoundCollection query);
@@ -351,8 +353,6 @@ namespace Nifty.Knowledge.Reasoning
     {
         public IReasoner Reasoner { get; }
         public IReadOnlyCompoundCollection Base { get; }
-
-        public IEnumerable<IDerivation> GetDerivations(ICompound statement);
     }
 
     public interface IDerivation
@@ -386,10 +386,9 @@ namespace Nifty.Knowledge.Semantics
         }
         public bool Contains(ITriple triple, [NotNullWhen(true)] out ITerm? reified);
 
-        public IEnumerable<ITriple> Find(ITriple triple)
-        {
-            return this.Statements.Where(t => triple.Predicate.Matches(t.Predicate) && triple.Subject.Matches(t.Subject) && triple.Object.Matches(t.Object));
-        }
+        public IEnumerable<ITriple> Find(ITriple triple);
+
+        public IEnumerable<IDerivation> GetDerivations(ITriple statement);
 
         public new IReadOnlyGraph Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
@@ -434,8 +433,6 @@ namespace Nifty.Knowledge.Semantics.Reasoning
     {
         public new IGraphReasoner Reasoner { get; }
         public new IReadOnlyGraph Base { get; }
-
-        public IEnumerable<IDerivation> GetDerivations(ITriple statement);
     }
 }
 
