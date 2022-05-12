@@ -201,10 +201,23 @@ namespace Nifty.Events
 {
     public interface IEventSource : IHasReadOnlyGraph
     {
-        public void Subscribe(ITerm eventType, IEventHandler listener);
-        public void Unsubscribe(ITerm eventType, IEventHandler listener);
+        //public void Subscribe(ITerm eventType, IEventHandler listener);
+        //public void Unsubscribe(ITerm eventType, IEventHandler listener);
+        //public void Subscribe(IVariableTerm eventVariable, IReadOnlyGraph query, IEventHandler listener);
+        //public void Unsubscribe(IVariableTerm eventVariable, IReadOnlyGraph query, IEventHandler listener);
+
+        // event listeners could subscribe to those messages or events described by a query
+        // and, perhaps, resembling IObservable<>, event listeners could hold an IDisposable for unsubscribing
+        public IDisposable Subscribe(IUriTerm eventType, IEventHandler listener)
+        {
+            var x = Factory.Variable("x");
+            var triple = Factory.Triple(Keys.Semantics.Rdf.type, x, eventType);
+            var query = Factory.ReadOnlyGraph(new ITriple[] { triple });
+            return Subscribe(x, query, listener);
+        }
+        public IDisposable Subscribe(IVariableTerm eventVariable, IReadOnlyGraph query, IEventHandler listener);
     }
-    public interface IEventHandler
+    public interface IEventHandler // : IHasReadOnlyGraph
     {
         //public Task Handle(IEventSource source, ITerm eventType, ITerm data, IReadOnlyGraph dataGraph);
         public Task Handle(IEventSource source, ITerm eventInstance, IReadOnlyGraph aboutEventInstance, ITerm eventData, IReadOnlyGraph aboutEventData);
@@ -537,7 +550,7 @@ namespace Nifty.Sessions
                 DialogueSystem.Initialize(this)
             );
 
-            DialogueSystem.Subscribe(Keys.Events.All, this);
+            // DialogueSystem.Subscribe(Keys.Events.All, this);
 
             return value;
         }
@@ -558,7 +571,7 @@ namespace Nifty.Sessions
         {
             GC.SuppressFinalize(this);
 
-            DialogueSystem.Unsubscribe(Keys.Events.All, this);
+            // DialogueSystem.Unsubscribe(Keys.Events.All, this);
 
             Algorithm.Dispose(this);
             User.Dispose(this);
@@ -654,6 +667,7 @@ namespace Nifty
             public static class Eo
             {
                 public static readonly IUriTerm raisesEventType = Factory.Uri("http://www.event-ontology.org/raisesEventType");
+                public static readonly IUriTerm Event = Factory.Uri("http://www.event-ontology.org/Event");
             }
         }
 
@@ -665,7 +679,7 @@ namespace Nifty
 
         public static class Events
         {
-            public static readonly IUriTerm All = Factory.Uri("http://www.w3.org/2002/07/owl#Thing");
+            //public static readonly IUriTerm All = Factory.Uri("http://www.w3.org/2002/07/owl#Thing");
 
             public static readonly IUriTerm InitializedSession = Factory.Uri("http://www.events.org/events/InitializedSession");
             public static readonly IUriTerm ObtainedGenerator = Factory.Uri("http://www.events.org/events/ObtainedGenerator");
