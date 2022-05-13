@@ -243,9 +243,9 @@ namespace Nifty.Knowledge
             return Find(statement).Any();
         }
 
-        public IEnumerable<ICompound> Find(ICompound statement);
+        public IEnumerable<IDerivation> Derivations(ICompound statement);
 
-        public IEnumerable<IDerivation> GetDerivations(ICompound statement);
+        public IEnumerable<ICompound> Find(ICompound statement);
 
         public IReadOnlyCompoundCollection Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
@@ -393,9 +393,9 @@ namespace Nifty.Knowledge.Semantics
         }
         public bool Contains(ITriple triple, [NotNullWhen(true)] out ITerm? reified);
 
-        public IEnumerable<ITriple> Find(ITriple triple);
+        public IEnumerable<IDerivation> Derivations(ITriple statement);
 
-        public IEnumerable<IDerivation> GetDerivations(ITriple statement);
+        public IEnumerable<ITriple> Find(ITriple triple);
 
         public new IReadOnlyGraph Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
