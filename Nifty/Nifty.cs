@@ -8,6 +8,7 @@ using Nifty.Dialogue;
 using Nifty.Events;
 using Nifty.Knowledge;
 using Nifty.Knowledge.Reasoning;
+using Nifty.Knowledge.Reasoning.Derivation;
 using Nifty.Knowledge.Semantics;
 using Nifty.Knowledge.Semantics.Ontology;
 using Nifty.Logging;
@@ -232,7 +233,6 @@ namespace Nifty.Knowledge
 
         public IQueryable<ICompound> Statements { get; }
 
-        public int Count { get; }
         public bool IsConcrete { get; }
         public bool IsReadOnly { get; }
         public bool IsInferred { get; }
@@ -246,6 +246,9 @@ namespace Nifty.Knowledge
         public IEnumerable<IDerivation> Derivations(ICompound statement);
 
         public IEnumerable<ICompound> Find(ICompound statement);
+        
+        public int Count(ICompound statement);
+        public int Count();
 
         public IReadOnlyCompoundCollection Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
@@ -361,7 +364,10 @@ namespace Nifty.Knowledge.Reasoning
         public IReasoner Reasoner { get; }
         public IReadOnlyCompoundCollection Base { get; }
     }
+}
 
+namespace Nifty.Knowledge.Reasoning.Derivation
+{
     public interface IDerivation
     {
 
@@ -396,6 +402,7 @@ namespace Nifty.Knowledge.Semantics
         public IEnumerable<IDerivation> Derivations(ITriple statement);
 
         public IEnumerable<ITriple> Find(ITriple triple);
+        public int Count(ITriple statement);
 
         public new IReadOnlyGraph Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
@@ -488,6 +495,11 @@ namespace Nifty.Logging
     {
         public void WriteLine(string format, params object?[]? args);
     }
+}
+
+namespace Nifty.MachineLearning
+{
+
 }
 
 namespace Nifty.Messaging
