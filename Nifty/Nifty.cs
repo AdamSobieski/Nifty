@@ -507,7 +507,7 @@ namespace Nifty.MachineLearning
 
 namespace Nifty.MachineLearning.ReinforcementLearning
 {
-    // to do: expand general-purpose pull/push interfaces, IEnumerable/IObservable, with reinforcement learning functionalities
+    // to do: explore expanding general-purpose pull/push interfaces, IEnumerable/IObservable, with reinforcement learning functionalities
     // see also: https://www.gymlibrary.ml/content/api/
     // see also: https://www.gymlibrary.ml/_images/AE_loop.png
 
@@ -877,18 +877,18 @@ namespace Nifty
             {
                 m_value = value;
                 m_language = language;
-                m_datatype = datatype;
+                m_datatype = datatype?.Uri;
             }
 
             private readonly string m_value;
             private readonly string? m_language;
-            private readonly IUriTerm? m_datatype;
+            private readonly string? m_datatype;
 
             public string Value => m_value;
 
             public string? Language => m_language;
 
-            public IUriTerm? Datatype => m_datatype;
+            public string? Datatype => m_datatype;
 
             public TermType TermType => TermType.Literal;
 
