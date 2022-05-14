@@ -229,7 +229,7 @@ namespace Nifty.Knowledge
 {
     public interface IReadOnlyCompoundCollection : IEventSource, INotifyChanged
     {
-        public IEnumerable<ITerm> Predicates { get { return this.Statements.Select(s => s.Predicate).Distinct(); } }
+        public IQueryable<ITerm> Predicates { get { return this.Statements.Select(s => s.Predicate).Distinct(); } }
 
         public IQueryable<ICompound> Statements { get; }
 
@@ -245,10 +245,11 @@ namespace Nifty.Knowledge
 
         public IEnumerable<IDerivation> Derivations(ICompound statement);
 
-        public IEnumerable<ICompound> Find(ICompound statement);
-        
-        public int Count(ICompound statement);
+        public IQueryable<ICompound> Find(ICompound statement);
+
         public int Count();
+        public int Count(ICompound statement);
+        public int Count(IReadOnlyCompoundCollection query);
 
         public IReadOnlyCompoundCollection Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
@@ -310,7 +311,7 @@ namespace Nifty.Knowledge
     {
         public string Value { get; }
         public string? Language { get; }
-        public IUriTerm? Datatype { get; }
+        public string? Datatype { get; }
     }
     public interface IVariableTerm : ITerm
     {
@@ -386,8 +387,8 @@ namespace Nifty.Knowledge.Semantics
 
     public interface IReadOnlyGraph : IReadOnlyCompoundCollection, IHasReadOnlyOntology, IEventSource, INotifyChanged
     {
-        public IEnumerable<ITerm> Subjects { get { return this.Statements.Select(t => t.Subject).Distinct(); } }
-        public IEnumerable<ITerm> Objects { get { return this.Statements.Select(t => t.Object).Distinct(); } }
+        public IQueryable<ITerm> Subjects { get { return this.Statements.Select(t => t.Subject).Distinct(); } }
+        public IQueryable<ITerm> Objects { get { return this.Statements.Select(t => t.Object).Distinct(); } }
 
         public new IQueryable<ITriple> Statements { get; }
 
@@ -401,8 +402,10 @@ namespace Nifty.Knowledge.Semantics
 
         public IEnumerable<IDerivation> Derivations(ITriple statement);
 
-        public IEnumerable<ITriple> Find(ITriple triple);
+        public IQueryable<ITriple> Find(ITriple triple);
+
         public int Count(ITriple statement);
+        public int Count(IReadOnlyGraph query);
 
         public new IReadOnlyGraph Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
