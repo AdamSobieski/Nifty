@@ -505,6 +505,36 @@ namespace Nifty.MachineLearning
 
 }
 
+namespace Nifty.MachineLearning.ReinforcementLearning
+{
+    // to do: expand general-purpose pull/push interfaces, IEnumerable/IObservable, with reinforcement learning functionalities
+    // see also: https://www.gymlibrary.ml/content/api/
+    // see also: https://www.gymlibrary.ml/_images/AE_loop.png
+
+    public interface IAsyncEnumerator<out TAction, in TObservervation, in TReward> : IAsyncDisposable
+    {
+        public ValueTask<bool> MoveNextAsync(TObservervation observation, TReward reward);
+        TAction Current { get; }
+    }
+
+    public interface IAsyncEnumerable<out TAction, in TObservation, in TReward>
+    {
+        IAsyncEnumerator<TAction, TObservation, TReward> GetAsyncEnumerator(CancellationToken cancellationToken = default);
+    }
+
+    public interface IAsyncObservable<out TAction, TObservation, TReward>
+    {
+        IDisposable Subscribe(IAsyncObserver<TAction, TObservation, TReward> observer);
+    }
+
+    public interface IAsyncObserver<in TAction, TObservation, TReward>
+    {
+        Task OnCompleted();
+        Task OnError(Exception error);
+        Task<(TObservation observation, TReward reward, bool done)> OnNext(TAction value);
+    }
+}
+
 namespace Nifty.Messaging
 {
 
