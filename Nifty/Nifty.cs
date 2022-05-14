@@ -511,9 +511,9 @@ namespace Nifty.MachineLearning.ReinforcementLearning
     // see also: https://www.gymlibrary.ml/content/api/
     // see also: https://www.gymlibrary.ml/_images/AE_loop.png
 
-    public interface IAsyncEnumerator<out TAction, in TObservervation, in TReward> : IAsyncDisposable
+    public interface IAsyncEnumerator<out TAction, in TObservation, in TReward> : IAsyncDisposable
     {
-        public ValueTask<bool> MoveNextAsync(TObservervation observation, TReward reward);
+        public ValueTask<bool> MoveNextAsync(TObservation observation, TReward reward);
         TAction Current { get; }
     }
 
