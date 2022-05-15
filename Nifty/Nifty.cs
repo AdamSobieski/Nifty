@@ -505,8 +505,15 @@ namespace Nifty.MachineLearning
 
 }
 
+namespace Nifty.MachineLearning.Probabilistic
+{
+    // see also: https://dotnet.github.io/infer/userguide/Recommender%20System.html
+}
+
 namespace Nifty.MachineLearning.ReinforcementLearning
 {
+    // see also: Afsar, M. Mehdi, Trafford Crump, and Behrouz Far. "Reinforcement learning based recommender systems: A survey." arXiv preprint arXiv:2101.06286 (2021). (https://arxiv.org/abs/2101.06286)
+
     // to do: explore expanding general-purpose pull/push interfaces, IEnumerable/IObservable, and asynchronous varieties, IAsyncEnumerable/IAsyncObservable, with reinforcement learning functionalities
     // see also: https://www.gymlibrary.ml/content/api/
     // see also: https://www.gymlibrary.ml/_images/AE_loop.png

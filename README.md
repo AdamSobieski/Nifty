@@ -8,8 +8,9 @@ This project is a framework for creating adaptive instructional systems, e.g., i
 3. [Jena](https://jena.apache.org/)
 4. [DotNetRdf](https://github.com/dotnetrdf/dotnetrdf/)
 5. [LinqToRdf](https://github.com/aabs/LinqToRdf)
-6. [TinCan.NET](https://github.com/RusticiSoftware/TinCan.NET)
-7. [OpenXes.Net](https://bitbucket.org/sabien/openxes.net/)
+6. [Infer.NET](https://github.com/dotnet/infer)
+7. [TinCan.NET](https://github.com/RusticiSoftware/TinCan.NET)
+8. [OpenXes.Net](https://bitbucket.org/sabien/openxes.net/)
 
 ### Related Standards and Organizations
 1. [Adaptive Instructional Systems Working Group](https://sagroups.ieee.org/2247-1/)
