@@ -173,6 +173,16 @@ namespace Nifty.Common
     }
 }
 
+namespace Nifty.Common.Collections
+{
+
+}
+
+namespace Nifty.Common.Collections.Graphs
+{
+
+}
+
 namespace Nifty.Configuration
 {
     public interface ISetting<out T>
