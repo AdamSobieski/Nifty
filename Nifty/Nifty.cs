@@ -7,15 +7,13 @@ using Nifty.Configuration;
 using Nifty.Dialogue;
 using Nifty.Events;
 using Nifty.Knowledge;
-using Nifty.Knowledge.Reasoning;
+using Nifty.Knowledge.Graphs;
+using Nifty.Knowledge.Graphs.Ontology;
 using Nifty.Knowledge.Reasoning.Derivation;
-using Nifty.Knowledge.Semantics;
-using Nifty.Knowledge.Semantics.Ontology;
 using Nifty.Logging;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Tracing;
 using System.Net.Mime;
 using System.Xml;
 
@@ -431,12 +429,6 @@ namespace Nifty.Events
     {
         public Task Handle(IEventSource source, ITerm eventInstance, IReadOnlySemanticGraph aboutEventInstance, ITerm eventData, IReadOnlySemanticGraph aboutEventData);
     }
-
-    public interface IReport : IHasReadOnlySemanticGraph
-    {
-        public EventLevel Level { get; }
-        public string Description { get; }
-    }
 }
 
 namespace Nifty.Knowledge
@@ -563,33 +555,7 @@ namespace Nifty.Knowledge
     public interface IKnowledgebase : ICompoundCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
 }
 
-namespace Nifty.Knowledge.Reasoning
-{
-    public interface IReasoner : IHasReadOnlySemanticGraph
-    {
-        public IConfiguration Configuration { get; }
-
-        Task<IReasoner> BindRules(IReadOnlyCompoundCollection rules);
-
-        Task<IInferredReadOnlyCompoundCollection> Bind(IReadOnlyCompoundCollection collection);
-    }
-
-    public interface IInferredReadOnlyCompoundCollection : IReadOnlyCompoundCollection
-    {
-        public IReasoner Reasoner { get; }
-        public IReadOnlyCompoundCollection Base { get; }
-    }
-}
-
-namespace Nifty.Knowledge.Reasoning.Derivation
-{
-    public interface IDerivation
-    {
-
-    }
-}
-
-namespace Nifty.Knowledge.Semantics
+namespace Nifty.Knowledge.Graphs
 {
     public interface ITriple : ICompound
     {
@@ -651,28 +617,11 @@ namespace Nifty.Knowledge.Semantics
     }
 }
 
-namespace Nifty.Knowledge.Semantics.Reasoning
-{
-    public interface ISemanticGraphReasoner : IReasoner
-    {
-        Task<ISemanticGraphReasoner> BindRules(IReadOnlySemanticGraph rules);
-
-        Task<IInferredReadOnlySemanticGraph> Bind(IReadOnlySemanticGraph graph);
-    }
-
-    public interface IInferredReadOnlySemanticGraph : IReadOnlySemanticGraph, IInferredReadOnlyCompoundCollection
-    {
-        public new ISemanticGraphReasoner Reasoner { get; }
-        public new IReadOnlySemanticGraph Base { get; }
-    }
-}
-
-namespace Nifty.Knowledge.Semantics.Ontology
+namespace Nifty.Knowledge.Graphs.Ontology
 {
     public interface IReadOnlyOntology : IReadOnlySemanticGraph
     {
         public Task<bool> Validate(IReadOnlySemanticGraph graph);
-        public Task<bool> Validate(IReadOnlySemanticGraph graph, IObserver<IReport> observer);
     }
     public interface IOntology : IReadOnlyOntology, ISemanticGraph { }
 
@@ -686,7 +635,7 @@ namespace Nifty.Knowledge.Semantics.Ontology
     }
 }
 
-namespace Nifty.Knowledge.Semantics.Serialization
+namespace Nifty.Knowledge.Graphs.Serialization
 {
     [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
     public sealed class UriAttribute : Attribute
@@ -702,6 +651,45 @@ namespace Nifty.Knowledge.Semantics.Serialization
     public interface ISerializable
     {
         public void Serialize(ISemanticGraph graph);
+    }
+}
+
+namespace Nifty.Knowledge.Reasoning
+{
+    public interface IReasoner : IHasReadOnlySemanticGraph
+    {
+        public IConfiguration Configuration { get; }
+
+        Task<IReasoner> BindRules(IReadOnlyCompoundCollection rules);
+
+        Task<IInferredReadOnlyCompoundCollection> Bind(IReadOnlyCompoundCollection collection);
+    }
+
+    public interface IInferredReadOnlyCompoundCollection : IReadOnlyCompoundCollection
+    {
+        public IReasoner Reasoner { get; }
+        public IReadOnlyCompoundCollection Base { get; }
+    }
+
+    public interface ISemanticGraphReasoner : IReasoner
+    {
+        Task<ISemanticGraphReasoner> BindRules(IReadOnlySemanticGraph rules);
+
+        Task<IInferredReadOnlySemanticGraph> Bind(IReadOnlySemanticGraph graph);
+    }
+
+    public interface IInferredReadOnlySemanticGraph : IReadOnlySemanticGraph, IInferredReadOnlyCompoundCollection
+    {
+        public new ISemanticGraphReasoner Reasoner { get; }
+        public new IReadOnlySemanticGraph Base { get; }
+    }
+}
+
+namespace Nifty.Knowledge.Reasoning.Derivation
+{
+    public interface IDerivation
+    {
+
     }
 }
 
