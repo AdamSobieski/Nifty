@@ -447,7 +447,7 @@ namespace Nifty.Knowledge
 
         public IQueryable<ICompound> Statements { get; }
 
-        public bool IsConcrete { get; }
+        public bool IsGround { get; }
         public bool IsReadOnly { get; }
         public bool IsInferred { get; }
         public bool IsGraph { get; }
@@ -465,12 +465,12 @@ namespace Nifty.Knowledge
         public int Count(ICompound statement);
         public int Count(IReadOnlyCompoundCollection query);
 
-        public IReadOnlyCompoundCollection Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+        public IReadOnlyCompoundCollection Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
         public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlyCompoundCollection query);
         public IEnumerable<IReadOnlyCompoundCollection> Query2(IReadOnlyCompoundCollection query)
         {
-            return Query(query).Select(map => query.Replace(map));
+            return Query(query).Select(map => query.Substitute(map));
         }
     }
     public interface ICompoundCollection : IReadOnlyCompoundCollection
@@ -498,13 +498,13 @@ namespace Nifty.Knowledge
     {
         public TermType TermType { get; }
 
-        public bool IsConcrete { get; }
+        public bool IsGround { get; }
 
         public object Visit(ITermVisitor visitor);
 
         public bool Matches(ITerm other);
 
-        public ITerm Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+        public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
         public string? ToString(XmlNamespaceManager xmlns, bool quoting);
     }
@@ -621,12 +621,12 @@ namespace Nifty.Knowledge.Semantics
         public int Count(ITriple statement);
         public int Count(IReadOnlySemanticGraph query);
 
-        public new IReadOnlySemanticGraph Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+        public new IReadOnlySemanticGraph Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
         public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlySemanticGraph query);
         public IEnumerable<IReadOnlySemanticGraph> Query2(IReadOnlySemanticGraph query)
         {
-            return Query(query).Select(result => query.Replace(result));
+            return Query(query).Select(result => query.Substitute(result));
         }
     }
     public interface ISemanticGraph : ICompoundCollection, IReadOnlySemanticGraph
@@ -638,7 +638,7 @@ namespace Nifty.Knowledge.Semantics
         public bool Add(IReadOnlySemanticGraph graph);
         public bool Remove(IReadOnlySemanticGraph graph);
 
-        public new ISemanticGraph Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+        public new ISemanticGraph Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
     }
 
     public interface IHasReadOnlySemanticGraph : IHasTerm
@@ -994,7 +994,7 @@ namespace Nifty
         {
             public TermType TermType => TermType.Any;
 
-            public bool IsConcrete => false;
+            public bool IsGround => false;
 
             public sealed override bool Equals(object? obj)
             {
@@ -1006,7 +1006,7 @@ namespace Nifty
                 return true;
             }
 
-            public ITerm Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map)
+            public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map)
             {
                 throw new NotImplementedException();
             }
@@ -1038,7 +1038,7 @@ namespace Nifty
 
             public TermType TermType => TermType.Blank;
 
-            public bool IsConcrete => true;
+            public bool IsGround => true;
 
             public sealed override bool Equals(object? obj)
             {
@@ -1050,7 +1050,7 @@ namespace Nifty
                 throw new NotImplementedException();
             }
 
-            public ITerm Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map)
+            public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map)
             {
                 throw new NotImplementedException();
             }
@@ -1083,7 +1083,7 @@ namespace Nifty
 
             public TermType TermType => TermType.Uri;
 
-            public bool IsConcrete => true;
+            public bool IsGround => true;
 
             public sealed override bool Equals(object? obj)
             {
@@ -1095,7 +1095,7 @@ namespace Nifty
                 throw new NotImplementedException();
             }
 
-            public ITerm Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map)
+            public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map)
             {
                 throw new NotImplementedException();
             }
@@ -1136,7 +1136,7 @@ namespace Nifty
 
             public TermType TermType => TermType.Literal;
 
-            public bool IsConcrete => true;
+            public bool IsGround => true;
 
             public sealed override bool Equals(object? obj)
             {
@@ -1148,7 +1148,7 @@ namespace Nifty
                 throw new NotImplementedException();
             }
 
-            public ITerm Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map)
+            public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map)
             {
                 throw new NotImplementedException();
             }
@@ -1183,7 +1183,7 @@ namespace Nifty
 
             public TermType TermType => TermType.Variable;
 
-            public bool IsConcrete => false;
+            public bool IsGround => false;
 
             public sealed override bool Equals(object? obj)
             {
@@ -1195,7 +1195,7 @@ namespace Nifty
                 throw new NotImplementedException();
             }
 
-            public ITerm Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map)
+            public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map)
             {
                 throw new NotImplementedException();
             }
