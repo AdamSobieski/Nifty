@@ -21,15 +21,15 @@ using System.Xml;
 
 namespace Nifty.Activities
 {
-    public interface IActivityGeneratorStore : IHasReadOnlyGraph, /*IQueryable<IActivityGenerator>,*/ ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
-    public interface IActivityGenerator : IHasReadOnlyGraph
+    public interface IActivityGeneratorStore : IHasReadOnlySemanticGraph, /*IQueryable<IActivityGenerator>,*/ ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    public interface IActivityGenerator : IHasReadOnlySemanticGraph
     {
         // public IActivityPreconditions Preconditions { get; }
         // public IActivityEffects       Effects { get; }
 
         Task<IActivity> Generate(ISession session, CancellationToken cancellationToken);
     }
-    public interface IActivity : IHasReadOnlyGraph, ISessionInitializable, ISessionDisposable, IDisposable
+    public interface IActivity : IHasReadOnlySemanticGraph, ISessionInitializable, ISessionDisposable, IDisposable
     {
         //public IActivityGenerator Generator { get; }
 
@@ -62,7 +62,7 @@ namespace Nifty.Activities
 
 namespace Nifty.Algorithms
 {
-    public interface IAlgorithm : IHasReadOnlyGraph, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable
+    public interface IAlgorithm : IHasReadOnlySemanticGraph, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable
     {
         public IAsyncEnumerator<IActivityGenerator> GetAsyncEnumerator(ISession session, CancellationToken cancellationToken);
     }
@@ -101,6 +101,176 @@ namespace Nifty.Channels
     public interface IChannelCollection { }
 }
 
+namespace Nifty.Collections
+{
+    public interface ILabeledCollection<TItem, TLabel> : ICollection<TItem>
+    {
+        ICollection<TLabel> Labels { get; }
+        ICollection<TItem> WithLabel(TLabel label);
+    }
+}
+
+namespace Nifty.Collections.Graphs
+{
+    // initial graph model based on Infer.NET
+
+    public interface IReadOnlyEdge<TNode>
+    {
+        public TNode Source { get; }
+        public TNode Target { get; }
+    }
+
+    public interface IEdge<TNode> : IReadOnlyEdge<TNode>
+    {
+        public new TNode Source { get; set; }
+        public new TNode Target { get; set; }
+    }
+
+    public interface IHasOutEdges<TEdge>
+    {
+        public ICollection<TEdge> OutEdges { get; }
+    }
+
+    public interface IHasInEdges<TEdge>
+    {
+        public ICollection<TEdge> InEdges { get; }
+    }
+
+    public interface IHasTargets<TNode>
+    {
+        public ICollection<TNode> Targets { get; }
+    }
+
+    public interface IHasSources<TNode>
+    {
+        public ICollection<TNode> Sources { get; }
+    }
+
+    public interface IHasSourcesAndTargets<TNode> : IHasSources<TNode>, IHasTargets<TNode> { }
+
+    public interface IHasInAndOutEdges<TEdge> : IHasInEdges<TEdge>, IHasOutEdges<TEdge> { }
+
+    public interface IReadOnlyGraph<TNode>
+    {
+        public IEnumerable<TNode> Nodes { get; }
+
+        public int EdgeCount();
+
+        public int NeighborCount(TNode node);
+
+        public IEnumerable<TNode> NeighborsOf(TNode node);
+
+        public bool ContainsEdge(TNode source, TNode target);
+    }
+
+    public interface IGraph<TNode> : IReadOnlyGraph<TNode>
+    {
+        public TNode AddNode();
+        public bool RemoveNodeAndEdges(TNode node);
+        public void Clear();
+        public void AddEdge(TNode source, TNode target);
+        public bool RemoveEdge(TNode source, TNode target);
+        public void ClearEdges();
+        public void ClearEdgesOf(TNode node);
+    }
+
+    public interface IReadOnlyDirectedGraph<TNode> : IReadOnlyGraph<TNode>
+    {
+        public int TargetCount(TNode source);
+        public int SourceCount(TNode target);
+        public IEnumerable<TNode> TargetsOf(TNode source);
+        public IEnumerable<TNode> SourcesOf(TNode target);
+    }
+
+    public interface IDirectedGraph<TNode> : IReadOnlyDirectedGraph<TNode>, IGraph<TNode>
+    {
+        public void ClearEdgesOutOf(TNode source);
+        public void ClearEdgesInto(TNode target);
+    }
+
+    public interface IReadOnlyGraph<TNode, TEdge> : IReadOnlyGraph<TNode>
+    {
+        public IEnumerable<TEdge> Edges { get; }
+
+        public TEdge GetEdge(TNode source, TNode target);
+
+        public bool TryGetEdge(TNode source, TNode target, out TEdge edge);
+
+        public IEnumerable<TEdge> EdgesOf(TNode node);
+    }
+
+    public interface IReadOnlyMultigraph<TNode, TEdge> : IReadOnlyGraph<TNode, TEdge>
+    {
+        public int EdgeCount(TNode source, TNode target);
+
+        public IEnumerable<TEdge> EdgesLinking(TNode source, TNode target);
+
+        public bool AnyEdge(TNode source, TNode target, out TEdge edge);
+    }
+
+    public interface IGraph<TNode, TEdge> : IReadOnlyGraph<TNode, TEdge>, IGraph<TNode>
+    {
+        public new TEdge AddEdge(TNode source, TNode target);
+        public bool RemoveEdge(TEdge edge);
+    }
+
+    public interface IReadOnlyDirectedGraph<TNode, TEdge> : IReadOnlyGraph<TNode, TEdge>, IReadOnlyDirectedGraph<TNode>
+    {
+        public TNode SourceOf(TEdge edge);
+        public TNode TargetOf(TEdge edge);
+        public IEnumerable<TEdge> EdgesOutOf(TNode source);
+        public IEnumerable<TEdge> EdgesInto(TNode target);
+    }
+
+    public interface IDirectedGraph<TNode, TEdge> : IReadOnlyDirectedGraph<TNode, TEdge>, IGraph<TNode, TEdge>, IDirectedGraph<TNode> { }
+
+    public interface IReadOnlyLabeledGraph<TNode, TLabel> : IReadOnlyGraph<TNode>
+    {
+        public new ILabeledCollection<TNode, TLabel> Nodes { get; }
+    }
+
+    public interface ILabeledEdgeGraph<TNode, TLabel> : IReadOnlyGraph<TNode>
+    {
+        public void AddEdge(TNode fromNode, TNode toNode, TLabel label);
+        public void RemoveEdge(TNode fromNode, TNode toNode, TLabel label);
+        public void ClearEdges(TLabel label);
+    }
+
+    public interface ICanCreateNodeData<TNode>
+    {
+        public IndexedProperty<TNode, T> CreateNodeData<T>(T defaultValue);
+    }
+
+    public interface ICanCreateEdgeData<TEdge>
+    {
+        public IndexedProperty<TEdge, T> CreateEdgeData<T>(T defaultValue);
+    }
+
+    public sealed class EdgeNotFoundException : Exception
+    {
+        public EdgeNotFoundException()
+        {
+        }
+
+        public EdgeNotFoundException(object source, object target)
+            : base("No edge from " + source + " to " + target)
+        {
+        }
+    }
+
+    public sealed class AmbiguousEdgeException : Exception
+    {
+        public AmbiguousEdgeException()
+        {
+        }
+
+        public AmbiguousEdgeException(object source, object target)
+            : base("Ambiguous edge from " + source + " to " + target)
+        {
+        }
+    }
+}
+
 namespace Nifty.Common
 {
     public interface IInitializable
@@ -116,6 +286,45 @@ namespace Nifty.Common
     public interface INotifyChanged
     {
         public event EventHandler Changed;
+    }
+
+    public class IndexedProperty<TKey, TValue>
+    {
+        public readonly Converter<TKey, TValue> Get;
+
+        public readonly Action<TKey, TValue> Set;
+
+        public readonly Action Clear;
+
+        public TValue this[TKey key]
+        {
+            get { return Get(key); }
+            set { Set(key, value); }
+        }
+
+        public IndexedProperty(Converter<TKey, TValue> getter, Action<TKey, TValue> setter, Action clearer)
+        {
+            Get = getter;
+            Set = setter;
+            Clear = clearer;
+        }
+
+        public IndexedProperty(IDictionary<TKey, TValue> dictionary, TValue defaultValue)
+        {
+            Get = delegate (TKey key)
+            {
+                TValue value;
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                bool containsKey = dictionary.TryGetValue(key, out value);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8603 // Possible null reference return.
+                if (!containsKey) return defaultValue;
+                else return value;
+#pragma warning restore CS8603 // Possible null reference return.
+            };
+            Set = delegate (TKey key, TValue value) { dictionary[key] = value; };
+            Clear = dictionary.Clear;
+        }
     }
 
     public static class Disposable
@@ -173,12 +382,7 @@ namespace Nifty.Common
     }
 }
 
-namespace Nifty.Common.Collections
-{
-
-}
-
-namespace Nifty.Common.Collections.Graphs
+namespace Nifty.Concurrency
 {
 
 }
@@ -193,8 +397,8 @@ namespace Nifty.Configuration
 
     public interface IConfiguration : ISessionInitializable, ISessionOptimizable, ISessionDisposable, INotifyChanged
     {
-        public bool About(IUriTerm setting, [NotNullWhen(true)] out IReadOnlyGraph? about);
-        public bool About(IUriTerm setting, [NotNullWhen(true)] out IReadOnlyGraph? about, string language);
+        public bool About(IUriTerm setting, [NotNullWhen(true)] out IReadOnlySemanticGraph? about);
+        public bool About(IUriTerm setting, [NotNullWhen(true)] out IReadOnlySemanticGraph? about, string language);
         public bool TryGetSetting(IUriTerm setting, [NotNullWhen(true)] out IConvertible? value);
         public bool TryGetSetting(IUriTerm setting, [NotNullWhen(true)] out IConvertible? value, string language);
     }
@@ -212,7 +416,7 @@ namespace Nifty.Events
 {
     // event listeners could subscribe to those messages or events described by a query
     // and, resembling IObservable<>, event listeners could hold onto an IDisposable for unsubscribing
-    public interface IEventSource : IHasReadOnlyGraph
+    public interface IEventSource : IHasReadOnlySemanticGraph
     {
         public IDisposable Subscribe(IUriTerm eventType, IEventHandler listener)
         {
@@ -221,14 +425,14 @@ namespace Nifty.Events
             var query = Factory.ReadOnlyGraph(new ITriple[] { triple });
             return Subscribe(x, query, listener);
         }
-        public IDisposable Subscribe(IVariableTerm eventVariable, IReadOnlyGraph query, IEventHandler listener);
+        public IDisposable Subscribe(IVariableTerm eventVariable, IReadOnlySemanticGraph query, IEventHandler listener);
     }
     public interface IEventHandler // : IHasReadOnlyGraph
     {
-        public Task Handle(IEventSource source, ITerm eventInstance, IReadOnlyGraph aboutEventInstance, ITerm eventData, IReadOnlyGraph aboutEventData);
+        public Task Handle(IEventSource source, ITerm eventInstance, IReadOnlySemanticGraph aboutEventInstance, ITerm eventData, IReadOnlySemanticGraph aboutEventData);
     }
 
-    public interface IReport : IHasReadOnlyGraph
+    public interface IReport : IHasReadOnlySemanticGraph
     {
         public EventLevel Level { get; }
         public string Description { get; }
@@ -361,7 +565,7 @@ namespace Nifty.Knowledge
 
 namespace Nifty.Knowledge.Reasoning
 {
-    public interface IReasoner : IHasReadOnlyGraph
+    public interface IReasoner : IHasReadOnlySemanticGraph
     {
         public IConfiguration Configuration { get; }
 
@@ -395,7 +599,7 @@ namespace Nifty.Knowledge.Semantics
         public bool Matches(ITriple other);
     }
 
-    public interface IReadOnlyGraph : IReadOnlyCompoundCollection, IHasReadOnlyOntology, IEventSource, INotifyChanged
+    public interface IReadOnlySemanticGraph : /*IReadOnlyMultigraph<ITerm, ITriple>,*/ IReadOnlyCompoundCollection, IHasReadOnlyOntology, IEventSource, INotifyChanged
     {
         public IQueryable<ITerm> Subjects { get { return this.Statements.Select(t => t.Subject).Distinct(); } }
         public IQueryable<ITerm> Objects { get { return this.Statements.Select(t => t.Object).Distinct(); } }
@@ -415,62 +619,62 @@ namespace Nifty.Knowledge.Semantics
         public IQueryable<ITriple> Find(ITriple triple);
 
         public int Count(ITriple statement);
-        public int Count(IReadOnlyGraph query);
+        public int Count(IReadOnlySemanticGraph query);
 
-        public new IReadOnlyGraph Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+        public new IReadOnlySemanticGraph Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
-        public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlyGraph query);
-        public IEnumerable<IReadOnlyGraph> Query2(IReadOnlyGraph query)
+        public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlySemanticGraph query);
+        public IEnumerable<IReadOnlySemanticGraph> Query2(IReadOnlySemanticGraph query)
         {
             return Query(query).Select(result => query.Replace(result));
         }
     }
-    public interface IGraph : ICompoundCollection, IReadOnlyGraph
+    public interface ISemanticGraph : ICompoundCollection, IReadOnlySemanticGraph
     {
         public bool Add(ITriple triple);
         public bool Add(ITriple triple, [NotNullWhen(true)] out ITerm? reified);
         public bool Remove(ITriple triple);
 
-        public bool Add(IReadOnlyGraph graph);
-        public bool Remove(IReadOnlyGraph graph);
+        public bool Add(IReadOnlySemanticGraph graph);
+        public bool Remove(IReadOnlySemanticGraph graph);
 
-        public new IGraph Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+        public new ISemanticGraph Replace(IReadOnlyDictionary<IVariableTerm, ITerm> map);
     }
 
-    public interface IHasReadOnlyGraph : IHasTerm
+    public interface IHasReadOnlySemanticGraph : IHasTerm
     {
-        public IReadOnlyGraph About { get; }
+        public IReadOnlySemanticGraph About { get; }
     }
-    public interface IHasGraph : IHasReadOnlyGraph
+    public interface IHasSemanticGraph : IHasReadOnlySemanticGraph
     {
-        public new IGraph About { get; }
+        public new ISemanticGraph About { get; }
     }
 }
 
 namespace Nifty.Knowledge.Semantics.Reasoning
 {
-    public interface IGraphReasoner : IReasoner
+    public interface ISemanticGraphReasoner : IReasoner
     {
-        Task<IGraphReasoner> BindRules(IReadOnlyGraph rules);
+        Task<ISemanticGraphReasoner> BindRules(IReadOnlySemanticGraph rules);
 
-        Task<IInferredReadOnlyGraph> Bind(IReadOnlyGraph graph);
+        Task<IInferredReadOnlySemanticGraph> Bind(IReadOnlySemanticGraph graph);
     }
 
-    public interface IInferredReadOnlyGraph : IReadOnlyGraph, IInferredReadOnlyCompoundCollection
+    public interface IInferredReadOnlySemanticGraph : IReadOnlySemanticGraph, IInferredReadOnlyCompoundCollection
     {
-        public new IGraphReasoner Reasoner { get; }
-        public new IReadOnlyGraph Base { get; }
+        public new ISemanticGraphReasoner Reasoner { get; }
+        public new IReadOnlySemanticGraph Base { get; }
     }
 }
 
 namespace Nifty.Knowledge.Semantics.Ontology
 {
-    public interface IReadOnlyOntology : IReadOnlyGraph
+    public interface IReadOnlyOntology : IReadOnlySemanticGraph
     {
-        public Task<bool> Validate(IReadOnlyGraph graph);
-        public Task<bool> Validate(IReadOnlyGraph graph, IObserver<IReport> observer);
+        public Task<bool> Validate(IReadOnlySemanticGraph graph);
+        public Task<bool> Validate(IReadOnlySemanticGraph graph, IObserver<IReport> observer);
     }
-    public interface IOntology : IReadOnlyOntology, IGraph { }
+    public interface IOntology : IReadOnlyOntology, ISemanticGraph { }
 
     public interface IHasReadOnlyOntology
     {
@@ -497,7 +701,7 @@ namespace Nifty.Knowledge.Semantics.Serialization
 
     public interface ISerializable
     {
-        public void Serialize(IGraph graph);
+        public void Serialize(ISemanticGraph graph);
     }
 }
 
@@ -582,12 +786,12 @@ namespace Nifty.Messaging
 
 namespace Nifty.Modelling.Domains
 {
-    public interface IDomainModel : IHasReadOnlyGraph, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    public interface IDomainModel : IHasReadOnlySemanticGraph, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
 }
 
 namespace Nifty.Modelling.Users
 {
-    public interface IUserModel : IHasReadOnlyGraph, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    public interface IUserModel : IHasReadOnlySemanticGraph, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
 }
 
 namespace Nifty.Sessions
@@ -605,7 +809,7 @@ namespace Nifty.Sessions
         public void Dispose(ISession session);
     }
 
-    public interface ISession : IHasReadOnlyGraph, IInitializable, IOptimizable, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IActivityGenerator>
+    public interface ISession : IHasReadOnlySemanticGraph, IInitializable, IOptimizable, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IActivityGenerator>
     {
         public IConfiguration Configuration { get; }
         public IKnowledgebase Knowledgebase { get; }
@@ -1135,28 +1339,28 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
-        public static IGraph Graph(IReadOnlyOntology ontology)
+        public static ISemanticGraph Graph(IReadOnlyOntology ontology)
         {
             throw new NotImplementedException();
         }
-        public static IGraph Graph(IEnumerable<ITriple> statements, IReadOnlyOntology ontology)
+        public static ISemanticGraph Graph(IEnumerable<ITriple> statements, IReadOnlyOntology ontology)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyGraph ReadOnlyGraph(IEnumerable<ITriple> statements)
+        public static IReadOnlySemanticGraph ReadOnlyGraph(IEnumerable<ITriple> statements)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyGraph ReadOnlyGraph(IEnumerable<ITriple> statements, IReadOnlyOntology ontology)
+        public static IReadOnlySemanticGraph ReadOnlyGraph(IEnumerable<ITriple> statements, IReadOnlyOntology ontology)
         {
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyGraph ParseReadOnlyGraph(ContentType type, Stream stream)
+        public static IReadOnlySemanticGraph ParseReadOnlyGraph(ContentType type, Stream stream)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyGraph ParseReadOnlyGraph(ContentType type, Stream stream, IReadOnlyOntology ontology)
+        public static IReadOnlySemanticGraph ParseReadOnlyGraph(ContentType type, Stream stream, IReadOnlyOntology ontology)
         {
             throw new NotImplementedException();
         }
@@ -1195,69 +1399,69 @@ namespace Nifty
 
     public static partial class Extensions
     {
-        public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, bool value)
+        public static bool Add(this ISemanticGraph graph, ITerm predicate, ITerm subject, bool value)
         {
             return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
         }
-        public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, sbyte value)
+        public static bool Add(this ISemanticGraph graph, ITerm predicate, ITerm subject, sbyte value)
         {
             return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
         }
-        public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, byte value)
+        public static bool Add(this ISemanticGraph graph, ITerm predicate, ITerm subject, byte value)
         {
             return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
         }
-        public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, short value)
+        public static bool Add(this ISemanticGraph graph, ITerm predicate, ITerm subject, short value)
         {
             return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
         }
-        public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, ushort value)
+        public static bool Add(this ISemanticGraph graph, ITerm predicate, ITerm subject, ushort value)
         {
             return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
         }
-        public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, int value)
+        public static bool Add(this ISemanticGraph graph, ITerm predicate, ITerm subject, int value)
         {
             return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
         }
-        public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, uint value)
+        public static bool Add(this ISemanticGraph graph, ITerm predicate, ITerm subject, uint value)
         {
             return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
         }
-        public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, long value)
+        public static bool Add(this ISemanticGraph graph, ITerm predicate, ITerm subject, long value)
         {
             return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
         }
-        public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, ulong value)
+        public static bool Add(this ISemanticGraph graph, ITerm predicate, ITerm subject, ulong value)
         {
             return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
         }
-        public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, float value)
+        public static bool Add(this ISemanticGraph graph, ITerm predicate, ITerm subject, float value)
         {
             return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
         }
-        public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, double value)
+        public static bool Add(this ISemanticGraph graph, ITerm predicate, ITerm subject, double value)
         {
             return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
         }
-        public static bool Add(this IGraph graph, ITerm predicate, ITerm subject, string value)
+        public static bool Add(this ISemanticGraph graph, ITerm predicate, ITerm subject, string value)
         {
             return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
         }
         //...
 
-        public static IEnumerable<ITerm> GetClasses(this IHasReadOnlyGraph thing)
+        public static IEnumerable<ITerm> GetClasses(this IHasReadOnlySemanticGraph thing)
         {
             return thing.About.Find(Factory.TriplePSO(Keys.Semantics.Rdf.type, thing.Term, Factory.Any())).Select(t => t.Object).Distinct();
         }
-        public static bool HasClass(this IHasReadOnlyGraph thing, ITerm type)
+        public static bool HasClass(this IHasReadOnlySemanticGraph thing, ITerm type)
         {
             return thing.About.Contains(Factory.TriplePSO(Keys.Semantics.Rdf.type, thing.Term, type));
         }
-        public static IEnumerable<ITerm> GetProperties(this IHasReadOnlyGraph thing)
+        public static IEnumerable<ITerm> GetProperties(this IHasReadOnlySemanticGraph thing)
         {
             return thing.About.Find(Factory.TriplePSO(Factory.Any(), thing.Term, Factory.Any())).Select(t => t.Predicate).Distinct();
         }
-        public static bool HasProperty(this IHasReadOnlyGraph thing, ITerm predicate)
+        public static bool HasProperty(this IHasReadOnlySemanticGraph thing, ITerm predicate)
         {
             return thing.About.Contains(Factory.TriplePSO(predicate, thing.Term, Factory.Any()));
         }
@@ -1278,7 +1482,7 @@ namespace Nifty
         {
             var term = setting.Term;
             bool b;
-            IReadOnlyGraph? about;
+            IReadOnlySemanticGraph? about;
 
             if (language == null)
             {
