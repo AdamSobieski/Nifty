@@ -656,11 +656,11 @@ namespace Nifty.Knowledge.Ontology
 
     public interface IHasReadOnlyFormulaCollectionOntology
     {
-        public IReadOnlyFormulaCollectionOntology Ontology { get; }
+        public bool GetOntology(out IReadOnlyFormulaCollectionOntology ontology);
     }
     public interface IHasFormulaCollectionOntology : IHasReadOnlyFormulaCollectionOntology
     {
-        public new IFormulaCollectionOntology Ontology { get; }
+        public bool GetOntology(out IFormulaCollectionOntology ontology);
     }
 
     public interface IReadOnlySemanticGraphOntology : IReadOnlySemanticGraph
@@ -672,11 +672,11 @@ namespace Nifty.Knowledge.Ontology
 
     public interface IHasReadOnlySemanticGraphOntology
     {
-        public IReadOnlySemanticGraphOntology Ontology { get; }
+        public bool GetOntology(out IReadOnlySemanticGraphOntology ontology);
     }
     public interface IHasSemanticGraphOntology : IHasReadOnlySemanticGraphOntology
     {
-        public new ISemanticGraphOntology Ontology { get; }
+        public bool GetOntology(out ISemanticGraphOntology ontology);
     }
 }
 
