@@ -533,6 +533,11 @@ namespace Nifty.Knowledge
         public ITerm this[int index] { get; }
 
         public bool Matches(IFormula other);
+
+        public bool IsValid(IReadOnlyFormulaCollectionOntology ontology)
+        {
+            return ontology.Validate(this).Result;
+        }
     }
 
     public interface IHasTerm
@@ -564,6 +569,11 @@ namespace Nifty.Knowledge.Graphs
         public ITerm Object { get; }
 
         public bool Matches(ITriple other);
+
+        public bool IsValid(IReadOnlySemanticGraphOntology ontology)
+        {
+            return ontology.Validate(this).Result;
+        }
     }
 
     public interface IReadOnlySemanticGraph : /*IReadOnlyMultigraph<ITerm, ITriple>,*/ IReadOnlyFormulaCollection, IHasReadOnlySemanticGraphOntology, IEventSource, INotifyChanged
@@ -639,16 +649,15 @@ namespace Nifty.Knowledge.Ontology
 {
     public interface IReadOnlyFormulaCollectionOntology : IReadOnlyFormulaCollection
     {
-        public Task<bool> Validate(IReadOnlyFormulaCollection graph);
+        public Task<bool> Validate(IFormula formula);
+        public Task<bool> Validate(IReadOnlyFormulaCollection formulas);
     }
-
     public interface IFormulaCollectionOntology : IReadOnlyFormulaCollectionOntology, IFormulaCollection { }
 
     public interface IHasReadOnlyFormulaCollectionOntology
     {
         public IReadOnlyFormulaCollectionOntology Ontology { get; }
     }
-
     public interface IHasFormulaCollectionOntology : IHasReadOnlyFormulaCollectionOntology
     {
         public new IFormulaCollectionOntology Ontology { get; }
@@ -656,6 +665,7 @@ namespace Nifty.Knowledge.Ontology
 
     public interface IReadOnlySemanticGraphOntology : IReadOnlySemanticGraph
     {
+        public Task<bool> Validate(ITriple triple);
         public Task<bool> Validate(IReadOnlySemanticGraph graph);
     }
     public interface ISemanticGraphOntology : IReadOnlySemanticGraphOntology, ISemanticGraph { }
