@@ -8,7 +8,7 @@ using Nifty.Dialogue;
 using Nifty.Events;
 using Nifty.Knowledge;
 using Nifty.Knowledge.Graphs;
-using Nifty.Knowledge.Graphs.Ontology;
+using Nifty.Knowledge.Ontology;
 using Nifty.Knowledge.Reasoning.Derivation;
 using Nifty.Logging;
 using Nifty.Modelling.Users;
@@ -433,20 +433,21 @@ namespace Nifty.Events
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : IHasReadOnlyFormulaCollectionOntology, IEventSource, INotifyChanged
     {
-        public IQueryable<ITerm> Predicates { get { return this.Contents.Select(s => s.Predicate).Distinct(); } }
+        public IQueryable<ITerm> Predicates { get { return this.Contents.Select(f => f.Predicate).Distinct(); } }
 
         public IQueryable<IFormula> Contents { get; }
 
         public bool IsGround { get; }
         public bool IsReadOnly { get; }
         public bool IsInferred { get; }
+        public bool IsValid { get; }
         public bool IsGraph { get; }
 
-        public bool Contains(IFormula statement)
+        public bool Contains(IFormula formula)
         {
-            return Find(statement).Any();
+            return Find(formula).Any();
         }
 
         public IEnumerable<IDerivation> Derivations(IFormula formula);
@@ -565,14 +566,12 @@ namespace Nifty.Knowledge.Graphs
         public bool Matches(ITriple other);
     }
 
-    public interface IReadOnlySemanticGraph : /*IReadOnlyMultigraph<ITerm, ITriple>,*/ IReadOnlyFormulaCollection, IHasReadOnlyOntology, IEventSource, INotifyChanged
+    public interface IReadOnlySemanticGraph : /*IReadOnlyMultigraph<ITerm, ITriple>,*/ IReadOnlyFormulaCollection, IHasReadOnlySemanticGraphOntology, IEventSource, INotifyChanged
     {
         public IQueryable<ITerm> Subjects { get { return this.Contents.Select(t => t.Subject).Distinct(); } }
         public IQueryable<ITerm> Objects { get { return this.Contents.Select(t => t.Object).Distinct(); } }
 
         public new IQueryable<ITriple> Contents { get; }
-
-        public bool IsValid { get; }
 
         public bool Contains(ITriple triple)
         {
@@ -617,24 +616,6 @@ namespace Nifty.Knowledge.Graphs
     }
 }
 
-namespace Nifty.Knowledge.Graphs.Ontology
-{
-    public interface IReadOnlyOntology : IReadOnlySemanticGraph
-    {
-        public Task<bool> Validate(IReadOnlySemanticGraph graph);
-    }
-    public interface IOntology : IReadOnlyOntology, ISemanticGraph { }
-
-    public interface IHasReadOnlyOntology
-    {
-        public IReadOnlyOntology Ontology { get; }
-    }
-    public interface IHasOntology : IHasReadOnlyOntology
-    {
-        public new IOntology Ontology { get; }
-    }
-}
-
 namespace Nifty.Knowledge.Graphs.Serialization
 {
     [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
@@ -651,6 +632,41 @@ namespace Nifty.Knowledge.Graphs.Serialization
     public interface ISerializable
     {
         public void Serialize(ISemanticGraph graph);
+    }
+}
+
+namespace Nifty.Knowledge.Ontology
+{
+    public interface IReadOnlyFormulaCollectionOntology : IReadOnlyFormulaCollection
+    {
+        public Task<bool> Validate(IReadOnlyFormulaCollection graph);
+    }
+
+    public interface IFormulaCollectionOntology : IReadOnlyFormulaCollectionOntology, IFormulaCollection { }
+
+    public interface IHasReadOnlyFormulaCollectionOntology
+    {
+        public IReadOnlyFormulaCollectionOntology Ontology { get; }
+    }
+
+    public interface IHasFormulaCollectionOntology : IHasReadOnlyFormulaCollectionOntology
+    {
+        public new IFormulaCollectionOntology Ontology { get; }
+    }
+
+    public interface IReadOnlySemanticGraphOntology : IReadOnlySemanticGraph
+    {
+        public Task<bool> Validate(IReadOnlySemanticGraph graph);
+    }
+    public interface ISemanticGraphOntology : IReadOnlySemanticGraphOntology, ISemanticGraph { }
+
+    public interface IHasReadOnlySemanticGraphOntology
+    {
+        public IReadOnlySemanticGraphOntology Ontology { get; }
+    }
+    public interface IHasSemanticGraphOntology : IHasReadOnlySemanticGraphOntology
+    {
+        public new ISemanticGraphOntology Ontology { get; }
     }
 }
 
@@ -1327,11 +1343,11 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
-        public static ISemanticGraph Graph(IReadOnlyOntology ontology)
+        public static ISemanticGraph Graph(IReadOnlySemanticGraphOntology ontology)
         {
             throw new NotImplementedException();
         }
-        public static ISemanticGraph Graph(IEnumerable<ITriple> statements, IReadOnlyOntology ontology)
+        public static ISemanticGraph Graph(IEnumerable<ITriple> statements, IReadOnlySemanticGraphOntology ontology)
         {
             throw new NotImplementedException();
         }
@@ -1339,7 +1355,7 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlySemanticGraph ReadOnlyGraph(IEnumerable<ITriple> statements, IReadOnlyOntology ontology)
+        public static IReadOnlySemanticGraph ReadOnlyGraph(IEnumerable<ITriple> statements, IReadOnlySemanticGraphOntology ontology)
         {
             throw new NotImplementedException();
         }
@@ -1348,12 +1364,12 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlySemanticGraph ParseReadOnlyGraph(ContentType type, Stream stream, IReadOnlyOntology ontology)
+        public static IReadOnlySemanticGraph ParseReadOnlyGraph(ContentType type, Stream stream, IReadOnlySemanticGraphOntology ontology)
         {
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyOntology EmptyOntology
+        public static IReadOnlySemanticGraphOntology EmptyOntology
         {
             get
             {
@@ -1361,20 +1377,20 @@ namespace Nifty
             }
         }
 
-        public static IOntology Ontology()
+        public static ISemanticGraphOntology Ontology()
         {
             throw new NotImplementedException();
         }
-        public static IOntology Ontology(IReadOnlyOntology ontology)
+        public static ISemanticGraphOntology Ontology(IReadOnlySemanticGraphOntology ontology)
         {
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyOntology ParseReadOnlyOntology(ContentType type, Stream stream)
+        public static IReadOnlySemanticGraphOntology ParseReadOnlyOntology(ContentType type, Stream stream)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyOntology ParseReadOnlyOntology(ContentType type, Stream stream, IReadOnlyOntology ontology)
+        public static IReadOnlySemanticGraphOntology ParseReadOnlyOntology(ContentType type, Stream stream, IReadOnlySemanticGraphOntology ontology)
         {
             throw new NotImplementedException();
         }
