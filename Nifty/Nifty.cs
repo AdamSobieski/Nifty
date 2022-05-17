@@ -420,7 +420,7 @@ namespace Nifty.Events
         {
             var x = Factory.Variable("x");
             var triple = Factory.TriplePSO(Keys.Semantics.Rdf.type, x, eventType);
-            var query = Factory.ReadOnlyGraph(new ITriple[] { triple });
+            var query = Factory.ReadOnlySemanticGraph(new ITriple[] { triple });
             return Subscribe(x, query, listener);
         }
         public IDisposable Subscribe(IVariableTerm eventVariable, IReadOnlySemanticGraph query, IEventHandler listener);
@@ -1339,7 +1339,7 @@ namespace Nifty
             return new LiteralTerm(value, null, datatypeUri);
         }
 
-        public static IFormula Compound(ITerm predicate, params ITerm[] arguments)
+        public static IFormula Formula(ITerm predicate, params ITerm[] arguments)
         {
             throw new NotImplementedException();
         }
@@ -1353,33 +1353,14 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
-        public static ISemanticGraph Graph(IReadOnlySemanticGraphOntology ontology)
+        public static IReadOnlySemanticGraphOntology EmptySemanticGraphOntology
         {
-            throw new NotImplementedException();
+            get
+            {
+                throw new NotImplementedException();
+            }
         }
-        public static ISemanticGraph Graph(IEnumerable<ITriple> statements, IReadOnlySemanticGraphOntology ontology)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlySemanticGraph ReadOnlyGraph(IEnumerable<ITriple> statements)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlySemanticGraph ReadOnlyGraph(IEnumerable<ITriple> statements, IReadOnlySemanticGraphOntology ontology)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static IReadOnlySemanticGraph ParseReadOnlyGraph(ContentType type, Stream stream)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlySemanticGraph ParseReadOnlyGraph(ContentType type, Stream stream, IReadOnlySemanticGraphOntology ontology)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static IReadOnlySemanticGraphOntology EmptyOntology
+        public static IReadOnlyFormulaCollectionOntology EmptyFormulaCollectionOntology
         {
             get
             {
@@ -1387,25 +1368,51 @@ namespace Nifty
             }
         }
 
-        public static ISemanticGraphOntology Ontology()
+        public static ISemanticGraph SemanticGraph(IReadOnlySemanticGraphOntology ontology)
         {
             throw new NotImplementedException();
         }
-        public static ISemanticGraphOntology Ontology(IReadOnlySemanticGraphOntology ontology)
+        public static ISemanticGraph SemanticGraph(IEnumerable<ITriple> statements, IReadOnlySemanticGraphOntology ontology)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlySemanticGraph ReadOnlySemanticGraph(IEnumerable<ITriple> statements)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlySemanticGraph ReadOnlySemanticGraph(IEnumerable<ITriple> statements, IReadOnlySemanticGraphOntology ontology)
         {
             throw new NotImplementedException();
         }
 
-        public static IReadOnlySemanticGraphOntology ParseReadOnlyOntology(ContentType type, Stream stream)
+        public static IReadOnlySemanticGraph ParseReadOnlySemanticGraph(ContentType type, Stream stream)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlySemanticGraphOntology ParseReadOnlyOntology(ContentType type, Stream stream, IReadOnlySemanticGraphOntology ontology)
+        public static IReadOnlySemanticGraph ParseReadOnlySemanticGraph(ContentType type, Stream stream, IReadOnlySemanticGraphOntology ontology)
         {
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyFormulaCollection ReadOnlyKnowledgeCollection(IEnumerable<IFormula> statements)
+        public static ISemanticGraphOntology SemanticGraphOntology()
+        {
+            throw new NotImplementedException();
+        }
+        public static ISemanticGraphOntology SemanticGraphOntology(IReadOnlySemanticGraphOntology ontology)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IReadOnlySemanticGraphOntology ParseReadOnlySemanticGraphOntology(ContentType type, Stream stream)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlySemanticGraphOntology ParseReadOnlySemanticGraphOntology(ContentType type, Stream stream, IReadOnlySemanticGraphOntology ontology)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> statements, IReadOnlyFormulaCollectionOntology ontology)
         {
             throw new NotImplementedException();
         }
