@@ -654,29 +654,29 @@ namespace Nifty.Knowledge.Ontology
     }
     public interface IFormulaCollectionOntology : IReadOnlyFormulaCollectionOntology, IFormulaCollection { }
 
-    public interface IHasReadOnlyFormulaCollectionOntology
-    {
-        public bool GetOntology(out IReadOnlyFormulaCollectionOntology ontology);
-    }
-    public interface IHasFormulaCollectionOntology : IHasReadOnlyFormulaCollectionOntology
-    {
-        public bool GetOntology(out IFormulaCollectionOntology ontology);
-    }
-
-    public interface IReadOnlySemanticGraphOntology : IReadOnlySemanticGraph
+    public interface IReadOnlySemanticGraphOntology : IReadOnlySemanticGraph, IReadOnlyFormulaCollectionOntology
     {
         public Task<bool> Validate(ITriple triple);
         public Task<bool> Validate(IReadOnlySemanticGraph graph);
     }
-    public interface ISemanticGraphOntology : IReadOnlySemanticGraphOntology, ISemanticGraph { }
+    public interface ISemanticGraphOntology : IReadOnlySemanticGraphOntology, ISemanticGraph, IFormulaCollectionOntology { }
 
-    public interface IHasReadOnlySemanticGraphOntology
+    public interface IHasReadOnlyFormulaCollectionOntology
     {
-        public bool GetOntology(out IReadOnlySemanticGraphOntology ontology);
+        public IReadOnlyFormulaCollectionOntology Ontology { get; }
     }
-    public interface IHasSemanticGraphOntology : IHasReadOnlySemanticGraphOntology
+    public interface IHasFormulaCollectionOntology : IHasReadOnlyFormulaCollectionOntology
     {
-        public bool GetOntology(out ISemanticGraphOntology ontology);
+        public new IFormulaCollectionOntology Ontology { get; }
+    }
+
+    public interface IHasReadOnlySemanticGraphOntology : IHasReadOnlyFormulaCollectionOntology
+    {
+        public new IReadOnlySemanticGraphOntology Ontology { get; }
+    }
+    public interface IHasSemanticGraphOntology : IHasReadOnlySemanticGraphOntology, IHasFormulaCollectionOntology
+    {
+        public new ISemanticGraphOntology Ontology { get; }
     }
 }
 
