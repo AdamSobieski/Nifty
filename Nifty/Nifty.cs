@@ -435,9 +435,9 @@ namespace Nifty.Knowledge
 {
     public interface IReadOnlyFormulaCollection : IEventSource, INotifyChanged
     {
-        public IQueryable<ITerm> Predicates { get { return this.Statements.Select(s => s.Predicate).Distinct(); } }
+        public IQueryable<ITerm> Predicates { get { return this.Contents.Select(s => s.Predicate).Distinct(); } }
 
-        public IQueryable<IFormula> Statements { get; }
+        public IQueryable<IFormula> Contents { get; }
 
         public bool IsGround { get; }
         public bool IsReadOnly { get; }
@@ -567,10 +567,10 @@ namespace Nifty.Knowledge.Graphs
 
     public interface IReadOnlySemanticGraph : /*IReadOnlyMultigraph<ITerm, ITriple>,*/ IReadOnlyFormulaCollection, IHasReadOnlyOntology, IEventSource, INotifyChanged
     {
-        public IQueryable<ITerm> Subjects { get { return this.Statements.Select(t => t.Subject).Distinct(); } }
-        public IQueryable<ITerm> Objects { get { return this.Statements.Select(t => t.Object).Distinct(); } }
+        public IQueryable<ITerm> Subjects { get { return this.Contents.Select(t => t.Subject).Distinct(); } }
+        public IQueryable<ITerm> Objects { get { return this.Contents.Select(t => t.Object).Distinct(); } }
 
-        public new IQueryable<ITriple> Statements { get; }
+        public new IQueryable<ITriple> Contents { get; }
 
         public bool IsValid { get; }
 
