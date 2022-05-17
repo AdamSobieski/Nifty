@@ -433,45 +433,45 @@ namespace Nifty.Events
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyCompoundCollection : IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : IEventSource, INotifyChanged
     {
         public IQueryable<ITerm> Predicates { get { return this.Statements.Select(s => s.Predicate).Distinct(); } }
 
-        public IQueryable<ICompound> Statements { get; }
+        public IQueryable<IFormula> Statements { get; }
 
         public bool IsGround { get; }
         public bool IsReadOnly { get; }
         public bool IsInferred { get; }
         public bool IsGraph { get; }
 
-        public bool Contains(ICompound statement)
+        public bool Contains(IFormula statement)
         {
             return Find(statement).Any();
         }
 
-        public IEnumerable<IDerivation> Derivations(ICompound statement);
+        public IEnumerable<IDerivation> Derivations(IFormula formula);
 
-        public IQueryable<ICompound> Find(ICompound statement);
+        public IQueryable<IFormula> Find(IFormula formulas);
 
         public int Count();
-        public int Count(ICompound statement);
-        public int Count(IReadOnlyCompoundCollection query);
+        public int Count(IFormula formula);
+        public int Count(IReadOnlyFormulaCollection query);
 
-        public IReadOnlyCompoundCollection Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+        public IReadOnlyFormulaCollection Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
-        public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlyCompoundCollection query);
-        public IEnumerable<IReadOnlyCompoundCollection> Query2(IReadOnlyCompoundCollection query)
+        public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlyFormulaCollection query);
+        public IEnumerable<IReadOnlyFormulaCollection> Query2(IReadOnlyFormulaCollection query)
         {
             return Query(query).Select(map => query.Substitute(map));
         }
     }
-    public interface ICompoundCollection : IReadOnlyCompoundCollection
+    public interface IFormulaCollection : IReadOnlyFormulaCollection
     {
-        public bool Add(ICompound statement);
-        public bool Add(IReadOnlyCompoundCollection statements);
+        public bool Add(IFormula formula);
+        public bool Add(IReadOnlyFormulaCollection formulas);
 
-        public bool Remove(ICompound statement);
-        public bool Remove(IReadOnlyCompoundCollection statements);
+        public bool Remove(IFormula formula);
+        public bool Remove(IReadOnlyFormulaCollection formulas);
     }
 
     public enum TermType
@@ -481,10 +481,10 @@ namespace Nifty.Knowledge
         Uri,
         Literal,
         Variable,
-        Compound,
+        Formula,
         Triple,
-        CompoundCollection,
-        Graph
+        FormulaCollection,
+        SemanticGraph
     }
     public interface ITerm
     {
@@ -524,14 +524,14 @@ namespace Nifty.Knowledge
         public string Name { get; }
     }
 
-    public interface ICompound : ITerm
+    public interface IFormula : ITerm
     {
         public ITerm Predicate { get; }
 
         public int Count { get; }
         public ITerm this[int index] { get; }
 
-        public bool Matches(ICompound other);
+        public bool Matches(IFormula other);
     }
 
     public interface IHasTerm
@@ -546,18 +546,18 @@ namespace Nifty.Knowledge
         public object Visit(IBlankTerm term);
         public object Visit(ILiteralTerm term);
         public object Visit(IVariableTerm term);
-        //public object Visit(ICompound compound);
+        //public object Visit(IFormula formula);
         //public object Visit(ITriple triple);
-        //public object Visit(IReadOnlyCompoundCollection collection);
-        //public object Visit(IReadOnlyGraph graph);
+        //public object Visit(IReadOnlyFormulaCollection collection);
+        //public object Visit(IReadOnlySemanticGraph graph);
     }
 
-    public interface IKnowledgebase : ICompoundCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
+    public interface IKnowledgebase : IFormulaCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
 }
 
 namespace Nifty.Knowledge.Graphs
 {
-    public interface ITriple : ICompound
+    public interface ITriple : IFormula
     {
         public ITerm Subject { get; }
         public ITerm Object { get; }
@@ -565,7 +565,7 @@ namespace Nifty.Knowledge.Graphs
         public bool Matches(ITriple other);
     }
 
-    public interface IReadOnlySemanticGraph : /*IReadOnlyMultigraph<ITerm, ITriple>,*/ IReadOnlyCompoundCollection, IHasReadOnlyOntology, IEventSource, INotifyChanged
+    public interface IReadOnlySemanticGraph : /*IReadOnlyMultigraph<ITerm, ITriple>,*/ IReadOnlyFormulaCollection, IHasReadOnlyOntology, IEventSource, INotifyChanged
     {
         public IQueryable<ITerm> Subjects { get { return this.Statements.Select(t => t.Subject).Distinct(); } }
         public IQueryable<ITerm> Objects { get { return this.Statements.Select(t => t.Object).Distinct(); } }
@@ -580,11 +580,11 @@ namespace Nifty.Knowledge.Graphs
         }
         public bool Contains(ITriple triple, [NotNullWhen(true)] out ITerm? reified);
 
-        public IEnumerable<IDerivation> Derivations(ITriple statement);
+        public IEnumerable<IDerivation> Derivations(ITriple triple);
 
         public IQueryable<ITriple> Find(ITriple triple);
 
-        public int Count(ITriple statement);
+        public int Count(ITriple triple);
         public int Count(IReadOnlySemanticGraph query);
 
         public new IReadOnlySemanticGraph Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
@@ -595,7 +595,7 @@ namespace Nifty.Knowledge.Graphs
             return Query(query).Select(result => query.Substitute(result));
         }
     }
-    public interface ISemanticGraph : ICompoundCollection, IReadOnlySemanticGraph
+    public interface ISemanticGraph : IFormulaCollection, IReadOnlySemanticGraph
     {
         public bool Add(ITriple triple);
         public bool Add(ITriple triple, [NotNullWhen(true)] out ITerm? reified);
@@ -660,15 +660,15 @@ namespace Nifty.Knowledge.Reasoning
     {
         public IConfiguration Configuration { get; }
 
-        Task<IReasoner> BindRules(IReadOnlyCompoundCollection rules);
+        Task<IReasoner> BindRules(IReadOnlyFormulaCollection rules);
 
-        Task<IInferredReadOnlyCompoundCollection> Bind(IReadOnlyCompoundCollection collection);
+        Task<IInferredReadOnlyCompoundCollection> Bind(IReadOnlyFormulaCollection collection);
     }
 
-    public interface IInferredReadOnlyCompoundCollection : IReadOnlyCompoundCollection
+    public interface IInferredReadOnlyCompoundCollection : IReadOnlyFormulaCollection
     {
         public IReasoner Reasoner { get; }
-        public IReadOnlyCompoundCollection Base { get; }
+        public IReadOnlyFormulaCollection Base { get; }
     }
 
     public interface ISemanticGraphReasoner : IReasoner
@@ -1313,7 +1313,7 @@ namespace Nifty
             return new LiteralTerm(value, null, datatypeUri);
         }
 
-        public static ICompound Compound(ITerm predicate, params ITerm[] arguments)
+        public static IFormula Compound(ITerm predicate, params ITerm[] arguments)
         {
             throw new NotImplementedException();
         }
@@ -1379,7 +1379,7 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyCompoundCollection ReadOnlyKnowledgeCollection(IEnumerable<ICompound> statements)
+        public static IReadOnlyFormulaCollection ReadOnlyKnowledgeCollection(IEnumerable<IFormula> statements)
         {
             throw new NotImplementedException();
         }
