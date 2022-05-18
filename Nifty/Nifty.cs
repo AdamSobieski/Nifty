@@ -8,8 +8,8 @@ using Nifty.Dialogue;
 using Nifty.Events;
 using Nifty.Knowledge;
 using Nifty.Knowledge.Graphs;
-using Nifty.Knowledge.Ontology;
 using Nifty.Knowledge.Reasoning.Derivation;
+using Nifty.Knowledge.Schema;
 using Nifty.Logging;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
@@ -37,7 +37,7 @@ namespace Nifty.Activities
         // public IActivityPreconditions Preconditions { get; }
         // public IActivityEffects       Effects { get; }
 
-        public IActivityExecutionResult Execute(ISession session, IActivityExecutionContext context, CancellationToken cancellationToken);
+        public Task<IActivityExecutionResult> Execute(ISession session, IActivityExecutionContext context, CancellationToken cancellationToken);
     }
     public interface IActivityExecutionContext : IInitializable, IDisposable
     {
@@ -278,7 +278,7 @@ namespace Nifty.Common
 
     public interface IOptimizable
     {
-        public IDisposable Optimize(IEnumerable<ITerm> hints);
+        public IDisposable Optimize(IEnumerable<string> hints);
     }
 
     public interface INotifyChanged
@@ -433,7 +433,7 @@ namespace Nifty.Events
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : IHasReadOnlyFormulaCollectionOntology, IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : IHasReadOnlyFormulaCollectionSchema, IEventSource, INotifyChanged
     {
         public IQueryable<ITerm> Predicates { get { return this.Contents.Select(f => f.Predicate).Distinct(); } }
 
@@ -493,15 +493,15 @@ namespace Nifty.Knowledge
 
         public bool IsGround { get; }
 
-        //public bool IsPredicate(IReadOnlyFormulaCollectionOntology ontology)
+        //public bool IsPredicate(IReadOnlyFormulaCollectionSchema schema)
         //{
         //    throw new NotImplementedException();
         //}
-        //public int HasArity(IReadOnlyFormulaCollectionOntology ontology)
+        //public int HasArity(IReadOnlyFormulaCollectionSchema schema)
         //{
         //    throw new NotImplementedException();
         //}
-        //public IEnumerable<ITerm> ClassesOfArgument(int index, IReadOnlyFormulaCollectionOntology ontology)
+        //public IEnumerable<ITerm> ClassesOfArgument(int index, IReadOnlyFormulaCollectionSchema schema)
         //{
         //    throw new NotImplementedException();
         //}
@@ -547,9 +547,9 @@ namespace Nifty.Knowledge
 
         public bool Matches(IFormula other);
 
-        public bool IsValid(IReadOnlyFormulaCollectionOntology ontology)
+        public bool IsValid(IReadOnlyFormulaCollectionSchema schema)
         {
-            return ontology.Validate(this).Result;
+            return schema.Validate(this).Result;
         }
     }
 
@@ -583,13 +583,13 @@ namespace Nifty.Knowledge.Graphs
 
         public bool Matches(ITriple other);
 
-        public bool IsValid(IReadOnlyKnowledgeGraphOntology ontology)
+        public bool IsValid(IReadOnlyKnowledgeGraphSchema schema)
         {
-            return ontology.Validate(this).Result;
+            return schema.Validate(this).Result;
         }
     }
 
-    public interface IReadOnlyKnowledgeGraph : /*IReadOnlyMultigraph<ITerm, ITriple>,*/ IReadOnlyFormulaCollection, IHasReadOnlyKnowledgeGraphOntology, IEventSource, INotifyChanged
+    public interface IReadOnlyKnowledgeGraph : /*IReadOnlyMultigraph<ITerm, ITriple>,*/ IReadOnlyFormulaCollection, IHasReadOnlyKnowledgeGraphSchema, IEventSource, INotifyChanged
     {
         public IQueryable<ITerm> Subjects { get { return this.Contents.Select(t => t.Subject).Distinct(); } }
         public IQueryable<ITerm> Objects { get { return this.Contents.Select(t => t.Object).Distinct(); } }
@@ -658,41 +658,6 @@ namespace Nifty.Knowledge.Graphs.Serialization
     }
 }
 
-namespace Nifty.Knowledge.Ontology
-{
-    public interface IReadOnlyFormulaCollectionOntology : IReadOnlyFormulaCollection
-    {
-        public Task<bool> Validate(IFormula formula);
-        public Task<bool> Validate(IReadOnlyFormulaCollection formulas);
-    }
-    public interface IFormulaCollectionOntology : IReadOnlyFormulaCollectionOntology, IFormulaCollection { }
-
-    public interface IReadOnlyKnowledgeGraphOntology : IReadOnlyKnowledgeGraph, IReadOnlyFormulaCollectionOntology
-    {
-        public Task<bool> Validate(ITriple triple);
-        public Task<bool> Validate(IReadOnlyKnowledgeGraph graph);
-    }
-    public interface IKnowledgeGraphOntology : IReadOnlyKnowledgeGraphOntology, IKnowledgeGraph, IFormulaCollectionOntology { }
-
-    public interface IHasReadOnlyFormulaCollectionOntology
-    {
-        public IReadOnlyFormulaCollectionOntology Ontology { get; }
-    }
-    public interface IHasFormulaCollectionOntology : IHasReadOnlyFormulaCollectionOntology
-    {
-        public new IFormulaCollectionOntology Ontology { get; }
-    }
-
-    public interface IHasReadOnlyKnowledgeGraphOntology : IHasReadOnlyFormulaCollectionOntology
-    {
-        public new IReadOnlyKnowledgeGraphOntology Ontology { get; }
-    }
-    public interface IHasKnowledgeGraphOntology : IHasReadOnlyKnowledgeGraphOntology, IHasFormulaCollectionOntology
-    {
-        public new IKnowledgeGraphOntology Ontology { get; }
-    }
-}
-
 namespace Nifty.Knowledge.Probabilistic
 {
 
@@ -734,6 +699,41 @@ namespace Nifty.Knowledge.Reasoning.Derivation
     public interface IDerivation
     {
 
+    }
+}
+
+namespace Nifty.Knowledge.Schema
+{
+    public interface IReadOnlyFormulaCollectionSchema : IReadOnlyFormulaCollection
+    {
+        public Task<bool> Validate(IFormula formula);
+        public Task<bool> Validate(IReadOnlyFormulaCollection formulas);
+    }
+    public interface IFormulaCollectionSchema : IReadOnlyFormulaCollectionSchema, IFormulaCollection { }
+
+    public interface IReadOnlyKnowledgeGraphSchema : IReadOnlyKnowledgeGraph, IReadOnlyFormulaCollectionSchema
+    {
+        public Task<bool> Validate(ITriple triple);
+        public Task<bool> Validate(IReadOnlyKnowledgeGraph graph);
+    }
+    public interface IKnowledgeGraphSchema : IReadOnlyKnowledgeGraphSchema, IKnowledgeGraph, IFormulaCollectionSchema { }
+
+    public interface IHasReadOnlyFormulaCollectionSchema
+    {
+        public IReadOnlyFormulaCollectionSchema Schema { get; }
+    }
+    public interface IHasFormulaCollectionSchema : IHasReadOnlyFormulaCollectionSchema
+    {
+        public new IFormulaCollectionSchema Schema { get; }
+    }
+
+    public interface IHasReadOnlyKnowledgeGraphSchema : IHasReadOnlyFormulaCollectionSchema
+    {
+        public new IReadOnlyKnowledgeGraphSchema Schema { get; }
+    }
+    public interface IHasKnowledgeGraphSchema : IHasReadOnlyKnowledgeGraphSchema, IHasFormulaCollectionSchema
+    {
+        public new IKnowledgeGraphSchema Schema { get; }
     }
 }
 
@@ -834,7 +834,7 @@ namespace Nifty.Sessions
     }
     public interface ISessionOptimizable
     {
-        public IDisposable Optimize(ISession session, IEnumerable<ITerm> hints);
+        public IDisposable Optimize(ISession session, IEnumerable<string> hints);
     }
     public interface ISessionDisposable
     {
@@ -875,7 +875,7 @@ namespace Nifty.Sessions
             return value;
         }
 
-        IDisposable IOptimizable.Optimize(IEnumerable<ITerm> hints)
+        IDisposable IOptimizable.Optimize(IEnumerable<string> hints)
         {
             return Disposable.All(
                 Configuration.Optimize(this, hints),
@@ -1371,14 +1371,14 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyKnowledgeGraphOntology EmptyKnowledgeGraphOntology
+        public static IReadOnlyKnowledgeGraphSchema EmptyKnowledgeGraphSchema
         {
             get
             {
                 throw new NotImplementedException();
             }
         }
-        public static IReadOnlyFormulaCollectionOntology EmptyFormulaCollectionOntology
+        public static IReadOnlyFormulaCollectionSchema EmptyFormulaCollectionSchema
         {
             get
             {
@@ -1386,11 +1386,11 @@ namespace Nifty
             }
         }
 
-        public static IKnowledgeGraph KnowledgeGraph(IReadOnlyKnowledgeGraphOntology ontology)
+        public static IKnowledgeGraph KnowledgeGraph(IReadOnlyKnowledgeGraphSchema schema)
         {
             throw new NotImplementedException();
         }
-        public static IKnowledgeGraph KnowledgeGraph(IEnumerable<ITriple> statements, IReadOnlyKnowledgeGraphOntology ontology)
+        public static IKnowledgeGraph KnowledgeGraph(IEnumerable<ITriple> statements, IReadOnlyKnowledgeGraphSchema schema)
         {
             throw new NotImplementedException();
         }
@@ -1398,7 +1398,7 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyKnowledgeGraph ReadOnlyKnowledgeGraph(IEnumerable<ITriple> statements, IReadOnlyKnowledgeGraphOntology ontology)
+        public static IReadOnlyKnowledgeGraph ReadOnlyKnowledgeGraph(IEnumerable<ITriple> statements, IReadOnlyKnowledgeGraphSchema schema)
         {
             throw new NotImplementedException();
         }
@@ -1407,30 +1407,30 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyKnowledgeGraph ParseReadOnlyKnowledgeGraph(ContentType type, Stream stream, IReadOnlyKnowledgeGraphOntology ontology)
+        public static IReadOnlyKnowledgeGraph ParseReadOnlyKnowledgeGraph(ContentType type, Stream stream, IReadOnlyKnowledgeGraphSchema schema)
         {
             throw new NotImplementedException();
         }
 
-        public static IKnowledgeGraphOntology KnowledgeGraphOntology()
+        public static IKnowledgeGraphSchema KnowledgeGraphSchema()
         {
             throw new NotImplementedException();
         }
-        public static IKnowledgeGraphOntology KnowledgeGraphOntology(IReadOnlyKnowledgeGraphOntology ontology)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static IReadOnlyKnowledgeGraphOntology ParseReadOnlyKnowledgeGraphOntology(ContentType type, Stream stream)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyKnowledgeGraphOntology ParseReadOnlyKnowledgeGraphOntology(ContentType type, Stream stream, IReadOnlyKnowledgeGraphOntology ontology)
+        public static IKnowledgeGraphSchema KnowledgeGraphSchema(IReadOnlyKnowledgeGraphSchema schema)
         {
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> statements, IReadOnlyFormulaCollectionOntology ontology)
+        public static IReadOnlyKnowledgeGraphSchema ParseReadOnlyKnowledgeGraphSchema(ContentType type, Stream stream)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyKnowledgeGraphSchema ParseReadOnlyKnowledgeGraphSchema(ContentType type, Stream stream, IReadOnlyKnowledgeGraphSchema schema)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> statements, IReadOnlyFormulaCollectionSchema schema)
         {
             throw new NotImplementedException();
         }
