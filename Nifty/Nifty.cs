@@ -737,6 +737,13 @@ namespace Nifty.Knowledge.Schema
     }
 }
 
+namespace Nifty.Knowledge.Streaming
+{
+    // https://www.w3.org/community/rsp/
+    // https://www.w3.org/community/rsp/wiki/RDF_Stream_Models
+    // https://github.com/streamreasoning/rsp4j
+}
+
 namespace Nifty.Logging
 {
     // see also: https://developer.mozilla.org/en-US/docs/Web/API/console
