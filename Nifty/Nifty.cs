@@ -493,6 +493,19 @@ namespace Nifty.Knowledge
 
         public bool IsGround { get; }
 
+        //public bool IsPredicate(IReadOnlyFormulaCollectionOntology ontology)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public int HasArity(IReadOnlyFormulaCollectionOntology ontology)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public IEnumerable<ITerm> ClassesOfArgument(int index, IReadOnlyFormulaCollectionOntology ontology)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
         public object Visit(ITermVisitor visitor);
 
         public bool Matches(ITerm other);
@@ -693,10 +706,10 @@ namespace Nifty.Knowledge.Reasoning
 
         Task<IReasoner> BindRules(IReadOnlyFormulaCollection rules);
 
-        Task<IInferredReadOnlyCompoundCollection> Bind(IReadOnlyFormulaCollection collection);
+        Task<IInferredReadOnlyFormulaCollection> Bind(IReadOnlyFormulaCollection collection);
     }
 
-    public interface IInferredReadOnlyCompoundCollection : IReadOnlyFormulaCollection
+    public interface IInferredReadOnlyFormulaCollection : IReadOnlyFormulaCollection
     {
         public IReasoner Reasoner { get; }
         public IReadOnlyFormulaCollection Base { get; }
@@ -709,7 +722,7 @@ namespace Nifty.Knowledge.Reasoning
         Task<IInferredReadOnlyKnowledgeGraph> Bind(IReadOnlyKnowledgeGraph graph);
     }
 
-    public interface IInferredReadOnlyKnowledgeGraph : IReadOnlyKnowledgeGraph, IInferredReadOnlyCompoundCollection
+    public interface IInferredReadOnlyKnowledgeGraph : IReadOnlyKnowledgeGraph, IInferredReadOnlyFormulaCollection
     {
         public new IKnowledgeGraphReasoner Reasoner { get; }
         public new IReadOnlyKnowledgeGraph Base { get; }
