@@ -870,6 +870,24 @@ namespace Nifty.NaturalLanguage.Processing
     public interface IOnlineNaturalLanguageParser3 : IObserver<string>, IObservable<IEnumerable<(IFormulaCollectionDifference Difference, float Confidence)>> { }
 
     // IOnlineNaturalLanguageParser4 would be benefitted by a bidirectional flow of information between components, e.g., feedback from reasoning to reweigh or prune interpretations, possibly using an interface extending IObservable<>/IObserver<>
+
+    //here is a sketch:
+    //public interface IFeedback<in T>
+    //{
+    //    public void Feedback(T value, float feedback);
+    //}
+
+    //public interface IObserverWithFeedback<T>
+    //{
+    //    public void OnCompleted();
+    //    public void OnError(Exception error);
+    //    public void OnNext(IEnumerable<(T, float)> values, IFeedback<T> feedback);
+    //}
+
+    //public interface IObservableWithFeedback<T>
+    //{
+    //    IDisposable Subscribe(IObserverWithFeedback<T> observer);
+    //}
 }
 
 namespace Nifty.Sessions
