@@ -858,6 +858,16 @@ namespace Nifty.Modelling.Users
     public interface IUserModel : IHasReadOnlyKnowledgeGraph, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
 }
 
+namespace Nifty.NaturalLanguage.Processing
+{
+    public interface IOnlineNaturalLanguageParser1
+    {
+        IEnumerable<IFormulaCollectionDifference> Parse(string text);
+    }
+
+    public interface IOnlineNaturalLanguageParser2 : IObserver<string>, IObservable<IFormulaCollectionDifference> { }
+}
+
 namespace Nifty.Sessions
 {
     public interface ISessionInitializable
