@@ -676,22 +676,22 @@ namespace Nifty.Knowledge.Probabilistic
 
 namespace Nifty.Knowledge.Reasoning
 {
-    public interface IReasoner : IHasReadOnlyKnowledgeGraph
+    public interface IFormulaCollectionReasoner : IHasReadOnlyKnowledgeGraph
     {
         public IConfiguration Configuration { get; }
 
-        Task<IReasoner> BindRules(IReadOnlyFormulaCollection rules);
+        Task<IFormulaCollectionReasoner> BindRules(IReadOnlyFormulaCollection rules);
 
         Task<IInferredReadOnlyFormulaCollection> Bind(IReadOnlyFormulaCollection collection);
     }
 
     public interface IInferredReadOnlyFormulaCollection : IReadOnlyFormulaCollection
     {
-        public IReasoner Reasoner { get; }
+        public IFormulaCollectionReasoner Reasoner { get; }
         public IReadOnlyFormulaCollection Base { get; }
     }
 
-    public interface IKnowledgeGraphReasoner : IReasoner
+    public interface IKnowledgeGraphReasoner : IFormulaCollectionReasoner
     {
         Task<IKnowledgeGraphReasoner> BindRules(IReadOnlyKnowledgeGraph rules);
 
