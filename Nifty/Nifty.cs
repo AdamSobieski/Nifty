@@ -459,6 +459,7 @@ namespace Nifty.Knowledge
         public int Count(IFormula formula);
         public int Count(IReadOnlyFormulaCollection query);
 
+        public IFormulaCollectionDifference DifferenceFrom(IReadOnlyFormulaCollection other);
         public IReadOnlyFormulaCollection Apply(IFormulaCollectionDifference change);
 
         public IReadOnlyFormulaCollection Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
@@ -614,6 +615,7 @@ namespace Nifty.Knowledge.Graphs
         public int Count(ITriple triple);
         public int Count(IReadOnlyKnowledgeGraph query);
 
+        public IKnowledgeGraphDifference DifferenceFrom(IReadOnlyKnowledgeGraph other);
         public IReadOnlyKnowledgeGraph Apply(IKnowledgeGraphDifference change);
 
         public new IReadOnlyKnowledgeGraph Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
