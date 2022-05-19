@@ -866,6 +866,8 @@ namespace Nifty.NaturalLanguage.Processing
     }
 
     public interface IOnlineNaturalLanguageParser2 : IObserver<string>, IObservable<IFormulaCollectionDifference> { }
+
+    public interface IOnlineNaturalLanguageParser3 : IObserver<string>, IObservable<IEnumerable<(IFormulaCollectionDifference Delta, float Confidence)>> { }
 }
 
 namespace Nifty.Sessions
