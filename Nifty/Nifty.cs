@@ -867,7 +867,9 @@ namespace Nifty.NaturalLanguage.Processing
 
     public interface IOnlineNaturalLanguageParser2 : IObserver<string>, IObservable<IFormulaCollectionDifference> { }
 
-    public interface IOnlineNaturalLanguageParser3 : IObserver<string>, IObservable<IEnumerable<(IFormulaCollectionDifference Delta, float Confidence)>> { }
+    public interface IOnlineNaturalLanguageParser3 : IObserver<string>, IObservable<IEnumerable<(IFormulaCollectionDifference Difference, float Confidence)>> { }
+
+    // IOnlineNaturalLanguageParser4 would be benefitted by a bidirectional flow of information between components, e.g., feedback from reasoning to reweigh or prune interpretations, possibly using an interface extending IObservable<>/IObserver<>
 }
 
 namespace Nifty.Sessions
