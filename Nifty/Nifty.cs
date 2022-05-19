@@ -758,14 +758,14 @@ namespace Nifty.Knowledge.Streaming
 
     public interface IFormulaCollectionDifference
     {
-        public IEnumerable<IFormula> Deletions { get; }
+        public IEnumerable<IFormula> Removals { get; }
         public IEnumerable<IFormula> Additions { get; }
     }
 
-    public interface IKnowledgeGraphDifference
+    public interface IKnowledgeGraphDifference : IFormulaCollectionDifference
     {
-        public IEnumerable<ITriple> Deletions { get; }
-        public IEnumerable<ITriple> Additions { get; }
+        public new IEnumerable<ITriple> Removals { get; }
+        public new IEnumerable<ITriple> Additions { get; }
     }
 }
 
