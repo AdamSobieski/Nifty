@@ -10,6 +10,7 @@ using Nifty.Knowledge;
 using Nifty.Knowledge.Graphs;
 using Nifty.Knowledge.Reasoning.Derivation;
 using Nifty.Knowledge.Schema;
+using Nifty.Knowledge.Streaming;
 using Nifty.Logging;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
@@ -458,6 +459,8 @@ namespace Nifty.Knowledge
         public int Count(IFormula formula);
         public int Count(IReadOnlyFormulaCollection query);
 
+        public IReadOnlyFormulaCollection Apply(IFormulaCollectionDifference change);
+
         public IReadOnlyFormulaCollection Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
         public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlyFormulaCollection query);
@@ -473,6 +476,8 @@ namespace Nifty.Knowledge
 
         public bool Remove(IFormula formula);
         public bool Remove(IReadOnlyFormulaCollection formulas);
+
+        public bool Update(IFormulaCollectionDifference change);
     }
 
     public enum TermType
@@ -609,6 +614,8 @@ namespace Nifty.Knowledge.Graphs
         public int Count(ITriple triple);
         public int Count(IReadOnlyKnowledgeGraph query);
 
+        public IReadOnlyKnowledgeGraph Apply(IKnowledgeGraphDifference change);
+
         public new IReadOnlyKnowledgeGraph Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
         public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlyKnowledgeGraph query);
@@ -625,6 +632,8 @@ namespace Nifty.Knowledge.Graphs
 
         public bool Add(IReadOnlyKnowledgeGraph graph);
         public bool Remove(IReadOnlyKnowledgeGraph graph);
+
+        public bool Update(IKnowledgeGraphDifference change);
 
         public new IKnowledgeGraph Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
     }
@@ -742,6 +751,20 @@ namespace Nifty.Knowledge.Streaming
     // https://www.w3.org/community/rsp/
     // https://www.w3.org/community/rsp/wiki/RDF_Stream_Models
     // https://github.com/streamreasoning/rsp4j
+    // https://github.com/dotnet/reactive
+    // https://en.wikipedia.org/wiki/Delta_encoding
+
+    public interface IFormulaCollectionDifference
+    {
+        public IEnumerable<IFormula> Deletions { get; }
+        public IEnumerable<IFormula> Additions { get; }
+    }
+
+    public interface IKnowledgeGraphDifference
+    {
+        public IEnumerable<ITriple> Deletions { get; }
+        public IEnumerable<ITriple> Additions { get; }
+    }
 }
 
 namespace Nifty.Logging
