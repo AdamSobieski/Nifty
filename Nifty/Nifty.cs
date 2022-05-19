@@ -425,7 +425,7 @@ namespace Nifty.Events
         }
         public IDisposable Subscribe(IVariableTerm eventVariable, IReadOnlyKnowledgeGraph query, IEventHandler listener);
     }
-    public interface IEventHandler // : IHasReadOnlyGraph
+    public interface IEventHandler // : IHasReadOnlyKnowledgeGraph
     {
         public Task Handle(IEventSource source, ITerm eventInstance, IReadOnlyKnowledgeGraph aboutEventInstance, ITerm eventData, IReadOnlyKnowledgeGraph aboutEventData);
     }
