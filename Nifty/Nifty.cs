@@ -894,6 +894,8 @@ namespace Nifty.NaturalLanguage.Processing
     public interface IOnlineNaturalLanguageParser_V1_b : IBidirectionalObserver_V1_b<string>, IBidirectionalObservable_V1_b<IFormulaCollectionDifference> { }
 
     public interface IOnlineNaturalLanguageParser_V1_c : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IFormulaCollectionDifference, float>> { }
+
+    // public interface IOnlineNaturalLanguageParser_V1_d : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IFormulaCollectionDifference, float>> { }
 }
 
 namespace Nifty.Sessions
