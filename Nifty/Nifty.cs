@@ -860,35 +860,36 @@ namespace Nifty.Modelling.Users
 
 namespace Nifty.NaturalLanguage.Processing
 {
-    public interface IOnlineNaturalLanguageParser1
+    public interface IOnlineNaturalLanguageParser_V1
     {
         IEnumerable<IFormulaCollectionDifference> Parse(string text);
     }
 
-    public interface IOnlineNaturalLanguageParser2 : IObserver<string>, IObservable<IFormulaCollectionDifference> { }
+    public interface IOnlineNaturalLanguageParser_V2 : IObserver<string>, IObservable<IFormulaCollectionDifference> { }
 
-    public interface IOnlineNaturalLanguageParser3 : IObserver<string>, IObservable<IEnumerable<(IFormulaCollectionDifference Difference, float Confidence)>> { }
+    public interface IOnlineNaturalLanguageParser_V3 : IObserver<string>, IObservable<IEnumerable<(IFormulaCollectionDifference Difference, float Confidence)>> { }
 
-    // IOnlineNaturalLanguageParser4 would be benefitted by a bidirectional flow of information between components, e.g., feedback from reasoning to reweigh or prune interpretations, possibly using an interface extending IObservable<>/IObserver<>
+    public interface IOnlineNaturalLanguageParser_V4 : IBidirectionalObserver<string>, IBidirectionalObservable<IFormulaCollectionDifference> { }
 
     //public interface IFeedback<in T>
     //{
     //    public void Feedback(T value, float feedback);
     //}
 
-    //public interface IObserverWithFeedback<T>
-    //{
-    //    public void OnCompleted();
-    //    public void OnError(Exception error);
-    //    public void OnNext(IEnumerable<(T, float)> values, IFeedback<T> feedback);
-    //    /* and/or */
-    //    public void OnNext(IEnumerable<(T, float)> values, Action<T, float> feedback);
-    //}
+    public interface IBidirectionalObserver<T>
+    {
+        public void OnCompleted();
+        public void OnError(Exception error);
 
-    //public interface IObservableWithFeedback<T>
-    //{
-    //    IDisposable Subscribe(IObserverWithFeedback<T> observer);
-    //}
+        //public void OnNext(IEnumerable<(T, float)> values, IFeedback<T> feedback);
+        /* and/or */
+        public void OnNext(IEnumerable<(T, float)> values, Action<T, float> feedback);
+    }
+
+    public interface IBidirectionalObservable<T>
+    {
+        IDisposable Subscribe(IBidirectionalObserver<T> observer);
+    }
 }
 
 namespace Nifty.Sessions
