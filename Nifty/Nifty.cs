@@ -3,7 +3,6 @@ using Nifty.Algorithms;
 using Nifty.Analytics;
 using Nifty.Channels;
 using Nifty.Common;
-using Nifty.Collections.Graphs;
 using Nifty.Configuration;
 using Nifty.Dialogue;
 using Nifty.Events;
@@ -893,6 +892,8 @@ namespace Nifty.NaturalLanguage.Processing
     public interface IOnlineNaturalLanguageParser_V1_a : IBidirectionalObserver_V1_a<string>, IBidirectionalObservable_V1_a<IFormulaCollectionDifference> { }
 
     public interface IOnlineNaturalLanguageParser_V1_b : IBidirectionalObserver_V1_b<string>, IBidirectionalObservable_V1_b<IFormulaCollectionDifference> { }
+
+    public interface IOnlineNaturalLanguageParser_V1_c : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IFormulaCollectionDifference, float>> { }
 }
 
 namespace Nifty.Sessions
