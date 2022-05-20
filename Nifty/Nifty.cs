@@ -858,19 +858,8 @@ namespace Nifty.Modelling.Users
     public interface IUserModel : IHasReadOnlyKnowledgeGraph, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
 }
 
-namespace Nifty.NaturalLanguage.Processing
+namespace Nifty.NaturalLanguage
 {
-    public interface IOnlineNaturalLanguageParser_V1
-    {
-        IEnumerable<IFormulaCollectionDifference> Parse(string text);
-    }
-
-    public interface IOnlineNaturalLanguageParser_V2 : IObserver<string>, IObservable<IFormulaCollectionDifference> { }
-
-    public interface IOnlineNaturalLanguageParser_V3 : IObserver<string>, IObservable<IEnumerable<(IFormulaCollectionDifference Difference, float Confidence)>> { }
-
-    public interface IOnlineNaturalLanguageParser_V4 : IBidirectionalObserver<string>, IBidirectionalObservable<IFormulaCollectionDifference> { }
-
     //public interface IFeedback<in T>
     //{
     //    public void Feedback(T value, float feedback);
@@ -890,6 +879,20 @@ namespace Nifty.NaturalLanguage.Processing
     {
         IDisposable Subscribe(IBidirectionalObserver<T> observer);
     }
+}
+
+namespace Nifty.NaturalLanguage.Processing
+{
+    public interface IOnlineNaturalLanguageParser_V1
+    {
+        IEnumerable<IFormulaCollectionDifference> Parse(string text);
+    }
+
+    public interface IOnlineNaturalLanguageParser_V2 : IObserver<string>, IObservable<IFormulaCollectionDifference> { }
+
+    public interface IOnlineNaturalLanguageParser_V3 : IObserver<string>, IObservable<IEnumerable<(IFormulaCollectionDifference Difference, float Confidence)>> { }
+
+    public interface IOnlineNaturalLanguageParser_V4 : IBidirectionalObserver<string>, IBidirectionalObservable<IFormulaCollectionDifference> { }
 }
 
 namespace Nifty.Sessions
