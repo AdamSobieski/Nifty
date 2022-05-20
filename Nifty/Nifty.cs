@@ -860,24 +860,30 @@ namespace Nifty.Modelling.Users
 
 namespace Nifty.NaturalLanguage
 {
-    //public interface IFeedback<in T>
-    //{
-    //    public void Feedback(T value, float feedback);
-    //}
-
-    public interface IBidirectionalObserver<T>
+    public interface IBidirectionalObserver1<T>
     {
         public void OnCompleted();
         public void OnError(Exception error);
 
-        //public void OnNext(IEnumerable<(T, float)> values, IFeedback<T> feedback);
-        /* and/or */
         public void OnNext(IEnumerable<(T, float)> values, Action<T, float> feedback);
     }
 
-    public interface IBidirectionalObservable<T>
+    public interface IBidirectionalObservable1<T>
     {
-        IDisposable Subscribe(IBidirectionalObserver<T> observer);
+        public IDisposable Subscribe(IBidirectionalObserver1<T> observer);
+    }
+
+    public interface IBidirectionalObserver2<T>
+    {
+        public void OnCompleted();
+        public void OnError(Exception error);
+
+        public void OnNext(IDictionary<T, float> values);
+    }
+
+    public interface IBidirectionalObservable2<T>
+    {
+        public IDisposable Subscribe(IBidirectionalObserver2<T> observer);
     }
 }
 
@@ -892,7 +898,9 @@ namespace Nifty.NaturalLanguage.Processing
 
     public interface IOnlineNaturalLanguageParser_V3 : IObserver<string>, IObservable<IEnumerable<(IFormulaCollectionDifference Difference, float Confidence)>> { }
 
-    public interface IOnlineNaturalLanguageParser_V4 : IBidirectionalObserver<string>, IBidirectionalObservable<IFormulaCollectionDifference> { }
+    public interface IOnlineNaturalLanguageParser_V4a : IBidirectionalObserver1<string>, IBidirectionalObservable1<IFormulaCollectionDifference> { }
+
+    public interface IOnlineNaturalLanguageParser_V4b : IBidirectionalObserver2<string>, IBidirectionalObservable2<IFormulaCollectionDifference> { }
 }
 
 namespace Nifty.Sessions
