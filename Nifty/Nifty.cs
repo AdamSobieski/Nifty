@@ -876,6 +876,7 @@ namespace Nifty.NaturalLanguage.Processing
     // as envisioned, feedback propagates across components, enabling adaptation and learning
     // dictionary implementations might implement INotifyCollectionChanged (see also: https://gist.github.com/kzu/cfe3cb6e4fe3efea6d24) and/or receive callbacks in their constructors
     // these scenarios might be benefitted by a new interface type, perhaps one extending IDictionary<T, float>
+    // see also: https://en.wikipedia.org/wiki/Online_algorithm
     public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IFormulaCollectionDifference, float>> { }
     // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IFormulaCollectionDifference, float>> { }
 }
