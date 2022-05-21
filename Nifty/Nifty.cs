@@ -111,7 +111,7 @@ namespace Nifty.Collections
 
 namespace Nifty.Collections.Automata
 {
-
+    // see also: http://learnlib.github.io/automatalib/maven-site/latest/apidocs/net/automatalib/automata/Automaton.html
 }
 
 namespace Nifty.Collections.Graphs
@@ -873,7 +873,7 @@ namespace Nifty.NaturalLanguage.Processing
 {
     // utilizing mutable dictionaries, observers can provide feedback to observables with respect to the numerical weights on hypotheses
     // downstream observers could, then, utilize reasoners to prune "deltas" which result in paradoxes by setting the numerical weights of the relevant "deltas" to 0 and/or by removing them from dictionary instances
-    // as envisioned, feedback propagates across components, enabling adaptation and perhaps learning
+    // as envisioned, feedback propagates across components, enabling adaptation and learning
     // dictionary implementations might implement INotifyCollectionChanged (see also: https://gist.github.com/kzu/cfe3cb6e4fe3efea6d24) and/or receive callbacks in their constructors
     // these scenarios might be benefitted by a new interface type, perhaps one extending IDictionary<T, float>
     public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IFormulaCollectionDifference, float>> { }
