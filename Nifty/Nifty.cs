@@ -326,6 +326,12 @@ namespace Nifty.Common
         }
     }
 
+    public interface IResumable<T>
+    {
+        public T Suspend();
+        public void Resume(T state);
+    }
+
     public static class Disposable
     {
         class CombinedDisposable : IDisposable
