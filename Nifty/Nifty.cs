@@ -109,6 +109,11 @@ namespace Nifty.Collections
     }
 }
 
+namespace Nifty.Collections.Automata
+{
+
+}
+
 namespace Nifty.Collections.Graphs
 {
     // initial graph model based on Infer.NET
