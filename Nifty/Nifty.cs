@@ -779,6 +779,7 @@ namespace Nifty.Knowledge.Updating
         Simple,
         QueryBased,
         Composite
+        /* Other? */
     }
 
     public interface IFormulaCollectionUpdate
@@ -811,6 +812,8 @@ namespace Nifty.Knowledge.Updating
     {
         public IReadOnlyList<IFormulaCollectionUpdate> Children { get; }
     }
+
+    // public interface IOtherFormulaCollectionUpdate { }
 }
 
 namespace Nifty.Logging
@@ -910,15 +913,7 @@ namespace Nifty.NaturalLanguage.Processing
     // dictionary implementations might implement INotifyCollectionChanged (see also: https://gist.github.com/kzu/cfe3cb6e4fe3efea6d24) and/or receive callbacks in their constructors
     // these scenarios might be benefitted by a new interface type, perhaps one extending IDictionary<T, float>
     // see also: https://en.wikipedia.org/wiki/Online_algorithm
-    
-    // public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IFormulaCollectionDifference, float>> { }
-    // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IFormulaCollectionDifference, float>> { }
 
-    // or, might this interface be:
-    // public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IEnumerable<IFormulaCollectionDifference>, float>> { }
-    // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IEnumerable<IFormulaCollectionDifference>, float>> { }
-
-    // or:
     public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IFormulaCollectionUpdate, float>> { }
     // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IFormulaCollectionUpdate, float>> { }
 }
