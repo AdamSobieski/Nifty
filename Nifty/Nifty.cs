@@ -10,7 +10,7 @@ using Nifty.Knowledge;
 using Nifty.Knowledge.Graphs;
 using Nifty.Knowledge.Reasoning.Derivation;
 using Nifty.Knowledge.Schema;
-using Nifty.Knowledge.Streaming;
+using Nifty.Knowledge.Updating;
 using Nifty.Logging;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
@@ -759,13 +759,8 @@ namespace Nifty.Knowledge.Schema
     }
 }
 
-namespace Nifty.Knowledge.Streaming
+namespace Nifty.Knowledge.Updating
 {
-    // https://www.w3.org/community/rsp/
-    // https://www.w3.org/community/rsp/wiki/RDF_Stream_Models
-    // https://github.com/streamreasoning/rsp4j
-    // https://github.com/dotnet/reactive
-    //
     // https://en.wikipedia.org/wiki/Delta_encoding
 
     public interface IFormulaCollectionDifference
@@ -774,17 +769,30 @@ namespace Nifty.Knowledge.Streaming
         public IEnumerable<IFormula> Additions { get; }
     }
 
-    // or, might this interface be:
-    //public interface IFormulaCollectionDifference
-    //{
-    //    public IReadOnlyFormulaCollection Apply(IReadOnlyFormulaCollection formulas);
-    //    public void Update(IFormulaCollection formulas);
-    //}
-
     public interface IKnowledgeGraphDifference : IFormulaCollectionDifference
     {
         public new IEnumerable<ITriple> Removals { get; }
         public new IEnumerable<ITriple> Additions { get; }
+    }
+
+    // to do: consider kinds of actions upon formula collections and knowledge graphs, e.g., simple (delta/diff), composite, query-based updates, etc.
+    //        there could be, resembling System.Linq.Expressions.Expression, an enumeration for the kind of action that an action is.
+    //        might this model pertain to planning actions, action sequences, and plans?
+
+    public interface IFormulaCollectionAction
+    {
+        public IReadOnlyFormulaCollection Apply(IReadOnlyFormulaCollection formulas);
+        public void Update(IFormulaCollection formulas);
+
+        // public IFormulaCollectionAction Then(IFormulaCollectionAction action);
+    }
+
+    public interface IKnowledgeGraphAction : IFormulaCollectionAction
+    {
+        public IReadOnlyKnowledgeGraph Apply(IReadOnlyKnowledgeGraph graph);
+        public void Update(IKnowledgeGraph graph);
+
+        // public IKnowledgeGraphAction Then(IKnowledgeGraphAction action);
     }
 }
 
