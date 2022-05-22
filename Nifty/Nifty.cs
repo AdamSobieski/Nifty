@@ -480,6 +480,9 @@ namespace Nifty.Knowledge
         {
             return Query(query).Select(map => query.Substitute(map));
         }
+
+        public IReadOnlyFormulaCollection Clone();
+        public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
     }
     public interface IFormulaCollection : IReadOnlyFormulaCollection
     {
@@ -636,6 +639,9 @@ namespace Nifty.Knowledge.Graphs
         {
             return Query(query).Select(result => query.Substitute(result));
         }
+
+        public new IReadOnlyKnowledgeGraph Clone();
+        public IReadOnlyKnowledgeGraph Clone(IReadOnlyKnowledgeGraph removals, IReadOnlyKnowledgeGraph additions);
     }
     public interface IKnowledgeGraph : IFormulaCollection, IReadOnlyKnowledgeGraph
     {
@@ -783,15 +789,13 @@ namespace Nifty.Knowledge.Updating
         public void Update(IFormulaCollection formulas);
 
         // is this an extension method?
-        public IFormulaCollectionUpdate Then(IFormulaCollectionUpdate action);
+        public ICompositeFormulaCollectionUpdate Then(IFormulaCollectionUpdate action);
     }
 
     public interface ISimpleFormulaCollectionUpdate : IFormulaCollectionUpdate
     {
         public IReadOnlyFormulaCollection Removals { get; }
         public IReadOnlyFormulaCollection Additions { get; }
-
-        // what about Removals(IReadOnlyFormulaCollection formulas) and Additions(IReadOnlyFormulaCollection formulas) ?
     }
 
     public interface IQueryBasedFormulaCollectionUpdate : IFormulaCollectionUpdate
