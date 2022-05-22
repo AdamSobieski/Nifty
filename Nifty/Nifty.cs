@@ -775,9 +775,10 @@ namespace Nifty.Knowledge.Updating
         public new IEnumerable<ITriple> Additions { get; }
     }
 
-    // to do: consider kinds of actions upon formula collections and knowledge graphs, e.g., simple (delta/diff), composite, query-based updates, etc.
+    // to do: consider kinds of actions upon formula collections and knowledge graphs, e.g., simple (delta/diff), composite, query-based updates, rules, etc.
+    //        actions may have properties such as being reversible, having an undo method (see also: transactions)
     //        there could be, resembling System.Linq.Expressions.Expression, an enumeration for the kind of action that an action is.
-    //        might this model pertain to planning actions, action sequences, and plans?
+    //        how might this model of knowledgebase updates pertain to planning actions, action sequences, and plans?
 
     public interface IFormulaCollectionAction
     {
