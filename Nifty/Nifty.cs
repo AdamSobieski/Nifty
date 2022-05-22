@@ -765,6 +765,7 @@ namespace Nifty.Knowledge.Streaming
     // https://www.w3.org/community/rsp/wiki/RDF_Stream_Models
     // https://github.com/streamreasoning/rsp4j
     // https://github.com/dotnet/reactive
+    //
     // https://en.wikipedia.org/wiki/Delta_encoding
 
     public interface IFormulaCollectionDifference
@@ -772,6 +773,13 @@ namespace Nifty.Knowledge.Streaming
         public IEnumerable<IFormula> Removals { get; }
         public IEnumerable<IFormula> Additions { get; }
     }
+
+    // or, might this interface be:
+    //public interface IFormulaCollectionDifference
+    //{
+    //    public IReadOnlyFormulaCollection Apply(IReadOnlyFormulaCollection formulas);
+    //    public void Update(IFormulaCollection formulas);
+    //}
 
     public interface IKnowledgeGraphDifference : IFormulaCollectionDifference
     {
