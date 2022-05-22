@@ -8,6 +8,7 @@ using Nifty.Dialogue;
 using Nifty.Events;
 using Nifty.Knowledge;
 using Nifty.Knowledge.Graphs;
+using Nifty.Knowledge.Querying;
 using Nifty.Knowledge.Reasoning.Derivation;
 using Nifty.Knowledge.Schema;
 using Nifty.Knowledge.Updating;
@@ -457,10 +458,7 @@ namespace Nifty.Knowledge
         public bool IsValid { get; }
         public bool IsGraph { get; }
 
-        public bool Contains(IFormula formula)
-        {
-            return Find(formula).Any();
-        }
+        public bool Contains(IFormula formula);
 
         public IEnumerable<IDerivation> Derivations(IFormula formula);
 
@@ -475,11 +473,10 @@ namespace Nifty.Knowledge
 
         public IReadOnlyFormulaCollection Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
-        public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlyFormulaCollection query);
-        public IEnumerable<IReadOnlyFormulaCollection> Query2(IReadOnlyFormulaCollection query)
-        {
-            return Query(query).Select(map => query.Substitute(map));
-        }
+        public bool Query(IAskFormulaCollectionQuery query);
+        public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(ISelectFormulaCollectionQuery query);
+        public IEnumerable<IReadOnlyFormulaCollection> Query(IConstructFormulaCollectionQuery query);
+        public IReadOnlyFormulaCollection Query(IDescribeFormulaCollectionQuery query);
 
         public IReadOnlyFormulaCollection Clone();
         public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
@@ -491,8 +488,6 @@ namespace Nifty.Knowledge
 
         public bool Remove(IFormula formula);
         public bool Remove(IReadOnlyFormulaCollection formulas);
-
-        //public bool Update(IFormulaCollectionDifference change);
     }
 
     public enum TermType
@@ -634,11 +629,7 @@ namespace Nifty.Knowledge.Graphs
 
         public new IReadOnlyKnowledgeGraph Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
-        public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlyKnowledgeGraph query);
-        public IEnumerable<IReadOnlyKnowledgeGraph> Query2(IReadOnlyKnowledgeGraph query)
-        {
-            return Query(query).Select(result => query.Substitute(result));
-        }
+        // public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlyKnowledgeGraph query);
 
         public new IReadOnlyKnowledgeGraph Clone();
         public IReadOnlyKnowledgeGraph Clone(IReadOnlyKnowledgeGraph removals, IReadOnlyKnowledgeGraph additions);
@@ -695,6 +686,40 @@ namespace Nifty.Knowledge.Querying
 {
     // see also: https://www.w3.org/TR/sparql11-query/
     // see also: Jena ARQ
+
+    // https://www.w3.org/TR/sparql11-query/#QueryForms
+    public enum QueryType
+    {
+        Select,
+        Construct,
+        Ask,
+        Describe
+    }
+
+    public interface IFormulaCollectionQuery
+    {
+        public QueryType NodeType { get; }
+    }
+
+    public interface ISelectFormulaCollectionQuery : IFormulaCollectionQuery
+    {
+
+    }
+
+    public interface IConstructFormulaCollectionQuery : IFormulaCollectionQuery
+    {
+
+    }
+
+    public interface IAskFormulaCollectionQuery : IFormulaCollectionQuery
+    {
+
+    }
+
+    public interface IDescribeFormulaCollectionQuery : IFormulaCollectionQuery
+    {
+
+    }
 }
 
 namespace Nifty.Knowledge.Reasoning
@@ -785,8 +810,8 @@ namespace Nifty.Knowledge.Updating
         /* Empty? */
         Simple,
         QueryBased,
-        Composite
-        /* Conditional? */
+        Composite,
+        Conditional
         /* Other? */
     }
 
@@ -811,7 +836,7 @@ namespace Nifty.Knowledge.Updating
     {
         // for each query result, substitute those variables as they occur in removals and additions and remove and add the resultant contents from a formula collection
 
-        public IReadOnlyFormulaCollection Query { get; }
+        public ISelectFormulaCollectionQuery Query { get; }
         public IReadOnlyFormulaCollection Removals { get; }
         public IReadOnlyFormulaCollection Additions { get; }
     }
@@ -821,16 +846,15 @@ namespace Nifty.Knowledge.Updating
         public IReadOnlyList<IFormulaCollectionUpdate> Children { get; }
     }
 
-    //public interface IConditionalFormulaCollectionUpdate
-    //{
-    //    // this would be an ask query or Boolean query
-    //    public IReadOnlyFormulaCollection Query { get; }
-    //
-    //    public IFormulaCollectionUpdate If { get; }
-    //    public IFormulaCollectionUpdate Else { get; }
-    //}
-    //
-    // public interface IOtherFormulaCollectionUpdate { }
+    public interface IConditionalFormulaCollectionUpdate
+    {
+        public IAskFormulaCollectionQuery Query { get; }
+
+        public IFormulaCollectionUpdate If { get; }
+        public IFormulaCollectionUpdate Else { get; }
+    }
+
+    public interface IOtherFormulaCollectionUpdate { }
 }
 
 namespace Nifty.Logging
