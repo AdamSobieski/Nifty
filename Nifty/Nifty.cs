@@ -879,6 +879,14 @@ namespace Nifty.NaturalLanguage.Processing
     // see also: https://en.wikipedia.org/wiki/Online_algorithm
     public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IFormulaCollectionDifference, float>> { }
     // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IFormulaCollectionDifference, float>> { }
+
+    // or, might this interface be:
+    // public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IEnumerable<IFormulaCollectionDifference>, float>> { }
+    // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IEnumerable<IFormulaCollectionDifference>, float>> { }
+
+    // or:
+    // public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IReadOnlyList<IFormulaCollectionDifference>, float>> { }
+    // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IReadOnlyList<IFormulaCollectionDifference>, float>> { }
 }
 
 namespace Nifty.Sessions
