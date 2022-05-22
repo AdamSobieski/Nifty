@@ -691,6 +691,12 @@ namespace Nifty.Knowledge.Probabilistic
 
 }
 
+namespace Nifty.Knowledge.Querying
+{
+    // see also: https://www.w3.org/TR/sparql11-query/
+    // see also: Jena ARQ
+}
+
 namespace Nifty.Knowledge.Reasoning
 {
     public interface IFormulaCollectionReasoner : IHasReadOnlyKnowledgeGraph
@@ -776,9 +782,11 @@ namespace Nifty.Knowledge.Updating
 
     public enum UpdateType
     {
+        /* Empty? */
         Simple,
         QueryBased,
         Composite
+        /* Conditional? */
         /* Other? */
     }
 
@@ -813,6 +821,15 @@ namespace Nifty.Knowledge.Updating
         public IReadOnlyList<IFormulaCollectionUpdate> Children { get; }
     }
 
+    //public interface IConditionalFormulaCollectionUpdate
+    //{
+    //    // this would be an ask query or Boolean query
+    //    public IReadOnlyFormulaCollection Query { get; }
+    //
+    //    public IFormulaCollectionUpdate If { get; }
+    //    public IFormulaCollectionUpdate Else { get; }
+    //}
+    //
     // public interface IOtherFormulaCollectionUpdate { }
 }
 
