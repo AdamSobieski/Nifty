@@ -763,37 +763,49 @@ namespace Nifty.Knowledge.Updating
 {
     // https://en.wikipedia.org/wiki/Delta_encoding
 
-    public interface IFormulaCollectionDifference
-    {
-        public IEnumerable<IFormula> Removals { get; }
-        public IEnumerable<IFormula> Additions { get; }
-    }
-
-    public interface IKnowledgeGraphDifference : IFormulaCollectionDifference
-    {
-        public new IEnumerable<ITriple> Removals { get; }
-        public new IEnumerable<ITriple> Additions { get; }
-    }
-
-    // to do: consider kinds of actions upon formula collections and knowledge graphs, e.g., simple (delta/diff), composite, query-based updates, rules, etc.
+    // to do: consider kinds of actions upon formula collections and knowledge graphs, e.g., simple (deltas / diffs), query-based updates / rules, composite, etc.
     //        actions may have properties such as being reversible, having an undo method (see also: transactions)
     //        there could be, resembling System.Linq.Expressions.Expression, an enumeration for the kind of action that an action is.
     //        how might this model of knowledgebase updates pertain to planning actions, action sequences, and plans?
 
-    public interface IFormulaCollectionAction
+    public enum UpdateType
     {
+        Simple,
+        QueryBased,
+        Composite
+    }
+
+    public interface IFormulaCollectionUpdate
+    {
+        public UpdateType NodeType { get; }
+
         public IReadOnlyFormulaCollection Apply(IReadOnlyFormulaCollection formulas);
         public void Update(IFormulaCollection formulas);
 
-        // public IFormulaCollectionAction Then(IFormulaCollectionAction action);
+        // is this an extension method?
+        public IFormulaCollectionUpdate Then(IFormulaCollectionUpdate action);
     }
 
-    public interface IKnowledgeGraphAction : IFormulaCollectionAction
+    public interface ISimpleFormulaCollectionUpdate : IFormulaCollectionUpdate
     {
-        public IReadOnlyKnowledgeGraph Apply(IReadOnlyKnowledgeGraph graph);
-        public void Update(IKnowledgeGraph graph);
+        public IReadOnlyFormulaCollection Removals { get; }
+        public IReadOnlyFormulaCollection Additions { get; }
 
-        // public IKnowledgeGraphAction Then(IKnowledgeGraphAction action);
+        // what about Removals(IReadOnlyFormulaCollection formulas) and Additions(IReadOnlyFormulaCollection formulas) ?
+    }
+
+    public interface IQueryBasedFormulaCollectionUpdate : IFormulaCollectionUpdate
+    {
+        // for each query result, substitute those variables as they occur in removals and additions and remove and add the resultant contents from a formula collection
+
+        public IReadOnlyFormulaCollection Query { get; }
+        public IReadOnlyFormulaCollection Removals { get; }
+        public IReadOnlyFormulaCollection Additions { get; }
+    }
+
+    public interface ICompositeFormulaCollectionUpdate : IFormulaCollectionUpdate
+    {
+        public IReadOnlyList<IFormulaCollectionUpdate> Children { get; }
     }
 }
 
@@ -894,7 +906,8 @@ namespace Nifty.NaturalLanguage.Processing
     // dictionary implementations might implement INotifyCollectionChanged (see also: https://gist.github.com/kzu/cfe3cb6e4fe3efea6d24) and/or receive callbacks in their constructors
     // these scenarios might be benefitted by a new interface type, perhaps one extending IDictionary<T, float>
     // see also: https://en.wikipedia.org/wiki/Online_algorithm
-    public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IFormulaCollectionDifference, float>> { }
+    
+    // public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IFormulaCollectionDifference, float>> { }
     // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IFormulaCollectionDifference, float>> { }
 
     // or, might this interface be:
@@ -902,8 +915,8 @@ namespace Nifty.NaturalLanguage.Processing
     // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IEnumerable<IFormulaCollectionDifference>, float>> { }
 
     // or:
-    // public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IReadOnlyList<IFormulaCollectionDifference>, float>> { }
-    // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IReadOnlyList<IFormulaCollectionDifference>, float>> { }
+    public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IFormulaCollectionUpdate, float>> { }
+    // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IFormulaCollectionUpdate, float>> { }
 }
 
 namespace Nifty.Sessions
