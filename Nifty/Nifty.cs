@@ -470,8 +470,8 @@ namespace Nifty.Knowledge
         public int Count(IFormula formula);
         public int Count(IReadOnlyFormulaCollection query);
 
-        public IFormulaCollectionDifference DifferenceFrom(IReadOnlyFormulaCollection other);
-        public IReadOnlyFormulaCollection Apply(IFormulaCollectionDifference change);
+        public ISimpleFormulaCollectionUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
+        //public IReadOnlyFormulaCollection Apply(IFormulaCollectionDifference change);
 
         public IReadOnlyFormulaCollection Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
@@ -489,7 +489,7 @@ namespace Nifty.Knowledge
         public bool Remove(IFormula formula);
         public bool Remove(IReadOnlyFormulaCollection formulas);
 
-        public bool Update(IFormulaCollectionDifference change);
+        //public bool Update(IFormulaCollectionDifference change);
     }
 
     public enum TermType
@@ -626,8 +626,8 @@ namespace Nifty.Knowledge.Graphs
         public int Count(ITriple triple);
         public int Count(IReadOnlyKnowledgeGraph query);
 
-        public IKnowledgeGraphDifference DifferenceFrom(IReadOnlyKnowledgeGraph other);
-        public IReadOnlyKnowledgeGraph Apply(IKnowledgeGraphDifference change);
+        //public IKnowledgeGraphDifference DifferenceFrom(IReadOnlyKnowledgeGraph other);
+        //public IReadOnlyKnowledgeGraph Apply(IKnowledgeGraphDifference change);
 
         public new IReadOnlyKnowledgeGraph Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
@@ -646,7 +646,7 @@ namespace Nifty.Knowledge.Graphs
         public bool Add(IReadOnlyKnowledgeGraph graph);
         public bool Remove(IReadOnlyKnowledgeGraph graph);
 
-        public bool Update(IKnowledgeGraphDifference change);
+        //public bool Update(IKnowledgeGraphDifference change);
 
         public new IKnowledgeGraph Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
     }
