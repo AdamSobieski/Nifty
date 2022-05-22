@@ -7,7 +7,6 @@ using Nifty.Configuration;
 using Nifty.Dialogue;
 using Nifty.Events;
 using Nifty.Knowledge;
-using Nifty.Knowledge.Graphs;
 using Nifty.Knowledge.Querying;
 using Nifty.Knowledge.Reasoning.Derivation;
 using Nifty.Knowledge.Schema;
@@ -16,20 +15,19 @@ using Nifty.Logging;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
 using System.Diagnostics.CodeAnalysis;
-using System.Net.Mime;
 using System.Xml;
 
 namespace Nifty.Activities
 {
-    public interface IActivityGeneratorStore : IHasReadOnlyKnowledgeGraph, /*IQueryable<IActivityGenerator>,*/ ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
-    public interface IActivityGenerator : IHasReadOnlyKnowledgeGraph
+    public interface IActivityGeneratorStore : IHasReadOnlyFormulaCollection, /*IQueryable<IActivityGenerator>,*/ ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    public interface IActivityGenerator : IHasReadOnlyFormulaCollection
     {
         // public IActivityPreconditions Preconditions { get; }
         // public IActivityEffects       Effects { get; }
 
         Task<IActivity> Generate(ISession session, CancellationToken cancellationToken);
     }
-    public interface IActivity : IHasReadOnlyKnowledgeGraph, ISessionInitializable, ISessionDisposable, IDisposable
+    public interface IActivity : IHasReadOnlyFormulaCollection, ISessionInitializable, ISessionDisposable, IDisposable
     {
         //public IActivityGenerator Generator { get; }
 
@@ -62,7 +60,7 @@ namespace Nifty.Activities
 
 namespace Nifty.Algorithms
 {
-    public interface IAlgorithm : IHasReadOnlyKnowledgeGraph, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable
+    public interface IAlgorithm : IHasReadOnlyFormulaCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable
     {
         public IAsyncEnumerator<IActivityGenerator> GetAsyncEnumerator(ISession session, CancellationToken cancellationToken);
     }
@@ -408,8 +406,8 @@ namespace Nifty.Configuration
 
     public interface IConfiguration : ISessionInitializable, ISessionOptimizable, ISessionDisposable, INotifyChanged
     {
-        public bool About(IUriTerm setting, [NotNullWhen(true)] out IReadOnlyKnowledgeGraph? about);
-        public bool About(IUriTerm setting, [NotNullWhen(true)] out IReadOnlyKnowledgeGraph? about, string language);
+        public bool About(IUriTerm setting, [NotNullWhen(true)] out IReadOnlyFormulaCollection? about);
+        public bool About(IUriTerm setting, [NotNullWhen(true)] out IReadOnlyFormulaCollection? about, string language);
         public bool TryGetSetting(IUriTerm setting, [NotNullWhen(true)] out IConvertible? value);
         public bool TryGetSetting(IUriTerm setting, [NotNullWhen(true)] out IConvertible? value, string language);
     }
@@ -425,22 +423,14 @@ namespace Nifty.Dialogue
 
 namespace Nifty.Events
 {
-    // event listeners could subscribe to those messages or events described by a query
-    // and, resembling IObservable<>, event listeners could hold onto an IDisposable for unsubscribing
-    public interface IEventSource : IHasReadOnlyKnowledgeGraph
+    public interface IEventSource : IHasReadOnlyFormulaCollection
     {
-        public IDisposable Subscribe(IUriTerm eventType, IEventHandler listener)
-        {
-            var x = Factory.Variable("x");
-            var triple = Factory.TriplePSO(Keys.Semantics.Rdf.type, x, eventType);
-            var query = Factory.ReadOnlyKnowledgeGraph(new ITriple[] { triple });
-            return Subscribe(x, query, listener);
-        }
-        public IDisposable Subscribe(IVariableTerm eventVariable, IReadOnlyKnowledgeGraph query, IEventHandler listener);
+        public IDisposable Subscribe(IUriTerm eventType, IEventHandler listener);
+        public IDisposable Subscribe(IVariableTerm eventVariable, IAskFormulaCollectionQuery query, IEventHandler listener);
     }
-    public interface IEventHandler // : IHasReadOnlyKnowledgeGraph
+    public interface IEventHandler // : IHasReadOnlyFormulaCollection
     {
-        public Task Handle(IEventSource source, ITerm eventInstance, IReadOnlyKnowledgeGraph aboutEventInstance, ITerm eventData, IReadOnlyKnowledgeGraph aboutEventData);
+        public Task Handle(IEventSource source, ITerm eventInstance, IReadOnlyFormulaCollection aboutEventInstance, ITerm eventData, IReadOnlyFormulaCollection aboutEventData);
     }
 }
 
@@ -498,9 +488,7 @@ namespace Nifty.Knowledge
         Literal,
         Variable,
         Formula,
-        Triple,
         FormulaCollection,
-        KnowledgeGraph
     }
     public interface ITerm
     {
@@ -562,15 +550,20 @@ namespace Nifty.Knowledge
 
         public bool Matches(IFormula other);
 
-        public bool IsValid(IReadOnlyFormulaCollectionSchema schema)
-        {
-            return schema.Validate(this).Result;
-        }
+        public bool IsValid(IReadOnlyFormulaCollectionSchema schema);
     }
 
     public interface IHasTerm
     {
         public ITerm Term { get; }
+    }
+    public interface IHasReadOnlyFormulaCollection : IHasTerm
+    {
+        public IReadOnlyFormulaCollection About { get; }
+    }
+    public interface IHasFormulaCollection : IHasReadOnlyFormulaCollection
+    {
+        public new IFormulaCollection About { get; }
     }
 
     public interface ITermVisitor
@@ -581,84 +574,13 @@ namespace Nifty.Knowledge
         public object Visit(ILiteralTerm term);
         public object Visit(IVariableTerm term);
         //public object Visit(IFormula formula);
-        //public object Visit(ITriple triple);
         //public object Visit(IReadOnlyFormulaCollection collection);
-        //public object Visit(IReadOnlyKnowledgeGraph graph);
     }
 
     public interface IKnowledgebase : IFormulaCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
 }
 
-namespace Nifty.Knowledge.Graphs
-{
-    public interface ITriple : IFormula
-    {
-        public ITerm Subject { get; }
-        public ITerm Object { get; }
-
-        public bool Matches(ITriple other);
-
-        public bool IsValid(IReadOnlyKnowledgeGraphSchema schema)
-        {
-            return schema.Validate(this).Result;
-        }
-    }
-
-    public interface IReadOnlyKnowledgeGraph : /*IReadOnlyMultigraph<ITerm, ITriple>,*/ IReadOnlyFormulaCollection, IHasReadOnlyKnowledgeGraphSchema, IEventSource, INotifyChanged
-    {
-        public IQueryable<ITerm> Subjects { get { return this.Contents.Select(t => t.Subject).Distinct(); } }
-        public IQueryable<ITerm> Objects { get { return this.Contents.Select(t => t.Object).Distinct(); } }
-
-        public new IQueryable<ITriple> Contents { get; }
-
-        public bool Contains(ITriple triple)
-        {
-            return Find(triple).Any();
-        }
-        public bool Contains(ITriple triple, [NotNullWhen(true)] out ITerm? reified);
-
-        public IEnumerable<IDerivation> Derivations(ITriple triple);
-
-        public IQueryable<ITriple> Find(ITriple triple);
-
-        public int Count(ITriple triple);
-        public int Count(IReadOnlyKnowledgeGraph query);
-
-        //public IKnowledgeGraphDifference DifferenceFrom(IReadOnlyKnowledgeGraph other);
-        //public IReadOnlyKnowledgeGraph Apply(IKnowledgeGraphDifference change);
-
-        public new IReadOnlyKnowledgeGraph Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
-
-        // public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(IReadOnlyKnowledgeGraph query);
-
-        public new IReadOnlyKnowledgeGraph Clone();
-        public IReadOnlyKnowledgeGraph Clone(IReadOnlyKnowledgeGraph removals, IReadOnlyKnowledgeGraph additions);
-    }
-    public interface IKnowledgeGraph : IFormulaCollection, IReadOnlyKnowledgeGraph
-    {
-        public bool Add(ITriple triple);
-        public bool Add(ITriple triple, [NotNullWhen(true)] out ITerm? reified);
-        public bool Remove(ITriple triple);
-
-        public bool Add(IReadOnlyKnowledgeGraph graph);
-        public bool Remove(IReadOnlyKnowledgeGraph graph);
-
-        //public bool Update(IKnowledgeGraphDifference change);
-
-        public new IKnowledgeGraph Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
-    }
-
-    public interface IHasReadOnlyKnowledgeGraph : IHasTerm
-    {
-        public IReadOnlyKnowledgeGraph About { get; }
-    }
-    public interface IHasKnowledgeGraph : IHasReadOnlyKnowledgeGraph
-    {
-        public new IKnowledgeGraph About { get; }
-    }
-}
-
-namespace Nifty.Knowledge.Graphs.Serialization
+namespace Nifty.Knowledge.Serialization
 {
     [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
     public sealed class UriAttribute : Attribute
@@ -673,7 +595,7 @@ namespace Nifty.Knowledge.Graphs.Serialization
 
     public interface ISerializable
     {
-        public void Serialize(IKnowledgeGraph graph);
+        public void Serialize(IFormulaCollection formulas);
     }
 }
 
@@ -724,7 +646,7 @@ namespace Nifty.Knowledge.Querying
 
 namespace Nifty.Knowledge.Reasoning
 {
-    public interface IFormulaCollectionReasoner : IHasReadOnlyKnowledgeGraph
+    public interface IFormulaCollectionReasoner : IHasReadOnlyFormulaCollection
     {
         public IConfiguration Configuration { get; }
 
@@ -737,19 +659,6 @@ namespace Nifty.Knowledge.Reasoning
     {
         public IFormulaCollectionReasoner Reasoner { get; }
         public IReadOnlyFormulaCollection Base { get; }
-    }
-
-    public interface IKnowledgeGraphReasoner : IFormulaCollectionReasoner
-    {
-        Task<IKnowledgeGraphReasoner> BindRules(IReadOnlyKnowledgeGraph rules);
-
-        Task<IInferredReadOnlyKnowledgeGraph> Bind(IReadOnlyKnowledgeGraph graph);
-    }
-
-    public interface IInferredReadOnlyKnowledgeGraph : IReadOnlyKnowledgeGraph, IInferredReadOnlyFormulaCollection
-    {
-        public new IKnowledgeGraphReasoner Reasoner { get; }
-        public new IReadOnlyKnowledgeGraph Base { get; }
     }
 }
 
@@ -765,17 +674,10 @@ namespace Nifty.Knowledge.Schema
 {
     public interface IReadOnlyFormulaCollectionSchema : IReadOnlyFormulaCollection
     {
-        public Task<bool> Validate(IFormula formula);
+        //public Task<bool> Validate(IFormula formula);
         public Task<bool> Validate(IReadOnlyFormulaCollection formulas);
     }
     public interface IFormulaCollectionSchema : IReadOnlyFormulaCollectionSchema, IFormulaCollection { }
-
-    public interface IReadOnlyKnowledgeGraphSchema : IReadOnlyKnowledgeGraph, IReadOnlyFormulaCollectionSchema
-    {
-        public Task<bool> Validate(ITriple triple);
-        public Task<bool> Validate(IReadOnlyKnowledgeGraph graph);
-    }
-    public interface IKnowledgeGraphSchema : IReadOnlyKnowledgeGraphSchema, IKnowledgeGraph, IFormulaCollectionSchema { }
 
     public interface IHasReadOnlyFormulaCollectionSchema
     {
@@ -785,20 +687,11 @@ namespace Nifty.Knowledge.Schema
     {
         public new IFormulaCollectionSchema Schema { get; }
     }
-
-    public interface IHasReadOnlyKnowledgeGraphSchema : IHasReadOnlyFormulaCollectionSchema
-    {
-        public new IReadOnlyKnowledgeGraphSchema Schema { get; }
-    }
-    public interface IHasKnowledgeGraphSchema : IHasReadOnlyKnowledgeGraphSchema, IHasFormulaCollectionSchema
-    {
-        public new IKnowledgeGraphSchema Schema { get; }
-    }
 }
 
 namespace Nifty.Knowledge.Updating
 {
-    // https://en.wikipedia.org/wiki/Delta_encoding
+    // see also: https://en.wikipedia.org/wiki/Delta_encoding
 
     // to do: consider kinds of actions upon formula collections and knowledge graphs, e.g., simple (deltas / diffs), query-based updates / rules, composite, etc.
     //        actions may have properties such as being reversible, having an undo method (see also: transactions)
@@ -853,8 +746,6 @@ namespace Nifty.Knowledge.Updating
         public IFormulaCollectionUpdate If { get; }
         public IFormulaCollectionUpdate Else { get; }
     }
-
-    public interface IOtherFormulaCollectionUpdate { }
 }
 
 namespace Nifty.Logging
@@ -938,12 +829,12 @@ namespace Nifty.Messaging
 
 namespace Nifty.Modelling.Domains
 {
-    public interface IDomainModel : IHasReadOnlyKnowledgeGraph, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    public interface IDomainModel : IHasReadOnlyFormulaCollection, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
 }
 
 namespace Nifty.Modelling.Users
 {
-    public interface IUserModel : IHasReadOnlyKnowledgeGraph, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    public interface IUserModel : IHasReadOnlyFormulaCollection, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
 }
 
 namespace Nifty.NaturalLanguage.Processing
@@ -974,7 +865,7 @@ namespace Nifty.Sessions
         public void Dispose(ISession session);
     }
 
-    public interface ISession : IHasReadOnlyKnowledgeGraph, IInitializable, IOptimizable, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IActivityGenerator>
+    public interface ISession : IHasReadOnlyFormulaCollection, IInitializable, IOptimizable, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IActivityGenerator>
     {
         public IConfiguration Configuration { get; }
         public IKnowledgebase Knowledgebase { get; }
@@ -1495,22 +1386,15 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
-        public static ITriple TriplePSO(ITerm predicate, ITerm subject, ITerm @object)
+        public static IFormula TriplePSO(ITerm predicate, ITerm subject, ITerm @object)
         {
             throw new NotImplementedException();
         }
-        public static ITriple TripleSPO(ITerm subject, ITerm predicate, ITerm @object)
+        public static IFormula TripleSPO(ITerm subject, ITerm predicate, ITerm @object)
         {
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyKnowledgeGraphSchema EmptyKnowledgeGraphSchema
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
         public static IReadOnlyFormulaCollectionSchema EmptyFormulaCollectionSchema
         {
             get
@@ -1519,49 +1403,7 @@ namespace Nifty
             }
         }
 
-        public static IKnowledgeGraph KnowledgeGraph(IReadOnlyKnowledgeGraphSchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static IKnowledgeGraph KnowledgeGraph(IEnumerable<ITriple> statements, IReadOnlyKnowledgeGraphSchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyKnowledgeGraph ReadOnlyKnowledgeGraph(IEnumerable<ITriple> statements)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyKnowledgeGraph ReadOnlyKnowledgeGraph(IEnumerable<ITriple> statements, IReadOnlyKnowledgeGraphSchema schema)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static IReadOnlyKnowledgeGraph ParseReadOnlyKnowledgeGraph(ContentType type, Stream stream)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyKnowledgeGraph ParseReadOnlyKnowledgeGraph(ContentType type, Stream stream, IReadOnlyKnowledgeGraphSchema schema)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static IKnowledgeGraphSchema KnowledgeGraphSchema()
-        {
-            throw new NotImplementedException();
-        }
-        public static IKnowledgeGraphSchema KnowledgeGraphSchema(IReadOnlyKnowledgeGraphSchema schema)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static IReadOnlyKnowledgeGraphSchema ParseReadOnlyKnowledgeGraphSchema(ContentType type, Stream stream)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyKnowledgeGraphSchema ParseReadOnlyKnowledgeGraphSchema(ContentType type, Stream stream, IReadOnlyKnowledgeGraphSchema schema)
-        {
-            throw new NotImplementedException();
-        }
+        //...
 
         public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> statements, IReadOnlyFormulaCollectionSchema schema)
         {
@@ -1571,162 +1413,6 @@ namespace Nifty
 
     public static partial class Extensions
     {
-        public static bool Add(this IKnowledgeGraph graph, ITerm predicate, ITerm subject, bool value)
-        {
-            return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
-        }
-        public static bool Add(this IKnowledgeGraph graph, ITerm predicate, ITerm subject, sbyte value)
-        {
-            return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
-        }
-        public static bool Add(this IKnowledgeGraph graph, ITerm predicate, ITerm subject, byte value)
-        {
-            return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
-        }
-        public static bool Add(this IKnowledgeGraph graph, ITerm predicate, ITerm subject, short value)
-        {
-            return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
-        }
-        public static bool Add(this IKnowledgeGraph graph, ITerm predicate, ITerm subject, ushort value)
-        {
-            return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
-        }
-        public static bool Add(this IKnowledgeGraph graph, ITerm predicate, ITerm subject, int value)
-        {
-            return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
-        }
-        public static bool Add(this IKnowledgeGraph graph, ITerm predicate, ITerm subject, uint value)
-        {
-            return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
-        }
-        public static bool Add(this IKnowledgeGraph graph, ITerm predicate, ITerm subject, long value)
-        {
-            return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
-        }
-        public static bool Add(this IKnowledgeGraph graph, ITerm predicate, ITerm subject, ulong value)
-        {
-            return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
-        }
-        public static bool Add(this IKnowledgeGraph graph, ITerm predicate, ITerm subject, float value)
-        {
-            return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
-        }
-        public static bool Add(this IKnowledgeGraph graph, ITerm predicate, ITerm subject, double value)
-        {
-            return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
-        }
-        public static bool Add(this IKnowledgeGraph graph, ITerm predicate, ITerm subject, string value)
-        {
-            return graph.Add(Factory.TriplePSO(predicate, subject, Factory.Literal(value)));
-        }
         //...
-
-        public static IEnumerable<ITerm> GetClasses(this IHasReadOnlyKnowledgeGraph thing)
-        {
-            return thing.About.Find(Factory.TriplePSO(Keys.Semantics.Rdf.type, thing.Term, Factory.Any())).Select(t => t.Object).Distinct();
-        }
-        public static bool HasClass(this IHasReadOnlyKnowledgeGraph thing, ITerm type)
-        {
-            return thing.About.Contains(Factory.TriplePSO(Keys.Semantics.Rdf.type, thing.Term, type));
-        }
-        public static IEnumerable<ITerm> GetProperties(this IHasReadOnlyKnowledgeGraph thing)
-        {
-            return thing.About.Find(Factory.TriplePSO(Factory.Any(), thing.Term, Factory.Any())).Select(t => t.Predicate).Distinct();
-        }
-        public static bool HasProperty(this IHasReadOnlyKnowledgeGraph thing, ITerm predicate)
-        {
-            return thing.About.Contains(Factory.TriplePSO(predicate, thing.Term, Factory.Any()));
-        }
-        public static IEnumerable<ITerm> GetEvents(this IEventSource thing)
-        {
-            return thing.About.Find(Factory.TriplePSO(Keys.Semantics.Eo.raisesEventType, thing.Term, Factory.Any())).Select(t => t.Object).Distinct();
-        }
-        public static bool HasEvent(this IEventSource thing, ITerm eventCategory)
-        {
-            return thing.About.Contains(Factory.TriplePSO(Keys.Semantics.Eo.raisesEventType, thing.Term, eventCategory));
-        }
-
-        public static T Setting<T>(this ISession session, ISetting<T> setting)
-        {
-            return session.Configuration.TryGetSetting(setting.Term, out IConvertible? value) ? (T)value.ToType(typeof(T), System.Globalization.CultureInfo.CurrentCulture) : setting.DefaultValue;
-        }
-        public static bool About<T>(this ISession session, ISetting<T> setting, out string? title, out string? description, string? language = null)
-        {
-            var term = setting.Term;
-            bool b;
-            IReadOnlyKnowledgeGraph? about;
-
-            if (language == null)
-            {
-                b = session.Configuration.About(term, out about);
-            }
-            else
-            {
-                b = session.Configuration.About(term, out about, language);
-            }
-
-            if (b)
-            {
-                title = (about?.Find(Factory.TriplePSO(Keys.Semantics.Dc.title, term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-                description = (about?.Find(Factory.TriplePSO(Keys.Semantics.Dc.description, term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-                return true;
-            }
-            else
-            {
-                title = null;
-                description = null;
-                return false;
-            }
-        }
-
-        public static string? GetTitle(this IActivity activity, string? language = null)
-        {
-            if (language == null)
-            {
-                return (activity.About.Find(Factory.TriplePSO(Keys.Semantics.Dc.title, activity.Term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-            }
-            else
-            {
-                return (activity.About.Find(Factory.TriplePSO(Keys.Semantics.Dc.title, activity.Term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-            }
-        }
-        public static string? GetDescription(this IActivity activity, string? language = null)
-        {
-            if (language == null)
-            {
-                return (activity.About.Find(Factory.TriplePSO(Keys.Semantics.Dc.description, activity.Term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-            }
-            else
-            {
-                return (activity.About.Find(Factory.TriplePSO(Keys.Semantics.Dc.description, activity.Term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-            }
-        }
-
-        public static string? GetTitle(this IAlgorithm algorithm, string? language = null)
-        {
-            if (language == null)
-            {
-                return (algorithm.About.Find(Factory.TriplePSO(Keys.Semantics.Dc.title, algorithm.Term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-            }
-            else
-            {
-                return (algorithm.About.Find(Factory.TriplePSO(Keys.Semantics.Dc.title, algorithm.Term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-            }
-        }
-        public static string? GetDescription(this IAlgorithm algorithm, string? language = null)
-        {
-            if (language == null)
-            {
-                return (algorithm.About.Find(Factory.TriplePSO(Keys.Semantics.Dc.description, algorithm.Term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-            }
-            else
-            {
-                return (algorithm.About.Find(Factory.TriplePSO(Keys.Semantics.Dc.description, algorithm.Term, Factory.Any(language))).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-            }
-        }
-        public static string? GetVersion(this IAlgorithm algorithm)
-        {
-            return (algorithm.About.Find(Factory.TriplePSO(Keys.Semantics.Swo.version, algorithm.Term, Factory.Any())).SingleOrDefault()?.Object as ILiteralTerm)?.Value;
-        }
     }
 }
