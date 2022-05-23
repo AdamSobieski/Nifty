@@ -426,7 +426,7 @@ namespace Nifty.Events
     public interface IEventSource : IHasReadOnlyFormulaCollection
     {
         public IDisposable Subscribe(IUriTerm eventType, IEventHandler listener);
-        public IDisposable Subscribe(IAskFormulaCollectionQuery query, IEventHandler listener);
+        public IDisposable Subscribe(IAskQuery query, IEventHandler listener);
     }
     public interface IEventHandler // : IHasReadOnlyFormulaCollection
     {
@@ -458,14 +458,14 @@ namespace Nifty.Knowledge
         public int Count(IFormula formula);
         public int Count(IReadOnlyFormulaCollection query);
 
-        public ISimpleFormulaCollectionUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
+        public ISimpleUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
 
         public IReadOnlyFormulaCollection Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
-        public bool Query(IAskFormulaCollectionQuery query);
-        public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(ISelectFormulaCollectionQuery query);
-        public IEnumerable<IReadOnlyFormulaCollection> Query(IConstructFormulaCollectionQuery query);
-        public IReadOnlyFormulaCollection Query(IDescribeFormulaCollectionQuery query);
+        public bool Query(IAskQuery query);
+        public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(ISelectQuery query);
+        public IEnumerable<IReadOnlyFormulaCollection> Query(IConstructQuery query);
+        public IReadOnlyFormulaCollection Query(IDescribeQuery query);
 
         public IReadOnlyFormulaCollection Clone();
         public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
@@ -617,27 +617,27 @@ namespace Nifty.Knowledge.Querying
         Describe
     }
 
-    public interface IFormulaCollectionQuery
+    public interface IQuery
     {
         public QueryType NodeType { get; }
     }
 
-    public interface ISelectFormulaCollectionQuery : IFormulaCollectionQuery
+    public interface ISelectQuery : IQuery
     {
 
     }
 
-    public interface IConstructFormulaCollectionQuery : IFormulaCollectionQuery
+    public interface IConstructQuery : IQuery
     {
 
     }
 
-    public interface IAskFormulaCollectionQuery : IFormulaCollectionQuery
+    public interface IAskQuery : IQuery
     {
 
     }
 
-    public interface IDescribeFormulaCollectionQuery : IFormulaCollectionQuery
+    public interface IDescribeQuery : IQuery
     {
 
     }
@@ -707,7 +707,7 @@ namespace Nifty.Knowledge.Updating
         /* Other? */
     }
 
-    public interface IFormulaCollectionUpdate
+    public interface IUpdate
     {
         public UpdateType NodeType { get; }
 
@@ -715,35 +715,35 @@ namespace Nifty.Knowledge.Updating
         public void Update(IFormulaCollection formulas);
 
         // is this an extension method?
-        public ICompositeFormulaCollectionUpdate Then(IFormulaCollectionUpdate action);
+        public ICompositeUpdate Then(IUpdate action);
     }
 
-    public interface ISimpleFormulaCollectionUpdate : IFormulaCollectionUpdate
+    public interface ISimpleUpdate : IUpdate
     {
         public IReadOnlyFormulaCollection Removals { get; }
         public IReadOnlyFormulaCollection Additions { get; }
     }
 
-    public interface IQueryBasedFormulaCollectionUpdate : IFormulaCollectionUpdate
+    public interface IQueryBasedUpdate : IUpdate
     {
         // for each query result, substitute those variables as they occur in removals and additions and remove and add the resultant contents from a formula collection
 
-        public ISelectFormulaCollectionQuery Query { get; }
+        public ISelectQuery Query { get; }
         public IReadOnlyFormulaCollection Removals { get; }
         public IReadOnlyFormulaCollection Additions { get; }
     }
 
-    public interface ICompositeFormulaCollectionUpdate : IFormulaCollectionUpdate
+    public interface ICompositeUpdate : IUpdate
     {
-        public IReadOnlyList<IFormulaCollectionUpdate> Children { get; }
+        public IReadOnlyList<IUpdate> Children { get; }
     }
 
-    public interface IConditionalFormulaCollectionUpdate
+    public interface IConditionalUpdate
     {
-        public IAskFormulaCollectionQuery Query { get; }
+        public IAskQuery Query { get; }
 
-        public IFormulaCollectionUpdate If { get; }
-        public IFormulaCollectionUpdate Else { get; }
+        public IUpdate If { get; }
+        public IUpdate Else { get; }
     }
 }
 
@@ -845,7 +845,7 @@ namespace Nifty.NaturalLanguage.Processing
     // these scenarios might be benefitted by a new interface type, perhaps one extending IDictionary<T, float>
     // see also: https://en.wikipedia.org/wiki/Online_algorithm
 
-    public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IFormulaCollectionUpdate, float>> { }
+    public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IUpdate, float>> { }
     // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IFormulaCollectionUpdate, float>> { }
 }
 
