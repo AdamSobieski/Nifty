@@ -1413,15 +1413,23 @@ namespace Nifty
             }
         }
         
+        public static IReadOnlyFormulaCollectionSchema ReadOnlyFormulaCollectionSchema(IEnumerable<IFormula> formulas, IReadOnlyFormulaCollectionSchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormulaCollectionSchema FormulaCollectionSchema(IEnumerable<IFormula> formulas, IReadOnlyFormulaCollectionSchema schema)
+        {
+            throw new NotImplementedException();
+        }
         public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, IReadOnlyFormulaCollectionSchema schema)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlyFormulaCollectionSchema schema)
+        public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, IReadOnlyFormulaCollectionSchema schema)
         {
             throw new NotImplementedException();
         }
-        public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, IReadOnlyFormulaCollectionSchema schema)
+        public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlyFormulaCollectionSchema schema)
         {
             throw new NotImplementedException();
         }
