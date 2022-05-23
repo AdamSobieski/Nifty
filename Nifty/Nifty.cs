@@ -693,8 +693,7 @@ namespace Nifty.Knowledge.Updating
     // see also: https://en.wikipedia.org/wiki/Delta_encoding
 
     // to do: consider kinds of actions upon formula collections and knowledge graphs, e.g., simple (deltas / diffs), query-based updates / rules, composite, etc.
-    //        actions may have properties such as being reversible, having an undo method (see also: transactions)
-    //        there could be, resembling System.Linq.Expressions.Expression, an enumeration for the kind of action that an action is.
+    //        updates could have properties such as being reversible, having an undo method (see also: transactions)
     //        how might this model of knowledgebase updates pertain to planning actions, action sequences, and plans?
 
     public enum UpdateType
@@ -1405,17 +1404,27 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyFormulaCollectionSchema EmptyFormulaCollectionSchema
+        public static IReadOnlyFormulaCollectionSchema EmptySchema
         {
             get
             {
                 throw new NotImplementedException();
             }
         }
-
-        //...
-
-        public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> statements, IReadOnlyFormulaCollectionSchema schema)
+        
+        public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, IReadOnlyFormulaCollectionSchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlyFormulaCollectionSchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, IReadOnlyFormulaCollectionSchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlyFormulaCollectionSchema schema)
         {
             throw new NotImplementedException();
         }
