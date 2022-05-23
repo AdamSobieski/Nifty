@@ -102,12 +102,6 @@ namespace Nifty.Channels
 
 namespace Nifty.Collections
 {
-    public interface ILabeledCollection<TItem, TLabel> : ICollection<TItem>
-    {
-        ICollection<TLabel> Labels { get; }
-        ICollection<TItem> WithLabel(TLabel label);
-    }
-
     public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IList<KeyValuePair<TKey, TValue>> { }
 }
 
@@ -242,6 +236,51 @@ namespace Nifty.Collections.Graphs
         public void ClearEdges(TLabel label);
     }
 
+    public interface ILabeledCollection<TItem, TLabel> : ICollection<TItem>
+    {
+        ICollection<TLabel> Labels { get; }
+        ICollection<TItem> WithLabel(TLabel label);
+    }
+
+    public class IndexedProperty<TKey, TValue>
+    {
+        public readonly Converter<TKey, TValue> Get;
+
+        public readonly Action<TKey, TValue> Set;
+
+        public readonly Action Clear;
+
+        public TValue this[TKey key]
+        {
+            get { return Get(key); }
+            set { Set(key, value); }
+        }
+
+        public IndexedProperty(Converter<TKey, TValue> getter, Action<TKey, TValue> setter, Action clearer)
+        {
+            Get = getter;
+            Set = setter;
+            Clear = clearer;
+        }
+
+        public IndexedProperty(IDictionary<TKey, TValue> dictionary, TValue defaultValue)
+        {
+            Get = delegate (TKey key)
+            {
+                TValue value;
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                bool containsKey = dictionary.TryGetValue(key, out value);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8603 // Possible null reference return.
+                if (!containsKey) return defaultValue;
+                else return value;
+#pragma warning restore CS8603 // Possible null reference return.
+            };
+            Set = delegate (TKey key, TValue value) { dictionary[key] = value; };
+            Clear = dictionary.Clear;
+        }
+    }
+
     public interface ICanCreateNodeData<TNode>
     {
         public IndexedProperty<TNode, T> CreateNodeData<T>(T defaultValue);
@@ -292,45 +331,6 @@ namespace Nifty.Common
     public interface INotifyChanged
     {
         public event EventHandler Changed;
-    }
-
-    public class IndexedProperty<TKey, TValue>
-    {
-        public readonly Converter<TKey, TValue> Get;
-
-        public readonly Action<TKey, TValue> Set;
-
-        public readonly Action Clear;
-
-        public TValue this[TKey key]
-        {
-            get { return Get(key); }
-            set { Set(key, value); }
-        }
-
-        public IndexedProperty(Converter<TKey, TValue> getter, Action<TKey, TValue> setter, Action clearer)
-        {
-            Get = getter;
-            Set = setter;
-            Clear = clearer;
-        }
-
-        public IndexedProperty(IDictionary<TKey, TValue> dictionary, TValue defaultValue)
-        {
-            Get = delegate (TKey key)
-            {
-                TValue value;
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-                bool containsKey = dictionary.TryGetValue(key, out value);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning disable CS8603 // Possible null reference return.
-                if (!containsKey) return defaultValue;
-                else return value;
-#pragma warning restore CS8603 // Possible null reference return.
-            };
-            Set = delegate (TKey key, TValue value) { dictionary[key] = value; };
-            Clear = dictionary.Clear;
-        }
     }
 
     public interface IResumable<T>
