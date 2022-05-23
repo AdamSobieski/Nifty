@@ -456,7 +456,8 @@ namespace Nifty.Knowledge
 
         public int Count();
         public int Count(IFormula formula);
-        public int Count(IReadOnlyFormulaCollection query);
+        public int Count(ISelectQuery query);
+        public int Count(IConstructQuery query);
 
         public ISimpleUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
 
@@ -579,25 +580,6 @@ namespace Nifty.Knowledge
     public interface IKnowledgebase : IFormulaCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
 }
 
-namespace Nifty.Knowledge.Serialization
-{
-    [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
-    public sealed class UriAttribute : Attribute
-    {
-        public UriAttribute(string uri)
-        {
-            m_uri = new Uri(uri);
-        }
-        private readonly Uri m_uri;
-        public Uri Uri => m_uri;
-    }
-
-    public interface ISerializable
-    {
-        public void Serialize(IFormulaCollection formulas);
-    }
-}
-
 namespace Nifty.Knowledge.Probabilistic
 {
 
@@ -685,6 +667,25 @@ namespace Nifty.Knowledge.Schema
     public interface IHasFormulaCollectionSchema : IHasReadOnlyFormulaCollectionSchema
     {
         public new IFormulaCollectionSchema Schema { get; }
+    }
+}
+
+namespace Nifty.Knowledge.Serialization
+{
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
+    public sealed class UriAttribute : Attribute
+    {
+        public UriAttribute(string uri)
+        {
+            m_uri = new Uri(uri);
+        }
+        private readonly Uri m_uri;
+        public Uri Uri => m_uri;
+    }
+
+    public interface ISerializable
+    {
+        public void Serialize(IFormulaCollection formulas);
     }
 }
 
