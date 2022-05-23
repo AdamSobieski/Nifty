@@ -2,6 +2,7 @@
 using Nifty.Algorithms;
 using Nifty.Analytics;
 using Nifty.Channels;
+using Nifty.Collections;
 using Nifty.Common;
 using Nifty.Configuration;
 using Nifty.Dialogue;
@@ -106,6 +107,8 @@ namespace Nifty.Collections
         ICollection<TLabel> Labels { get; }
         ICollection<TItem> WithLabel(TLabel label);
     }
+
+    public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IList<KeyValuePair<TKey, TValue>> { }
 }
 
 namespace Nifty.Collections.Automata
@@ -836,15 +839,17 @@ namespace Nifty.Modelling.Users
 
 namespace Nifty.NaturalLanguage.Processing
 {
-    // utilizing mutable dictionaries, observers can provide feedback to observables with respect to the numerical weights on hypotheses
+    // utilizing mutable ordered dictionaries, observers can provide feedback to observables with respect to the numerical weights on hypotheses
+    // these dictionaries are ordered, sorted, so that consumers can inspect and enumerate the key-value pairs in order of decreasing weights on the hypotheses
     // downstream observers could, then, utilize reasoners to prune "deltas" which result in paradoxes by setting the numerical weights of the relevant "deltas" to 0 and/or by removing them from dictionary instances
     // as envisioned, feedback propagates across components, enabling adaptation and learning
     // dictionary implementations might implement INotifyCollectionChanged (see also: https://gist.github.com/kzu/cfe3cb6e4fe3efea6d24) and/or receive callbacks in their constructors
     // these scenarios might be benefitted by a new interface type, perhaps one extending IDictionary<T, float>
     // see also: https://en.wikipedia.org/wiki/Online_algorithm
 
-    public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IUpdate, float>> { }
-    // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IFormulaCollectionUpdate, float>> { }
+    //public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IUpdate, float>> { }
+    public interface IOnlineNaturalLanguageParser : IObserver<IOrderedDictionary<string, float>>, IObservable<IOrderedDictionary<IUpdate, float>> { }
+    // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IOrderedDictionary<string, float>, IOrderedDictionary<IFormulaCollectionUpdate, float>> { }
 }
 
 namespace Nifty.Planning.Actions
