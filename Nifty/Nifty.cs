@@ -426,7 +426,7 @@ namespace Nifty.Events
     public interface IEventSource : IHasReadOnlyFormulaCollection
     {
         public IDisposable Subscribe(IUriTerm eventType, IEventHandler listener);
-        public IDisposable Subscribe(IVariableTerm eventVariable, IAskFormulaCollectionQuery query, IEventHandler listener);
+        public IDisposable Subscribe(IAskFormulaCollectionQuery query, IEventHandler listener);
     }
     public interface IEventHandler // : IHasReadOnlyFormulaCollection
     {
@@ -459,7 +459,6 @@ namespace Nifty.Knowledge
         public int Count(IReadOnlyFormulaCollection query);
 
         public ISimpleFormulaCollectionUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
-        //public IReadOnlyFormulaCollection Apply(IFormulaCollectionDifference change);
 
         public IReadOnlyFormulaCollection Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
