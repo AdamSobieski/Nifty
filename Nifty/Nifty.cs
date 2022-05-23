@@ -849,6 +849,17 @@ namespace Nifty.NaturalLanguage.Processing
     // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IDictionary<string, float>, IDictionary<IFormulaCollectionUpdate, float>> { }
 }
 
+namespace Nifty.Planning.Actions
+{
+    // to do: explore abstract actions, variables, substituting variables for terms, generating concrete actions, etc.
+    // to do: explore preconditions and effects for activities and activity generators
+    public interface IAction
+    {
+        public IAskQuery Preconditions { get; }
+        public IUpdate Effects { get; }
+    }
+}
+
 namespace Nifty.Sessions
 {
     public interface ISessionInitializable
