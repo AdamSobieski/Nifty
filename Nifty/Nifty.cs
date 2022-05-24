@@ -93,6 +93,24 @@ namespace Nifty.Analytics
     }
 }
 
+namespace Nifty.AutomatedPlanning.Actions
+{
+    // to do: explore abstract actions, variables, substituting variables for terms, generating concrete actions, etc.
+
+    public interface IActionGenerator : IHasVariables
+    {
+        // might action generators have their own grounded preconditions and effects?
+
+        public IAction Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+    }
+
+    public interface IAction
+    {
+        public IAskQuery Preconditions { get; }
+        public IUpdate Effects { get; }
+    }
+}
+
 namespace Nifty.Channels
 {
     public interface IChannel { }
@@ -439,7 +457,7 @@ namespace Nifty.Events
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : IQueryable<IFormula>, IHasReadOnlySchema, IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : IQueryable<IFormula>, IHasVariables, IHasReadOnlySchema, IEventSource, INotifyChanged
     {
         public IQueryable<ITerm> Predicates { get; }
 
@@ -490,10 +508,10 @@ namespace Nifty.Knowledge
         Literal,
         Variable,
         Formula,
-        // QuotedFormula or a unary predicate 'quote' with same semantics; see also: RDF-star and SPARQL-star
+        // QuotedFormula or a unary predicate 'quote' with same semantics; see also: RDF-star and SPARQL-star (https://www.w3.org/2021/12/rdf-star.html)
         // FormulaCollection,
     }
-    public interface ITerm
+    public interface ITerm : IHasVariables
     {
         public TermType TermType { get; }
 
@@ -554,6 +572,11 @@ namespace Nifty.Knowledge
         public bool Matches(IFormula other);
 
         public bool IsValid(IReadOnlySchema schema);
+    }
+
+    public interface IHasVariables
+    {
+        public IReadOnlyList<IVariableTerm> Variables { get; }
     }
 
     public interface IHasTerm
@@ -854,17 +877,6 @@ namespace Nifty.NaturalLanguage.Processing
     // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IOrderedDictionary<string, float>, IOrderedDictionary<IFormulaCollectionUpdate, float>> { }
 }
 
-namespace Nifty.Planning.Actions
-{
-    // to do: explore abstract actions, variables, substituting variables for terms, generating concrete actions, etc.
-    // to do: explore preconditions and effects for activities and activity generators
-    public interface IAction
-    {
-        public IAskQuery Preconditions { get; }
-        public IUpdate Effects { get; }
-    }
-}
-
 namespace Nifty.Sessions
 {
     public interface ISessionInitializable
@@ -1061,232 +1073,6 @@ namespace Nifty
 
     public static partial class Factory
     {
-        internal sealed class AnyTerm : IAnyTerm
-        {
-            public TermType TermType => TermType.Any;
-
-            public bool IsGround => false;
-
-            public sealed override bool Equals(object? obj)
-            {
-                return base.Equals(obj);
-            }
-
-            public bool Matches(ITerm other)
-            {
-                return true;
-            }
-
-            public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map)
-            {
-                throw new NotImplementedException();
-            }
-
-            public string? ToString(XmlNamespaceManager xmlns, bool quoting)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object Visit(ITermVisitor visitor)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override int GetHashCode()
-            {
-                return base.GetHashCode();
-            }
-        }
-        internal sealed class BlankTerm : IBlankTerm
-        {
-            public BlankTerm(string label)
-            {
-                m_label = label;
-            }
-            private readonly string m_label;
-
-            public string Label => m_label;
-
-            public TermType TermType => TermType.Blank;
-
-            public bool IsGround => true;
-
-            public sealed override bool Equals(object? obj)
-            {
-                return base.Equals(obj);
-            }
-
-            public bool Matches(ITerm other)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map)
-            {
-                throw new NotImplementedException();
-            }
-
-            public string? ToString(XmlNamespaceManager xmlns, bool quoting)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object Visit(ITermVisitor visitor)
-            {
-                return visitor.Visit(this);
-            }
-
-            public sealed override int GetHashCode()
-            {
-                return m_label.GetHashCode();
-            }
-        }
-        internal sealed class UriTerm : IUriTerm
-        {
-            public UriTerm(string uri)
-            {
-                m_uri = uri;
-            }
-
-            private readonly string m_uri;
-
-            public string Uri => m_uri;
-
-            public TermType TermType => TermType.Uri;
-
-            public bool IsGround => true;
-
-            public sealed override bool Equals(object? obj)
-            {
-                return base.Equals(obj);
-            }
-
-            public bool Matches(ITerm other)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map)
-            {
-                throw new NotImplementedException();
-            }
-
-            public string? ToString(XmlNamespaceManager xmlns, bool quoting)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object Visit(ITermVisitor visitor)
-            {
-                return visitor.Visit(this);
-            }
-
-            public sealed override int GetHashCode()
-            {
-                return m_uri.GetHashCode();
-            }
-        }
-        internal sealed class LiteralTerm : ILiteralTerm
-        {
-            public LiteralTerm(string value, string? language, IUriTerm? datatype)
-            {
-                m_value = value;
-                m_language = language;
-                m_datatype = datatype?.Uri;
-            }
-
-            private readonly string m_value;
-            private readonly string? m_language;
-            private readonly string? m_datatype;
-
-            public string Value => m_value;
-
-            public string? Language => m_language;
-
-            public string? Datatype => m_datatype;
-
-            public TermType TermType => TermType.Literal;
-
-            public bool IsGround => true;
-
-            public sealed override bool Equals(object? obj)
-            {
-                return base.Equals(obj);
-            }
-
-            public bool Matches(ITerm other)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map)
-            {
-                throw new NotImplementedException();
-            }
-
-            public string? ToString(XmlNamespaceManager xmlns, bool quoting)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object Visit(ITermVisitor visitor)
-            {
-                return visitor.Visit(this);
-            }
-
-            public sealed override int GetHashCode()
-            {
-                return m_value.GetHashCode()
-                    + (m_language != null ? m_language.GetHashCode() : 0)
-                    + (m_datatype != null ? m_datatype.GetHashCode() : 0);
-            }
-        }
-        internal sealed class VariableTerm : IVariableTerm
-        {
-            public VariableTerm(string name)
-            {
-                m_name = name;
-            }
-
-            private readonly string m_name;
-
-            public string Name => m_name;
-
-            public TermType TermType => TermType.Variable;
-
-            public bool IsGround => false;
-
-            public sealed override bool Equals(object? obj)
-            {
-                return base.Equals(obj);
-            }
-
-            public bool Matches(ITerm other)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map)
-            {
-                throw new NotImplementedException();
-            }
-
-            public string? ToString(XmlNamespaceManager xmlns, bool quoting)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object Visit(ITermVisitor visitor)
-            {
-                throw new NotImplementedException();
-            }
-
-            public sealed override int GetHashCode()
-            {
-                return base.GetHashCode();
-            }
-        }
-
         internal sealed class SettingImpl<T> : ISetting<T>
         {
             public SettingImpl(IUriTerm term, T defaultValue)
@@ -1308,12 +1094,9 @@ namespace Nifty
             return new SettingImpl<T>(Uri(uri), defaultValue);
         }
 
-        private static readonly IAnyTerm s_any = new AnyTerm();
-        private static int counter = 0;
-
         public static IAnyTerm Any()
         {
-            return s_any;
+            throw new NotImplementedException();
         }
         public static IAnyTerm Any(string language)
         {
@@ -1321,79 +1104,79 @@ namespace Nifty
         }
         public static IUriTerm Uri(string uri)
         {
-            return new UriTerm(uri);
+            throw new NotImplementedException();
         }
         public static IBlankTerm Blank()
         {
-            return new BlankTerm("urn:blank:" + counter++);
+            throw new NotImplementedException();
         }
         public static IBlankTerm Blank(string id)
         {
-            return new BlankTerm(id);
+            throw new NotImplementedException();
         }
         public static IVariableTerm Variable(string name)
         {
-            return new VariableTerm(name);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(bool value)
         {
-            return new LiteralTerm(value.ToString(), null, Keys.Semantics.Xsd.@boolean);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(sbyte value)
         {
-            return new LiteralTerm(value.ToString(), null, Keys.Semantics.Xsd.@byte);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(byte value)
         {
-            return new LiteralTerm(value.ToString(), null, Keys.Semantics.Xsd.@unsignedByte);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(short value)
         {
-            return new LiteralTerm(value.ToString(), null, Keys.Semantics.Xsd.@short);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(ushort value)
         {
-            return new LiteralTerm(value.ToString(), null, Keys.Semantics.Xsd.@unsignedShort);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(int value)
         {
-            return new LiteralTerm(value.ToString(), null, Keys.Semantics.Xsd.@int);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(uint value)
         {
-            return new LiteralTerm(value.ToString(), null, Keys.Semantics.Xsd.@unsignedInt);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(long value)
         {
-            return new LiteralTerm(value.ToString(), null, Keys.Semantics.Xsd.@long);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(ulong value)
         {
-            return new LiteralTerm(value.ToString(), null, Keys.Semantics.Xsd.@unsignedLong);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(float value)
         {
-            return new LiteralTerm(value.ToString(), null, Keys.Semantics.Xsd.@float);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(double value)
         {
-            return new LiteralTerm(value.ToString(), null, Keys.Semantics.Xsd.@double);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(string value)
         {
-            return new LiteralTerm(value, null, Keys.Semantics.Xsd.@string);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(string value, string language)
         {
-            return new LiteralTerm(value, language, Keys.Semantics.Xsd.@string);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(string value, string language, IUriTerm datatypeUri)
         {
-            return new LiteralTerm(value, language, datatypeUri);
+            throw new NotImplementedException();
         }
         public static ILiteralTerm Literal(string value, IUriTerm datatypeUri)
         {
-            return new LiteralTerm(value, null, datatypeUri);
+            throw new NotImplementedException();
         }
 
         public static IFormula Formula(ITerm predicate, params ITerm[] arguments)
