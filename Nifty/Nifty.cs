@@ -95,20 +95,14 @@ namespace Nifty.Analytics
 
 namespace Nifty.AutomatedPlanning.Actions
 {
-    // to do: explore abstract actions, variables, substituting variables for terms, generating concrete actions, etc.
-
-    public interface IActionGenerator : IHasVariables
-    {
-        // might action generators have their own grounded preconditions and effects?
-
-        public IAction Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
-    }
-
     public interface IAction
     {
         public IAskQuery Preconditions { get; }
         public IUpdate Effects { get; }
     }
+
+    // to do: explore abstract actions, variables, substituting variables for terms, generating concrete actions, etc.
+    public interface IActionGenerator : IHasVariables, ISubstitute<IAction> { }
 }
 
 namespace Nifty.Channels
@@ -457,7 +451,7 @@ namespace Nifty.Events
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : IQueryable<IFormula>, IHasVariables, IHasReadOnlySchema, IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : IQueryable<IFormula>, IHasVariables, ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
     {
         public IQueryable<ITerm> Predicates { get; }
 
@@ -481,7 +475,7 @@ namespace Nifty.Knowledge
 
         public ISimpleUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
 
-        public IReadOnlyFormulaCollection Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+        // public IReadOnlyFormulaCollection Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
         public bool Query(IAskQuery query);
         public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(ISelectQuery query);
@@ -511,7 +505,7 @@ namespace Nifty.Knowledge
         // QuotedFormula or a unary predicate 'quote' with same semantics; see also: RDF-star and SPARQL-star (https://www.w3.org/2021/12/rdf-star.html)
         // FormulaCollection,
     }
-    public interface ITerm : IHasVariables
+    public interface ITerm : IHasVariables, ISubstitute<ITerm>
     {
         public TermType TermType { get; }
 
@@ -534,7 +528,7 @@ namespace Nifty.Knowledge
 
         public bool Matches(ITerm other);
 
-        public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+        // public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
         public string? ToString(XmlNamespaceManager xmlns, bool quoting);
     }
@@ -577,6 +571,10 @@ namespace Nifty.Knowledge
     public interface IHasVariables
     {
         public IReadOnlyList<IVariableTerm> Variables { get; }
+    }
+    public interface ISubstitute<out T> : IHasVariables
+    {
+        public T Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
     }
 
     public interface IHasTerm
