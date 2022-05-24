@@ -26,7 +26,7 @@ namespace Nifty.Activities
         // public IActivityPreconditions Preconditions { get; }
         // public IActivityEffects       Effects { get; }
 
-        Task<IActivity> Generate(ISession session, CancellationToken cancellationToken);
+        public Task<IActivity> Generate(ISession session, CancellationToken cancellationToken);
     }
     public interface IActivity : IHasReadOnlyFormulaCollection, ISessionInitializable, ISessionDisposable, IDisposable
     {
@@ -490,7 +490,8 @@ namespace Nifty.Knowledge
         Literal,
         Variable,
         Formula,
-        FormulaCollection,
+        // QuotedFormula or a unary predicate 'quote' with same semantics; see also: RDF-star and SPARQL-star
+        // FormulaCollection,
     }
     public interface ITerm
     {
@@ -633,9 +634,9 @@ namespace Nifty.Knowledge.Reasoning
     {
         public IConfiguration Configuration { get; }
 
-        Task<IReasoner> BindRules(IReadOnlyFormulaCollection rules);
+        public Task<IReasoner> BindRules(IReadOnlyFormulaCollection rules);
 
-        Task<IInferredReadOnlyFormulaCollection> Bind(IReadOnlyFormulaCollection collection);
+        public Task<IInferredReadOnlyFormulaCollection> Bind(IReadOnlyFormulaCollection collection);
     }
 
     public interface IInferredReadOnlyFormulaCollection : IReadOnlyFormulaCollection
@@ -789,37 +790,37 @@ namespace Nifty.MachineLearning.ReinforcementLearning
 
     public interface IObservable<out TAction, TObservation, TReward>
     {
-        IDisposable Subscribe(IObserver<TAction, TObservation, TReward> observer);
+        public IDisposable Subscribe(IObserver<TAction, TObservation, TReward> observer);
     }
 
     public interface IObserver<in TAction, TObservation, TReward>
     {
-        void OnCompleted();
-        void OnError(Exception error);
-        (TObservation observation, TReward reward, bool done) OnNext(TAction action);
+        public void OnCompleted();
+        public void OnError(Exception error);
+        public (TObservation observation, TReward reward, bool done) OnNext(TAction action);
     }
 
     public interface IAsyncEnumerator<out TAction, in TObservation, in TReward> : IAsyncDisposable
     {
         public ValueTask<bool> MoveNextAsync(TObservation observation, TReward reward);
-        TAction Current { get; }
+        public TAction Current { get; }
     }
 
     public interface IAsyncEnumerable<out TAction, in TObservation, in TReward>
     {
-        IAsyncEnumerator<TAction, TObservation, TReward> GetAsyncEnumerator(CancellationToken cancellationToken = default);
+        public IAsyncEnumerator<TAction, TObservation, TReward> GetAsyncEnumerator(CancellationToken cancellationToken = default);
     }
 
     public interface IAsyncObservable<out TAction, TObservation, TReward>
     {
-        IDisposable Subscribe(IAsyncObserver<TAction, TObservation, TReward> observer);
+        public IDisposable Subscribe(IAsyncObserver<TAction, TObservation, TReward> observer);
     }
 
     public interface IAsyncObserver<in TAction, TObservation, TReward>
     {
-        Task OnCompleted();
-        Task OnError(Exception error);
-        Task<(TObservation observation, TReward reward, bool done)> OnNext(TAction value);
+        public Task OnCompleted();
+        public Task OnError(Exception error);
+        public Task<(TObservation observation, TReward reward, bool done)> OnNext(TAction value);
     }
 }
 
@@ -955,8 +956,8 @@ namespace Nifty.Transactions
 {
     public interface ITransaction : IDisposable
     {
-        void Commit();
-        void Rollback();
+        public void Commit();
+        public void Rollback();
     }
 }
 
