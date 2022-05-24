@@ -450,6 +450,7 @@ namespace Nifty.Knowledge
         public bool IsGraph { get; }
 
         public bool Contains(IFormula formula);
+        public bool Contains(IFormula formula, [NotNullWhen(true)] out IReadOnlyFormulaCollection? about);
 
         public IEnumerable<IDerivation> Derivations(IFormula formula);
 
