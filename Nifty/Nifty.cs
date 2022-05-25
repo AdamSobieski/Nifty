@@ -96,14 +96,14 @@ namespace Nifty.Analytics
 
 namespace Nifty.AutomatedPlanning.Actions
 {
-    public interface IAction
+    public interface IAction : IHasReadOnlyFormulaCollection
     {
         public IAskQuery Preconditions { get; }
         public IUpdate Effects { get; }
     }
 
     // to do: explore abstract actions, variables, substituting variables for terms, generating concrete actions, etc.
-    public interface IActionGenerator : IHasVariables, ISubstitute<IAction> { }
+    public interface IActionGenerator : ISubstitute<IAction> { }
 }
 
 namespace Nifty.Channels
@@ -452,7 +452,7 @@ namespace Nifty.Events
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : IHasVariables, ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
     {
         public IQueryable<ITerm> Predicates { get; }
 
@@ -506,7 +506,7 @@ namespace Nifty.Knowledge
         // QuotedFormula or a unary predicate 'quote' with same semantics; see also: RDF-star and SPARQL-star (https://www.w3.org/2021/12/rdf-star.html)
         // FormulaCollection,
     }
-    public interface ITerm : IHasVariables, ISubstitute<ITerm>
+    public interface ITerm : ISubstitute<ITerm>
     {
         public TermType TermType { get; }
 
@@ -571,7 +571,7 @@ namespace Nifty.Knowledge
 
     public interface IHasVariables
     {
-        public IReadOnlyList<IVariableTerm> Variables { get; }
+        public IReadOnlyList<IVariableTerm> GetVariables();
     }
     public interface ISubstitute<out T> : IHasVariables
     {
@@ -1239,10 +1239,5 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-    }
-
-    public static partial class Extensions
-    {
-        //...
     }
 }
