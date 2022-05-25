@@ -452,7 +452,7 @@ namespace Nifty.Events
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : IQueryable<IFormula>, IHasVariables, ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : IHasVariables, ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
     {
         public IQueryable<ITerm> Predicates { get; }
 
@@ -616,6 +616,15 @@ namespace Nifty.Knowledge.Querying
     // see also: Jena ARQ
     // see also: https://github.com/Efimster/LINQtoSPARQL
     // see also: https://github.com/Efimster/DynamicSPARQL
+
+    // as envisioned, queries are created with the Factory, elaborated with fluent syntax, and then processed by formula collections.
+    // in this way, queries can be portable and reusable across formula collections
+    //
+    // so, something like:
+    //
+    // IReadOnlyFormulaCollection formulas = ...;
+    // IAskQuery query = Factory.Querying.Ask().Where(...);
+    // bool value = formulas.Query(query);
 
     // https://www.w3.org/TR/sparql11-query/#QueryForms
     public enum QueryType
