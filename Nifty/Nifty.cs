@@ -625,7 +625,7 @@ namespace Nifty.Knowledge.Querying
 
     public interface IQuery
     {
-        public QueryType NodeType { get; }
+        public QueryType QueryType { get; }
     }
 
     public interface ISelectQuery : IQuery
@@ -733,12 +733,11 @@ namespace Nifty.Knowledge.Updating
 
     public interface IUpdate
     {
-        public UpdateType NodeType { get; }
+        public UpdateType UpdateType { get; }
 
         public IReadOnlyFormulaCollection Apply(IReadOnlyFormulaCollection formulas);
         public void Update(IFormulaCollection formulas);
 
-        // is this an extension method?
         public ICompositeUpdate Then(IUpdate action);
     }
 
