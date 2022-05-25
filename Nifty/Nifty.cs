@@ -16,6 +16,7 @@ using Nifty.Logging;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Xml;
 
 namespace Nifty.Activities
@@ -613,6 +614,8 @@ namespace Nifty.Knowledge.Querying
 {
     // see also: https://www.w3.org/TR/sparql11-query/
     // see also: Jena ARQ
+    // see also: https://github.com/Efimster/LINQtoSPARQL
+    // see also: https://github.com/Efimster/DynamicSPARQL
 
     // https://www.w3.org/TR/sparql11-query/#QueryForms
     public enum QueryType
@@ -626,6 +629,7 @@ namespace Nifty.Knowledge.Querying
     public interface IQuery
     {
         public QueryType QueryType { get; }
+        public Expression Expression { get; }
     }
 
     public interface ISelectQuery : IQuery
