@@ -106,6 +106,14 @@ namespace Nifty.AutomatedPlanning.Actions
     public interface IActionGenerator : ISubstitute<IAction> { }
 }
 
+namespace Nifty.AutomatedPlanning.Constraints
+{
+    // here will go constraints and preferences for uses upon objects and upon sequences of objects, e.g., upon sequences of actions
+    // this namespace will utilize Nifty.Collections.Automata
+    // this namespace will be general-purpose
+    // this namespace may be either Nifty.AutomatedPlanning.Constraints or Nifty.Constraints
+}
+
 namespace Nifty.Channels
 {
     public interface IChannel { }
@@ -806,54 +814,20 @@ namespace Nifty.MachineLearning.ReinforcementLearning
 {
     // see also: Afsar, M. Mehdi, Trafford Crump, and Behrouz Far. "Reinforcement learning based recommender systems: A survey." arXiv preprint arXiv:2101.06286 (2021). (https://arxiv.org/abs/2101.06286)
 
-    // to do: explore expanding general-purpose pull/push interfaces, IEnumerable/IObservable, and asynchronous varieties, IAsyncEnumerable/IAsyncObservable, with reinforcement learning functionalities
     // see also: https://www.gymlibrary.ml/content/api/
     // see also: https://www.gymlibrary.ml/_images/AE_loop.png
 
-    public interface IEnumerator<out TAction, in TObservation, in TReward> : IDisposable
+    public interface IAgent<out TAction, in TObservation, in TReward> : IDisposable
     {
         public bool MoveNext(TObservation observation, TReward reward);
         public TAction Current { get; }
     }
 
-    public interface IEnumerable<out TAction, in TObservation, in TReward>
-    {
-        public IEnumerator<TAction, TObservation, TReward> GetEnumerator();
-    }
-
-    public interface IObservable<out TAction, TObservation, TReward>
-    {
-        public IDisposable Subscribe(IObserver<TAction, TObservation, TReward> observer);
-    }
-
-    public interface IObserver<in TAction, TObservation, TReward>
+    public interface IEnvironment<in TAction, TObservation, TReward>
     {
         public void OnCompleted();
         public void OnError(Exception error);
         public (TObservation observation, TReward reward, bool done) OnNext(TAction action);
-    }
-
-    public interface IAsyncEnumerator<out TAction, in TObservation, in TReward> : IAsyncDisposable
-    {
-        public ValueTask<bool> MoveNextAsync(TObservation observation, TReward reward);
-        public TAction Current { get; }
-    }
-
-    public interface IAsyncEnumerable<out TAction, in TObservation, in TReward>
-    {
-        public IAsyncEnumerator<TAction, TObservation, TReward> GetAsyncEnumerator(CancellationToken cancellationToken = default);
-    }
-
-    public interface IAsyncObservable<out TAction, TObservation, TReward>
-    {
-        public IDisposable Subscribe(IAsyncObserver<TAction, TObservation, TReward> observer);
-    }
-
-    public interface IAsyncObserver<in TAction, TObservation, TReward>
-    {
-        public Task OnCompleted();
-        public Task OnError(Exception error);
-        public Task<(TObservation observation, TReward reward, bool done)> OnNext(TAction value);
     }
 }
 
