@@ -16,3 +16,6 @@ This project is a framework for creating adaptive instructional systems, e.g., i
 * [Design Recommendations for Intelligent Tutoring Systems – Volume 5 (Assessment Methods)](https://aisconsortium.com/wp-content/uploads/Design-Recommendations-for-ITS_Volume-5-Assessment.pdf)
 * [Design Recommendations for Intelligent Tutoring Systems – Volume 6 (Team Tutoring)](https://aisconsortium.com/wp-content/uploads/Design-Recommendations-for-ITS_Volume-6-Team-Tutoring.pdf)
 * [Design Recommendations for Intelligent Tutoring Systems – Volume 7 (Self Improving Systems)](https://aisconsortium.com/wp-content/uploads/Design-Recommendations-for-ITS_Volume-7-Self-Improving-Systems.pdf)
+
+### Adaptive Instructional Systems
+![AIS](Images/AIS.png)
