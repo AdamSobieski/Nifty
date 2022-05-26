@@ -21,11 +21,11 @@ using System.Xml;
 
 namespace Nifty.Activities
 {
-    public interface IActivityGeneratorStore : IHasReadOnlyFormulaCollection, /*IQueryable<IActivityGenerator>,*/ ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    public interface IActivityGeneratorStore : IHasReadOnlyFormulaCollection, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
     public interface IActivityGenerator : IHasReadOnlyFormulaCollection
     {
-        // public IActivityPreconditions Preconditions { get; }
-        // public IActivityEffects       Effects { get; }
+        // public IAskQuery Preconditions { get; }
+        // public IUpdate   Effects { get; }
 
         public Task<IActivity> Generate(ISession session, CancellationToken cancellationToken);
     }
@@ -36,8 +36,8 @@ namespace Nifty.Activities
         //public IActivity Parent { get; }
         //public IReadOnlyList<IActivity> Children { get; }
 
-        // public IActivityPreconditions Preconditions { get; }
-        // public IActivityEffects       Effects { get; }
+        // public IAskQuery Preconditions { get; }
+        // public IUpdate   Effects { get; }
 
         public Task<IActivityExecutionResult> Execute(ISession session, IActivityExecutionContext context, CancellationToken cancellationToken);
     }
@@ -614,7 +614,7 @@ namespace Nifty.Knowledge
         public object Visit(IBlankTerm term);
         public object Visit(ILiteralTerm term);
         public object Visit(IVariableTerm term);
-        //public object Visit(IFormula formula);
+        public object Visit(IFormula formula);
         //public object Visit(IReadOnlyFormulaCollection collection);
     }
 
@@ -630,8 +630,6 @@ namespace Nifty.Knowledge.Querying
 {
     // see also: https://www.w3.org/TR/sparql11-query/
     // see also: Jena ARQ
-    // see also: https://github.com/Efimster/LINQtoSPARQL
-    // see also: https://github.com/Efimster/DynamicSPARQL
 
     // as envisioned, queries are created with the Factory, elaborated with fluent syntax, and then processed by formula collections.
     // in this way, queries can be portable and reusable across formula collections
