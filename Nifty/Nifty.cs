@@ -96,13 +96,14 @@ namespace Nifty.Analytics
 
 namespace Nifty.AutomatedPlanning.Actions
 {
+    // see also: Grover, Sachin, Tathagata Chakraborti, and Subbarao Kambhampati. "What can automated planning do for intelligent tutoring systems." ICAPS SPARK (2018).
+
     public interface IAction : IHasReadOnlyFormulaCollection
     {
         public IAskQuery Preconditions { get; }
         public IUpdate Effects { get; }
     }
 
-    // to do: explore abstract actions, variables, substituting variables for terms, generating concrete actions, etc.
     public interface IActionGenerator : ISubstitute<IAction> { }
 }
 
