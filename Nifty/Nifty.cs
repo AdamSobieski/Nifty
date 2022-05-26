@@ -526,19 +526,31 @@ namespace Nifty.Knowledge
     }
     public interface ITerm : ISubstitute<ITerm>
     {
+        // these are for making valid expression trees for subclauses of queries
+        // to do: overload operators with int, float, etc. as arguments
+        public static ITerm operator +(ITerm x, ITerm y) { throw new NotImplementedException(); }
+        public static ITerm operator -(ITerm x, ITerm y) { throw new NotImplementedException(); }
+        public static ITerm operator *(ITerm x, ITerm y) { throw new NotImplementedException(); }
+        public static ITerm operator /(ITerm x, ITerm y) { throw new NotImplementedException(); }
+        public static bool operator <(ITerm x, ITerm y) { throw new NotImplementedException(); }
+        public static bool operator >(ITerm x, ITerm y) { throw new NotImplementedException(); }
+        public static bool operator <=(ITerm x, ITerm y) { throw new NotImplementedException(); }
+        public static bool operator >=(ITerm x, ITerm y) { throw new NotImplementedException(); }
+        //...
+
         public TermType TermType { get; }
 
         public bool IsGround { get; }
 
-        //public bool IsPredicate(IReadOnlyFormulaCollectionSchema schema)
+        //public bool IsPredicate(IReadOnlySchema schema)
         //{
         //    throw new NotImplementedException();
         //}
-        //public int HasArity(IReadOnlyFormulaCollectionSchema schema)
+        //public int HasArity(IReadOnlySchema schema)
         //{
         //    throw new NotImplementedException();
         //}
-        //public IEnumerable<ITerm> ClassesOfArgument(int index, IReadOnlyFormulaCollectionSchema schema)
+        //public IEnumerable<ITerm> ClassesOfArgument(int index, IReadOnlySchema schema)
         //{
         //    throw new NotImplementedException();
         //}
@@ -674,6 +686,33 @@ namespace Nifty.Knowledge.Querying
     {
 
     }
+
+    // nestable query subclauses
+    // 
+    // e.g.:
+    //
+    //       var query_1 = Factory.Ask().Where(formulas_1);
+    //       var b_1     = formulas.Query(query);
+    //
+    //       var query_2 = Factory.Ask().Where(formulas_1, Factory.Clauses.Exists(formulas_2));
+    //       var b_2     = formulas.Query(query);
+    //
+    // note: some nestable subclauses will support expression trees from System.Linq.Expressions in their factory methods
+    public enum ClauseType
+    {
+        Optional,
+        Exists,
+        NotExists,
+        Minus,
+        Bind,
+        Filter
+    }
+    public interface IClause
+    {
+        public ClauseType ClauseType { get; }
+        public Expression Expression { get; }
+    }
+    //...
 }
 
 namespace Nifty.Knowledge.Reasoning
