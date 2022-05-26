@@ -9,7 +9,7 @@ using Nifty.Dialogue;
 using Nifty.Events;
 using Nifty.Knowledge;
 using Nifty.Knowledge.Querying;
-using Nifty.Knowledge.Reasoning.Derivation;
+using Nifty.Knowledge.Reasoning;
 using Nifty.Knowledge.Schema;
 using Nifty.Knowledge.Updating;
 using Nifty.Logging;
@@ -96,7 +96,7 @@ namespace Nifty.Analytics
 
 namespace Nifty.AutomatedPlanning.Actions
 {
-    // see also: Grover, Sachin, Tathagata Chakraborti, and Subbarao Kambhampati. "What can automated planning do for intelligent tutoring systems." ICAPS SPARK (2018).
+    // see also: Grover, Sachin, Tathagata Chakraborti, and Subbarao Kambhampati. "What can automated planning do for intelligent tutoring systems?" ICAPS SPARK (2018).
 
     public interface IAction : IHasReadOnlyFormulaCollection
     {
@@ -113,6 +113,17 @@ namespace Nifty.AutomatedPlanning.Constraints
     // this namespace will utilize Nifty.Collections.Automata
     // this namespace will be general-purpose
     // this namespace may be either Nifty.AutomatedPlanning.Constraints or Nifty.Constraints
+
+    // here is a sketch of an System.IObserver<>-like interface which can process a sequence of inputs while potentially transitioning upon a recognizing automata
+    public interface IObserver<in TAlphabet>
+    {
+        bool Continue { get; } // continued input sequences can be valid at future points
+        bool Recognized { get; } // the input sequence is valid at this point
+
+        public void OnCompleted();
+        public void OnError(Exception error);
+        public IObserver<TAlphabet> OnNext(TAlphabet value);
+    }
 }
 
 namespace Nifty.Channels
@@ -687,10 +698,7 @@ namespace Nifty.Knowledge.Reasoning
         public IReasoner Reasoner { get; }
         public IReadOnlyFormulaCollection Base { get; }
     }
-}
 
-namespace Nifty.Knowledge.Reasoning.Derivation
-{
     public interface IDerivation
     {
 
