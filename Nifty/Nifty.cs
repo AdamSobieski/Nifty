@@ -1193,7 +1193,19 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
+        public static IReadOnlySchema ReadOnlyKnowledgeGraphSchemaWithSelfSchema(IEnumerable<IFormula> formulas)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlySchema ReadOnlyKnowledgeGraphSchema(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        {
+            throw new NotImplementedException();
+        }
         public static ISchema FormulaCollectionSchema(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        public static ISchema KnowledgeGraphSchema(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
