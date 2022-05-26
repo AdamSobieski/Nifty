@@ -582,6 +582,18 @@ namespace Nifty.Knowledge
     }
     public interface IVariableTerm : ITerm
     {
+        // these are for making valid expression trees for subclauses of queries
+        // to do: overload operators with int, float, etc. as arguments
+        public static ITerm operator +(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
+        public static ITerm operator -(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
+        public static ITerm operator *(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
+        public static ITerm operator /(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
+        public static bool operator <(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
+        public static bool operator >(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
+        public static bool operator <=(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
+        public static bool operator >=(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
+        //...
+
         public string Name { get; }
     }
 
@@ -697,7 +709,8 @@ namespace Nifty.Knowledge.Querying
     //       var query_2 = Factory.Ask().Where(formulas_1, Factory.Clauses.Exists(formulas_2));
     //       var b_2     = formulas.Query(query);
     //
-    // note: some nestable subclauses will support expression trees from System.Linq.Expressions in their factory methods
+    // note: some nestable subclauses will support expression trees from System.Linq.Expressions in their factory methods and, for these scenarios,
+    //       Nifty.Knowledge.ITerm and Nifty.Knowledge.IVariableTerm will have operators overloaded so that these expression trees are valid
     public enum ClauseType
     {
         Optional,
