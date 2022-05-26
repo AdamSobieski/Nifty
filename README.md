@@ -1,6 +1,9 @@
 # The Nifty Project
 
-This project is a framework for creating adaptive instructional systems, e.g., intelligent tutoring systems and educational recommender systems.
+The Nifty project is a framework for creating adaptive instructional systems.
+
+### Adaptive Instructional Systems
+![AIS](Images/AIS.png)
 
 ### Related Projects
 [GIFT](https://gifttutoring.org/), [Bot Framework](https://github.com/microsoft/botframework-sdk), [TweetyProject](https://github.com/TweetyProjectTeam/TweetyProject), [Infer.NET](https://github.com/dotnet/infer), [LearnLib](https://github.com/learnlib/learnlib), [AutomataLib](https://github.com/learnlib/automatalib), [Jena](https://jena.apache.org/), [DotNetRdf](https://github.com/dotnetrdf/dotnetrdf/), [LinqToRdf](https://github.com/aabs/LinqToRdf), [TinCan.NET](https://github.com/RusticiSoftware/TinCan.NET), [OpenXes.Net](https://bitbucket.org/sabien/openxes.net/)
@@ -16,6 +19,3 @@ This project is a framework for creating adaptive instructional systems, e.g., i
 * [Design Recommendations for Intelligent Tutoring Systems – Volume 5 (Assessment Methods)](https://aisconsortium.com/wp-content/uploads/Design-Recommendations-for-ITS_Volume-5-Assessment.pdf)
 * [Design Recommendations for Intelligent Tutoring Systems – Volume 6 (Team Tutoring)](https://aisconsortium.com/wp-content/uploads/Design-Recommendations-for-ITS_Volume-6-Team-Tutoring.pdf)
 * [Design Recommendations for Intelligent Tutoring Systems – Volume 7 (Self Improving Systems)](https://aisconsortium.com/wp-content/uploads/Design-Recommendations-for-ITS_Volume-7-Self-Improving-Systems.pdf)
-
-### Adaptive Instructional Systems
-![AIS](Images/AIS.png)

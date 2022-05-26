@@ -487,7 +487,7 @@ namespace Nifty.Knowledge
 
         public IEnumerable<IDerivation> Derivations(IFormula formula);
 
-        public IQueryable<IFormula> Find(IFormula formulas);
+        public IQueryable<IFormula> Find(IFormula formula);
 
         public int Count();
         public int Count(IFormula formula);
@@ -495,8 +495,6 @@ namespace Nifty.Knowledge
         public int Count(IConstructQuery query);
 
         public ISimpleUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
-
-        // public IReadOnlyFormulaCollection Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
         public bool Query(IAskQuery query);
         public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(ISelectQuery query);
@@ -548,8 +546,6 @@ namespace Nifty.Knowledge
         public object Visit(ITermVisitor visitor);
 
         public bool Matches(ITerm other);
-
-        // public ITerm Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
 
         public string? ToString(XmlNamespaceManager xmlns, bool quoting);
     }
