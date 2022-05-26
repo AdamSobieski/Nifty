@@ -117,8 +117,8 @@ namespace Nifty.AutomatedPlanning.Constraints
     // here is a sketch of an System.IObserver<>-like interface which can process a sequence of inputs while potentially transitioning upon a recognizing automata
     public interface IObserver<in TAlphabet>
     {
-        bool Continue { get; } // continued input sequences can be valid at future points
-        bool Recognized { get; } // the input sequence is valid at this point
+        public bool Continue { get; } // continued input sequences can be valid at future points
+        public bool Recognized { get; } // the input sequence is valid at this point
 
         public void OnCompleted();
         public void OnError(Exception error);
