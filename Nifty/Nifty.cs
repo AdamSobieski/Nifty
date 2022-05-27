@@ -528,18 +528,6 @@ namespace Nifty.Knowledge
     }
     public interface ITerm : ISubstitute<ITerm>
     {
-        // these are for making valid expression trees for subclauses of queries
-        // to do: overload operators with int, float, etc. as arguments
-        public static ITerm operator +(ITerm x, ITerm y) { throw new NotImplementedException(); }
-        public static ITerm operator -(ITerm x, ITerm y) { throw new NotImplementedException(); }
-        public static ITerm operator *(ITerm x, ITerm y) { throw new NotImplementedException(); }
-        public static ITerm operator /(ITerm x, ITerm y) { throw new NotImplementedException(); }
-        public static bool operator <(ITerm x, ITerm y) { throw new NotImplementedException(); }
-        public static bool operator >(ITerm x, ITerm y) { throw new NotImplementedException(); }
-        public static bool operator <=(ITerm x, ITerm y) { throw new NotImplementedException(); }
-        public static bool operator >=(ITerm x, ITerm y) { throw new NotImplementedException(); }
-        //...
-
         public TermType TermType { get; }
 
         public bool IsGround { get; }
@@ -584,8 +572,7 @@ namespace Nifty.Knowledge
     }
     public interface IVariableTerm : ITerm
     {
-        // these are for making valid expression trees for subclauses of queries
-        // to do: overload operators with int, float, etc. as arguments
+        // these are for making valid expression trees for query formulation
         public static ITerm operator +(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
         public static ITerm operator -(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
         public static ITerm operator *(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
@@ -594,6 +581,7 @@ namespace Nifty.Knowledge
         public static bool operator >(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
         public static bool operator <=(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
         public static bool operator >=(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
+        // to do: overload operators with int, float, etc. as arguments
         //...
 
         public string Name { get; }
@@ -768,6 +756,11 @@ namespace Nifty.Knowledge.Querying
     //
     // var query = Factory.Select(title, price).Where(formulas_1.Bind(price, Expression.Multiply(Expression.Constant(p), Expression.Subtract(Expression.Constant(1), Expression.Constant(discount)))).Concat(formulas_2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(20)))));
     //
+    // or
+    //
+    // var query = Factory.Query().Where(formulas_1.Bind(price, Expression.Multiply(Expression.Constant(p), Expression.Subtract(Expression.Constant(1), Expression.Constant(discount)))).Concat(formulas_2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(20))))).Select(title, price);
+    //
+    // going with the latter syntax where queries are constructed from Factory and then closed with .Ask(), .Select(), .Construct(), or .Describe()
     //
     // to do: https://www.w3.org/TR/sparql11-query/#subqueries
 }
@@ -1324,11 +1317,40 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
+
+
+
+        public static IQuery Query()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public static partial class Extensions
     {
-        public static IAskQuery Where(this IAskQuery query, IReadOnlyFormulaCollection pattern)
+        // with the new query syntax, these conclude a query into one of the four query types
+        public static IAskQuery Ask(this IQuery query)
+        {
+            throw new NotImplementedException();
+        }
+        public static ISelectQuery Select(this IQuery query, params IVariableTerm[] variables)
+        {
+            throw new NotImplementedException();
+        }
+        public static IConstructQuery Construct(this IQuery query, IReadOnlyFormulaCollection projection)
+        {
+            throw new NotImplementedException();
+        }
+        public static IDescribeQuery Describe(this IQuery query)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        // the new query syntax reduces redundancy and simplifies the processing of queries' expression trees
+        // these methods build queries before they are concluded into one of four query types
+        public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
         {
             var method = MethodBase.GetCurrentMethod() as MethodInfo;
             if (method == null) throw new Exception();
@@ -1338,45 +1360,46 @@ namespace Nifty
             // return new AskQuery(expr);
             throw new NotImplementedException();
         }
-        public static IAskQuery GroupBy(this IAskQuery query, IVariableTerm variable)
+        public static IQuery GroupBy(this IQuery query, IVariableTerm variable)
         {
             throw new NotImplementedException();
         }
-        public static IAskQuery OrderBy(this IAskQuery query, IVariableTerm variable)
+        public static IQuery OrderBy(this IQuery query, IVariableTerm variable)
         {
             throw new NotImplementedException();
         }
-        public static IAskQuery OrderByDescending(this IAskQuery query, IVariableTerm variable)
+        public static IQuery OrderByDescending(this IQuery query, IVariableTerm variable)
         {
             throw new NotImplementedException();
         }
-        public static IAskQuery ThenBy(this IAskQuery query, IVariableTerm variable)
+        public static IQuery ThenBy(this IQuery query, IVariableTerm variable)
         {
             throw new NotImplementedException();
         }
-        public static IAskQuery ThenByDescending(this IAskQuery query, IVariableTerm variable)
+        public static IQuery ThenByDescending(this IQuery query, IVariableTerm variable)
         {
             throw new NotImplementedException();
         }
-        public static IAskQuery Distinct(this IAskQuery query)
+        public static IQuery Distinct(this IQuery query)
         {
             throw new NotImplementedException();
         }
-        public static IAskQuery Reduced(this IAskQuery query)
+        public static IQuery Reduced(this IQuery query)
         {
             throw new NotImplementedException();
         }
-        public static IAskQuery Offset(this IAskQuery query, int offset)
+        public static IQuery Offset(this IQuery query, int offset)
         {
             throw new NotImplementedException();
         }
-        public static IAskQuery Limit(this IAskQuery query, int limit)
+        public static IQuery Limit(this IQuery query, int limit)
         {
             throw new NotImplementedException();
         }
 
 
 
+        // these are operations pertaining to formula patterns utilized by the Where operator
         public static IReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
         {
             throw new NotImplementedException();
@@ -1403,7 +1426,7 @@ namespace Nifty
         }
 
 
-
+        // these utilize LINQ expression trees and operators are overloaded on IVariableTerm so that these expression trees are valid
         public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, Expression expression)
         {
             throw new NotImplementedException();
