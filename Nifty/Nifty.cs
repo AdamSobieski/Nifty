@@ -711,6 +711,36 @@ namespace Nifty.Knowledge.Querying
     //
     // note: some nestable subclauses will support expression trees from System.Linq.Expressions in their factory methods and, for these scenarios,
     //       Nifty.Knowledge.ITerm and Nifty.Knowledge.IVariableTerm will have operators overloaded so that these expression trees are valid
+    //
+    // note: the SPARQL examples indicate the following expressiveness and 'nestability' with respect to unioning:
+    //
+    // PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
+    // PREFIX vcard:   <http://www.w3.org/2001/vcard-rdf/3.0#>
+    //
+    // CONSTRUCT { ?x  vcard:N _:v .
+    //            _:v vcard:givenName ?gname .
+    //            _:v vcard:familyName ?fname
+    //    }
+    //    WHERE
+    //    {
+    //        { ?x foaf:firstname? gname } UNION { ?x foaf:givenname? gname } .
+    //        { ?x foaf:surname? fname } UNION { ?x foaf:family_name? fname } .
+    //    }
+    //
+    // union is either a type of a nestable clause or a method on IReadOnlyFormulaCollection that returns an extending interface type with an expression tree
+    // perhaps IReadOnlyFormulaCollection has an "Expression Expression { get; }" property and, perhaps, union and intersection are implemented via extension methods
+    // so that the expression trees of nestably unioned (and/or intersected) formula collections can reference those extension methods...
+    // 
+    // so, the above example could resemble:
+    //
+    // var formulas_1 = { ?x foaf:firstname? gname };
+    // var formulas_2 = { ?x foaf:givenname? gname };
+    // var formulas_3 = { ?x foaf:surname? fname };
+    // var formulas_4 = { ?x foaf:family_name? fname };
+    // var formulas_5 = { ?x  vcard:N _:v . _:v vcard:givenName ?gname . _:v vcard:familyName ?fname };
+    //
+    // Factory.Construct(formulas_5).Where(Factory.Concat(formulas_1.Union(formulas_2), formulas_3.Union(formulas_4)));
+    // 
     public enum ClauseType
     {
         Optional,
