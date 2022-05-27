@@ -1242,7 +1242,7 @@ namespace Nifty
     public static partial class Extensions
     {
         // the expressiveness for querying formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
-        
+
         // "LINQ to N-ary SPARQL"
         //
         // example syntax:
@@ -1261,7 +1261,7 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IConstructQuery Construct(this IQuery query, IReadOnlyFormulaCollection projection)
+        public static IConstructQuery Construct(this IQuery query, IReadOnlyFormulaCollection template)
         {
             throw new NotImplementedException();
         }
@@ -1327,6 +1327,7 @@ namespace Nifty
         // these are operations pertaining to formula patterns utilized by the Where operator
         public static IReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
         {
+            // or is this Merge(...) ?
             throw new NotImplementedException();
         }
         public static IReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
