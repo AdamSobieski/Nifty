@@ -701,7 +701,7 @@ namespace Nifty.Knowledge.Querying
 
     }
 
-    // SPARQL example
+    // SPARQL examples
     //
     // PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
     // PREFIX vcard:   <http://www.w3.org/2001/vcard-rdf/3.0#>
@@ -724,7 +724,7 @@ namespace Nifty.Knowledge.Querying
     // var formulas_4 = { ?x foaf:family_name ?fname };
     // var formulas_5 = { ?x  vcard:N _:v . _:v vcard:givenName ?gname . _:v vcard:familyName ?fname };
     // 
-    // Factory.Construct(formulas_5).Where(formulas_1.Union(formulas_2).Combine(formulas_3.Union(formulas_4)));
+    // var query = Factory.Construct(formulas_5).Where(formulas_1.Union(formulas_2).Concat(formulas_3.Union(formulas_4)));
     //
     // 
     // PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -737,7 +737,7 @@ namespace Nifty.Knowledge.Querying
     // var formulas_1 = { ?x foaf:name ?name }
     // var formulas_2 = { ?x foaf:mbox ?mbox }
     //
-    // Factory.Select(name, mbox).Where(formulas_1.Optional(formulas_2));
+    // var query = Factory.Select(name, mbox).Where(formulas_1.Optional(formulas_2));
     //
     // 
     // PREFIX dc:  <http://purl.org/dc/elements/1.1/>
@@ -750,7 +750,23 @@ namespace Nifty.Knowledge.Querying
     //
     // in C#:
     //
-    // Factory.Select(title, price).Where(formulas_1.Optional(formulas2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(30)))))
+    // var query = Factory.Select(title, price).Where(formulas_1.Optional(formulas2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(30)))))
+    //
+    // PREFIX dc:  <http://purl.org/dc/elements/1.1/>
+    // PREFIX ns:  <http://example.org/ns#>
+    // 
+    // SELECT ?title ?price
+    //    {  { ?x ns:price ?p .
+    //         ?x ns:discount ?discount
+    //         BIND(?p * (1 - ?discount) AS ?price)
+    //       }
+    //       {?x dc:title? title . }
+    //       FILTER(?price < 20)
+    //    }
+    //
+    // in C#:
+    //
+    // var query = Factory.Select(title, price).Where(formulas_1.Bind(price, Expression.Multiply(Expression.Constant(p), Expression.Subtract(Expression.Constant(1), Expression.Constant(discount)))).Concat(formulas_2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(20)))));
 }
 
 namespace Nifty.Knowledge.Reasoning
@@ -1320,6 +1336,14 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
+        public static IReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        {
+            throw new NotImplementedException();
+        }
         public static IReadOnlyFormulaCollection Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
         {
             throw new NotImplementedException();
