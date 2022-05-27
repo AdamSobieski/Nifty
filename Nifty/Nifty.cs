@@ -712,7 +712,7 @@ namespace Nifty.Knowledge.Querying
     // var formulas_4 = { ?x foaf:family_name ?fname };
     // var formulas_5 = { ?x  vcard:N _:v . _:v vcard:givenName ?gname . _:v vcard:familyName ?fname };
     // 
-    // var query = Factory.Construct(formulas_5).Where(formulas_1.Union(formulas_2).Concat(formulas_3.Union(formulas_4)));
+    // var query = Factory.Query().Where(formulas_1.Union(formulas_2).Concat(formulas_3.Union(formulas_4))).Construct(formulas_5);
     //
     // 
     // PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -725,7 +725,7 @@ namespace Nifty.Knowledge.Querying
     // var formulas_1 = { ?x foaf:name ?name }
     // var formulas_2 = { ?x foaf:mbox ?mbox }
     //
-    // var query = Factory.Select(name, mbox).Where(formulas_1.Optional(formulas_2));
+    // var query = Factory.Query().Where(formulas_1.Optional(formulas_2)).Select(name, mbox);
     //
     // 
     // PREFIX dc:  <http://purl.org/dc/elements/1.1/>
@@ -738,7 +738,7 @@ namespace Nifty.Knowledge.Querying
     //
     // in C#:
     //
-    // var query = Factory.Select(title, price).Where(formulas_1.Optional(formulas2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(30)))))
+    // var query = Factory.Query().Where(formulas_1.Optional(formulas2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(30))))).Select(title, price);
     //
     // PREFIX dc:  <http://purl.org/dc/elements/1.1/>
     // PREFIX ns:  <http://example.org/ns#>
@@ -754,13 +754,9 @@ namespace Nifty.Knowledge.Querying
     //
     // in C#:
     //
-    // var query = Factory.Select(title, price).Where(formulas_1.Bind(price, Expression.Multiply(Expression.Constant(p), Expression.Subtract(Expression.Constant(1), Expression.Constant(discount)))).Concat(formulas_2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(20)))));
-    //
-    // or
-    //
     // var query = Factory.Query().Where(formulas_1.Bind(price, Expression.Multiply(Expression.Constant(p), Expression.Subtract(Expression.Constant(1), Expression.Constant(discount)))).Concat(formulas_2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(20))))).Select(title, price);
     //
-    // going with the latter syntax where queries are constructed from Factory and then closed with .Ask(), .Select(), .Construct(), or .Describe()
+    // going with the syntactic option where queries are constructed from Factory and then closed with .Ask(), .Select(), .Construct(), or .Describe()
     //
     // to do: https://www.w3.org/TR/sparql11-query/#subqueries
 }
@@ -1328,7 +1324,7 @@ namespace Nifty
 
     public static partial class Extensions
     {
-        // with the new query syntax, these conclude a query into one of the four query types
+        // with this new query syntax, these conclude a query into one of the four query types
         public static IAskQuery Ask(this IQuery query)
         {
             throw new NotImplementedException();
@@ -1347,8 +1343,7 @@ namespace Nifty
         }
 
 
-
-        // the new query syntax reduces redundancy and simplifies the processing of queries' expression trees
+        // this new query syntax reduces redundancy and simplifies the processing of queries' expression trees
         // these methods build queries before they are concluded into one of four query types
         public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
         {
@@ -1396,7 +1391,6 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-
 
 
         // these are operations pertaining to formula patterns utilized by the Where operator
