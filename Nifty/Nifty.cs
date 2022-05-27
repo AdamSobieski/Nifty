@@ -1346,6 +1346,18 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
+        public static IAskQuery OrderByDescending(this IAskQuery query, IVariableTerm variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IAskQuery ThenBy(this IAskQuery query, IVariableTerm variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IAskQuery ThenByDescending(this IAskQuery query, IVariableTerm variable)
+        {
+            throw new NotImplementedException();
+        }
         public static IAskQuery Distinct(this IAskQuery query)
         {
             throw new NotImplementedException();
