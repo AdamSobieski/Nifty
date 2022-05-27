@@ -125,6 +125,8 @@ namespace Nifty.AutomatedPlanning.Constraints
         public void OnError(Exception error);
         public IObserver<TAlphabet> OnNext(TAlphabet value);
     }
+
+    // to do: consider fluent approaches to defining and building automata
 }
 
 namespace Nifty.Channels
