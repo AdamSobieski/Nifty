@@ -767,6 +767,9 @@ namespace Nifty.Knowledge.Querying
     // in C#:
     //
     // var query = Factory.Select(title, price).Where(formulas_1.Bind(price, Expression.Multiply(Expression.Constant(p), Expression.Subtract(Expression.Constant(1), Expression.Constant(discount)))).Concat(formulas_2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(20)))));
+    //
+    //
+    // to do: https://www.w3.org/TR/sparql11-query/#subqueries
 }
 
 namespace Nifty.Knowledge.Reasoning
@@ -1333,6 +1336,14 @@ namespace Nifty
             var expr = Expression.Call(null, method, query.Expression, pattern.Expression);
 
             // return new AskQuery(expr);
+            throw new NotImplementedException();
+        }
+        public static IAskQuery GroupBy(this IAskQuery query, IVariableTerm variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IAskQuery OrderBy(this IAskQuery query, IVariableTerm variable)
+        {
             throw new NotImplementedException();
         }
 
