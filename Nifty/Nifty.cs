@@ -17,6 +17,7 @@ using Nifty.Modelling.Users;
 using Nifty.Sessions;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Xml;
 
 namespace Nifty.Activities
@@ -474,7 +475,9 @@ namespace Nifty.Knowledge
 {
     public interface IReadOnlyFormulaCollection : ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
     {
-        public IQueryable<ITerm> Predicates { get; }
+        public Expression Expression { get { return Expression.Constant(this); } }
+
+        //public IQueryable<ITerm> Predicates { get; }
 
         public bool IsGround { get; }
         public bool IsReadOnly { get; }
@@ -740,8 +743,6 @@ namespace Nifty.Knowledge.Querying
     // var formulas_5 = { ?x  vcard:N _:v . _:v vcard:givenName ?gname . _:v vcard:familyName ?fname };
     //
     // Factory.Construct(formulas_5).Where(formulas_1.Union(formulas_2).Combine(formulas_3.Union(formulas_4)));
-    // 
-    // to do: consider whether there should be an IReadOnlyFormulaCollection::Expression property for and/or/not trees.
     public enum ClauseType
     {
         Optional,
@@ -1309,6 +1310,21 @@ namespace Nifty
         }
         public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
         {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static partial class Extensions
+    {
+        // extension methods for querying formula collections might resemble:
+        public static IAskQuery Where(this IAskQuery query, IReadOnlyFormulaCollection formulas)
+        {
+            var method = MethodBase.GetCurrentMethod() as MethodInfo;
+            if (method == null) throw new Exception();
+
+            var expr = Expression.Call(null, method, query.Expression, formulas.Expression);
+
+            // return new AskQuery(expr);
             throw new NotImplementedException();
         }
     }
