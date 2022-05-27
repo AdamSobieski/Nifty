@@ -1346,6 +1346,24 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
+        public static IAskQuery Distinct(this IAskQuery query)
+        {
+            throw new NotImplementedException();
+        }
+        public static IAskQuery Reduced(this IAskQuery query)
+        {
+            throw new NotImplementedException();
+        }
+        public static IAskQuery Offset(this IAskQuery query, int offset)
+        {
+            throw new NotImplementedException();
+        }
+        public static IAskQuery Limit(this IAskQuery query, int limit)
+        {
+            throw new NotImplementedException();
+        }
+
+
 
         public static IReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
         {
@@ -1371,6 +1389,9 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
+
+
+
         public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, Expression expression)
         {
             throw new NotImplementedException();
