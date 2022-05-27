@@ -1337,7 +1337,7 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IDescribeQuery Describe(this IQuery query)
+        public static IDescribeQuery Describe(this IQuery query, params ITerm[] things)
         {
             throw new NotImplementedException();
         }
