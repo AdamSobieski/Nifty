@@ -657,6 +657,7 @@ namespace Nifty.Knowledge.Querying
     // https://www.w3.org/TR/sparql11-query/#QueryForms
     public enum QueryType
     {
+        None,
         Select,
         Construct,
         Ask,
