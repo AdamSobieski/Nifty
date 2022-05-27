@@ -477,11 +477,10 @@ namespace Nifty.Knowledge
     {
         public Expression Expression { get { return Expression.Constant(this); } }
 
-        //public IQueryable<ITerm> Predicates { get; }
-
         public bool IsGround { get; }
         public bool IsReadOnly { get; }
         public bool IsInferred { get; }
+        public bool IsPattern { get; }
         public bool IsValid { get; }
         public bool IsGraph { get; }
 
@@ -702,20 +701,7 @@ namespace Nifty.Knowledge.Querying
 
     }
 
-    // nestable query subclauses
-    // 
-    // e.g.:
-    //
-    //       var query_1 = Factory.Ask().Where(formulas_1);
-    //       var b_1     = formulas.Query(query);
-    //
-    //       var query_2 = Factory.Ask().Where(formulas_1, Factory.Clauses.Exists(formulas_2));
-    //       var b_2     = formulas.Query(query);
-    //
-    // note: some nestable subclauses will support expression trees from System.Linq.Expressions in their factory methods and, for these scenarios,
-    //       Nifty.Knowledge.ITerm and Nifty.Knowledge.IVariableTerm will have operators overloaded so that these expression trees are valid
-    //
-    // note: the SPARQL examples indicate the following expressiveness and 'nestability' with respect to unioning:
+    // SPARQL example
     //
     // PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
     // PREFIX vcard:   <http://www.w3.org/2001/vcard-rdf/3.0#>
@@ -726,38 +712,45 @@ namespace Nifty.Knowledge.Querying
     //    }
     //    WHERE
     //    {
-    //        { ?x foaf:firstname? gname } UNION { ?x foaf:givenname? gname } .
-    //        { ?x foaf:surname? fname } UNION { ?x foaf:family_name? fname } .
+    //        { ?x foaf:firstname? gname } UNION { ?x foaf:givenname ?gname } .
+    //        { ?x foaf:surname? fname } UNION { ?x foaf:family_name ?fname } .
     //    }
     //
-    // union is either a type of a nestable clause or a method on IReadOnlyFormulaCollection that returns an extending interface type with an expression tree
-    // perhaps IReadOnlyFormulaCollection has an "Expression Expression { get; }" property and, perhaps, union and intersection are implemented via extension methods
-    // so that the expression trees of nestably unioned (and/or intersected) formula collections can reference those extension methods...
-    // 
-    // so, the above example could resemble:
+    // the above example could resemble in C#:
     //
     // var formulas_1 = { ?x foaf:firstname ?gname };
     // var formulas_2 = { ?x foaf:givenname ?gname };
     // var formulas_3 = { ?x foaf:surname ?fname };
     // var formulas_4 = { ?x foaf:family_name ?fname };
     // var formulas_5 = { ?x  vcard:N _:v . _:v vcard:givenName ?gname . _:v vcard:familyName ?fname };
-    //
+    // 
     // Factory.Construct(formulas_5).Where(formulas_1.Union(formulas_2).Combine(formulas_3.Union(formulas_4)));
-    public enum ClauseType
-    {
-        Optional,
-        Exists,
-        NotExists,
-        Minus,
-        Bind,
-        Filter
-    }
-    public interface IClause
-    {
-        public ClauseType ClauseType { get; }
-        public Expression Expression { get; }
-    }
-    //...
+    //
+    // 
+    // PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+    // SELECT ?name ?mbox WHERE { ?x foaf:name ?name. OPTIONAL { ?x foaf:mbox ?mbox } }
+    //
+    // could resemble in C#:
+    // 
+    // var name = ?name;
+    // var mbox = ?mbox
+    // var formulas_1 = { ?x foaf:name ?name }
+    // var formulas_2 = { ?x foaf:mbox ?mbox }
+    //
+    // Factory.Select(name, mbox).Where(formulas_1.Optional(formulas_2));
+    //
+    // 
+    // PREFIX dc:  <http://purl.org/dc/elements/1.1/>
+    // PREFIX ns:  <http://example.org/ns#>
+    // SELECT ?title ?price
+    // WHERE   { ? x dc:title? title.
+    //     OPTIONAL
+    //     { ?x ns:price ?price . FILTER (?price < 30) }
+    // }
+    //
+    // in C#:
+    //
+    // Factory.Select(title, price).Where(formulas_1.Optional(formulas2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(30)))))
 }
 
 namespace Nifty.Knowledge.Reasoning
@@ -1316,15 +1309,39 @@ namespace Nifty
 
     public static partial class Extensions
     {
-        // extension methods for querying formula collections might resemble:
-        public static IAskQuery Where(this IAskQuery query, IReadOnlyFormulaCollection formulas)
+        public static IAskQuery Where(this IAskQuery query, IReadOnlyFormulaCollection pattern)
         {
             var method = MethodBase.GetCurrentMethod() as MethodInfo;
             if (method == null) throw new Exception();
 
-            var expr = Expression.Call(null, method, query.Expression, formulas.Expression);
+            var expr = Expression.Call(null, method, query.Expression, pattern.Expression);
 
             // return new AskQuery(expr);
+            throw new NotImplementedException();
+        }
+
+        public static IReadOnlyFormulaCollection Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, Expression expression)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariableTerm variable, Expression expression)
+        {
             throw new NotImplementedException();
         }
     }
