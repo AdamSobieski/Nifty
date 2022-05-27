@@ -651,7 +651,7 @@ namespace Nifty.Knowledge.Querying
     // so, something like:
     //
     // IReadOnlyFormulaCollection formulas = ...;
-    // IAskQuery query = Factory.Querying.Ask().Where(...);
+    // IAskQuery query = Factory.Query().Where(...).Ask();
     // bool value = formulas.Query(query);
 
     // https://www.w3.org/TR/sparql11-query/#QueryForms
