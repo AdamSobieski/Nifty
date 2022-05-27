@@ -1430,5 +1430,12 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
+
+
+        // support for inline data (https://www.w3.org/TR/sparql11-query/#inline-data)
+        public static IReadOnlyFormulaCollection Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> values)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
