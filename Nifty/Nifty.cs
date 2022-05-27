@@ -642,19 +642,6 @@ namespace Nifty.Knowledge.Probabilistic
 
 namespace Nifty.Knowledge.Querying
 {
-    // see also: https://www.w3.org/TR/sparql11-query/
-    // see also: Jena ARQ
-
-    // as envisioned, queries are created with the Factory, elaborated with fluent syntax, and then processed by formula collections.
-    // in this way, queries can be portable and reusable across formula collections
-    //
-    // so, something like:
-    //
-    // IReadOnlyFormulaCollection formulas = ...;
-    // IAskQuery query = Factory.Query().Where(...).Ask();
-    // bool value = formulas.Query(query);
-
-    // https://www.w3.org/TR/sparql11-query/#QueryForms
     public enum QueryType
     {
         None,
@@ -689,77 +676,6 @@ namespace Nifty.Knowledge.Querying
     {
 
     }
-
-    // SPARQL examples
-    //
-    // PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
-    // PREFIX vcard:   <http://www.w3.org/2001/vcard-rdf/3.0#>
-    //
-    // CONSTRUCT { ?x  vcard:N _:v .
-    //            _:v vcard:givenName ?gname .
-    //            _:v vcard:familyName ?fname
-    //    }
-    //    WHERE
-    //    {
-    //        { ?x foaf:firstname? gname } UNION { ?x foaf:givenname ?gname } .
-    //        { ?x foaf:surname? fname } UNION { ?x foaf:family_name ?fname } .
-    //    }
-    //
-    // the above example could resemble in C#:
-    //
-    // var formulas_1 = { ?x foaf:firstname ?gname };
-    // var formulas_2 = { ?x foaf:givenname ?gname };
-    // var formulas_3 = { ?x foaf:surname ?fname };
-    // var formulas_4 = { ?x foaf:family_name ?fname };
-    // var formulas_5 = { ?x  vcard:N _:v . _:v vcard:givenName ?gname . _:v vcard:familyName ?fname };
-    // 
-    // var query = Factory.Query().Where(formulas_1.Union(formulas_2).Concat(formulas_3.Union(formulas_4))).Construct(formulas_5);
-    //
-    // 
-    // PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-    // SELECT ?name ?mbox WHERE { ?x foaf:name ?name. OPTIONAL { ?x foaf:mbox ?mbox } }
-    //
-    // could resemble in C#:
-    // 
-    // var name = ?name;
-    // var mbox = ?mbox
-    // var formulas_1 = { ?x foaf:name ?name }
-    // var formulas_2 = { ?x foaf:mbox ?mbox }
-    //
-    // var query = Factory.Query().Where(formulas_1.Optional(formulas_2)).Select(name, mbox);
-    //
-    // 
-    // PREFIX dc:  <http://purl.org/dc/elements/1.1/>
-    // PREFIX ns:  <http://example.org/ns#>
-    // SELECT ?title ?price
-    // WHERE   { ? x dc:title? title.
-    //     OPTIONAL
-    //     { ?x ns:price ?price . FILTER (?price < 30) }
-    // }
-    //
-    // in C#:
-    //
-    // var query = Factory.Query().Where(formulas_1.Optional(formulas2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(30))))).Select(title, price);
-    //
-    // PREFIX dc:  <http://purl.org/dc/elements/1.1/>
-    // PREFIX ns:  <http://example.org/ns#>
-    // 
-    // SELECT ?title ?price
-    //    {  { ?x ns:price ?p .
-    //         ?x ns:discount ?discount
-    //         BIND(?p * (1 - ?discount) AS ?price)
-    //       }
-    //       {?x dc:title? title . }
-    //       FILTER(?price < 20)
-    //    }
-    //
-    // in C#:
-    //
-    // var query = Factory.Query().Where(formulas_1.Bind(price, Expression.Multiply(Expression.Constant(p), Expression.Subtract(Expression.Constant(1), Expression.Constant(discount)))).Concat(formulas_2.Filter(Expression.LessThan(Expression.Constant(price), Expression.Constant(20))))).Select(title, price);
-    //
-    // going with the syntactic option where queries are constructed from Factory and then closed with .Ask(), .Select(), .Construct(), or .Describe()
-    //
-    // to do: https://www.w3.org/TR/sparql11-query/#subqueries
 }
 
 namespace Nifty.Knowledge.Reasoning
@@ -1325,7 +1241,18 @@ namespace Nifty
 
     public static partial class Extensions
     {
-        // with this new query syntax, these conclude a query into one of the four query types
+        // the expressiveness for querying formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
+        
+        // "LINQ to N-ary SPARQL"
+        //
+        // example syntax:
+        //
+        // IReadOnlyFormulaCollection formulas = ...;
+        // IAskQuery query = Factory.Query().Where(...).Ask();
+        // bool result = formulas.Query(query);
+        //
+
+        // these conclude a query into one of the four query types
         public static IAskQuery Ask(this IQuery query)
         {
             throw new NotImplementedException();
@@ -1344,7 +1271,6 @@ namespace Nifty
         }
 
 
-        // this new query syntax reduces redundancy and simplifies the processing of queries' expression trees
         // these methods build queries before they are concluded into one of four query types
         public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
         {
@@ -1357,6 +1283,10 @@ namespace Nifty
             throw new NotImplementedException();
         }
         public static IQuery GroupBy(this IQuery query, IVariableTerm variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery GroupBy(this IQuery query, IVariableTerm variable, Expression having)
         {
             throw new NotImplementedException();
         }
