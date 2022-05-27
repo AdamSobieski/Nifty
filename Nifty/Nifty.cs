@@ -1337,7 +1337,7 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IDescribeQuery Describe(this IQuery query, params ITerm[] things)
+        public static IDescribeQuery Describe(this IQuery query, params ITerm[] terms)
         {
             throw new NotImplementedException();
         }
@@ -1352,7 +1352,7 @@ namespace Nifty
 
             var expr = Expression.Call(null, method, query.Expression, pattern.Expression);
 
-            // return new AskQuery(expr);
+            // return new Query(expr);
             throw new NotImplementedException();
         }
         public static IQuery GroupBy(this IQuery query, IVariableTerm variable)
