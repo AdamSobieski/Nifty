@@ -733,14 +733,15 @@ namespace Nifty.Knowledge.Querying
     // 
     // so, the above example could resemble:
     //
-    // var formulas_1 = { ?x foaf:firstname? gname };
-    // var formulas_2 = { ?x foaf:givenname? gname };
-    // var formulas_3 = { ?x foaf:surname? fname };
-    // var formulas_4 = { ?x foaf:family_name? fname };
+    // var formulas_1 = { ?x foaf:firstname ?gname };
+    // var formulas_2 = { ?x foaf:givenname ?gname };
+    // var formulas_3 = { ?x foaf:surname ?fname };
+    // var formulas_4 = { ?x foaf:family_name ?fname };
     // var formulas_5 = { ?x  vcard:N _:v . _:v vcard:givenName ?gname . _:v vcard:familyName ?fname };
     //
-    // Factory.Construct(formulas_5).Where(Factory.Concat(formulas_1.Union(formulas_2), formulas_3.Union(formulas_4)));
+    // Factory.Construct(formulas_5).Where(formulas_1.Union(formulas_2).Combine(formulas_3.Union(formulas_4)));
     // 
+    // to do: consider whether there should be an IReadOnlyFormulaCollection::Expression property for and/or/not trees.
     public enum ClauseType
     {
         Optional,
