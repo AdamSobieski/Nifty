@@ -3,7 +3,7 @@ This document includes a preliminary overview of the components of the [Nifty](h
 
 ## Knowledge Representation and Reasoning
 ### Formula Collections
-Nifty intends to deliver to developers the benefits of multiple knowledge representational approaches. Its knowledge representation combines the best of [Prolog](https://en.wikipedia.org/wiki/Prolog) (and [Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))) with [Semantic Web](https://en.wikipedia.org/wiki/Semantic_Web) technologies.
+Nifty intends to deliver to developers the benefits of multiple approachs to knowledge representation and reasoning. Its knowledge representation combines the best of [Prolog](https://en.wikipedia.org/wiki/Prolog) (and [Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))) with [Semantic Web](https://en.wikipedia.org/wiki/Semantic_Web) technologies.
 
 Utilizing a [Turtle](https://www.w3.org/TR/turtle/)-based syntax, we can represent binary formulas:
 ```
@@ -58,3 +58,9 @@ Nifty will deliver both pull- and push-based querying (`IEnumerable` and `IObser
 
 ### Updating
 Nifty provides immutable, read-only, and mutable collections of formulas.
+
+### Schema
+Drawing upon Semantic Web technologies, e.g., schema and ontologies, Nifty intends to enable specifying schema of use for validating collections of n-ary formulas.
+
+### Inference
+Nifty intends to deliver reasoning capabilities for performing inference over collections of n-ary formulas.
