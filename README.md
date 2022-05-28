@@ -23,4 +23,4 @@ The Nifty project is a framework for creating adaptive instructional systems.
 * [Design Recommendations for Intelligent Tutoring Systems – Volume 7 (Self Improving Systems)](https://aisconsortium.com/wp-content/uploads/Design-Recommendations-for-ITS_Volume-7-Self-Improving-Systems.pdf)
 
 ### Technical Overview
-Some preliminary technical overview of the project is available [here](OVERVIEW.md).
+A preliminary technical overview of the project is available [here](OVERVIEW.md).
