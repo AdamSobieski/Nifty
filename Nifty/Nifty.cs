@@ -507,6 +507,20 @@ namespace Nifty.Knowledge
         public IEnumerable<IReadOnlyFormulaCollection> Query(IConstructQuery query);
         public IReadOnlyFormulaCollection Query(IDescribeQuery query);
 
+        // public IDisposable Query(IAskQuery query, IObserver<bool> observer);
+        public IDisposable Query(ISelectQuery query, IObserver<IReadOnlyDictionary<IVariableTerm, ITerm>> observer);
+        public IDisposable Query(IConstructQuery query, IObserver<IReadOnlyFormulaCollection> observer);
+        //public IDisposable Query(IDescribeQuery query, IObserver<IReadOnlyFormulaCollection> observer);
+
+        // to do: support advanced querying where observers can receive query results and subsequent notifications as query results change due to formulas being removed from and added to formula collections
+        // should these be on IReadOnlyFormulaCollection or on IFormulaCollection ?
+
+        // public IDisposable Query(IAskQuery query, IObserver<Change<bool>> observer);
+        // public IDisposable Query(ISelectQuery query, IObserver<Change<IReadOnlyDictionary<IVariableTerm, ITerm>>> observer);
+        // public IDisposable Query(IConstructQuery query, IObserver<Change<IReadOnlyFormulaCollection>> observer);
+
+        // could also use components from Nifty.Knowledge.Updating
+
         public IReadOnlyFormulaCollection Clone();
         public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
     }
