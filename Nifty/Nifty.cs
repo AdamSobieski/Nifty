@@ -464,7 +464,8 @@ namespace Nifty.Events
 {
     public interface IEventSource : IHasReadOnlyFormulaCollection
     {
-        public IDisposable Subscribe(IUriTerm eventType, IEventHandler listener);
+        // this could be an extension method
+        // public IDisposable Subscribe(IUriTerm eventType, IEventHandler listener);
         public IDisposable Subscribe(IAskQuery query, IEventHandler listener);
     }
     public interface IEventHandler // : IHasReadOnlyFormulaCollection
