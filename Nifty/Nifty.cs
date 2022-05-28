@@ -15,7 +15,6 @@ using Nifty.Knowledge.Updating;
 using Nifty.Logging;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
-using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -367,7 +366,7 @@ namespace Nifty.Common
 
     public interface INotifyChanged
     {
-        public event EventHandler Changed;
+        public event EventHandler? Changed;
     }
 
     public interface IResumable<T>
@@ -486,7 +485,8 @@ namespace Nifty.Knowledge
         public bool IsPattern { get; }
         public bool IsValid { get; }
         public bool IsGraph { get; }
-        public bool IsList { get; }
+        public bool IsEnumerable { get; }
+        public bool IsIndexed { get; }
 
         public bool Contains(IFormula formula);
         public bool Contains(IFormula formula, [NotNullWhen(true)] out IReadOnlyFormulaCollection? about);
