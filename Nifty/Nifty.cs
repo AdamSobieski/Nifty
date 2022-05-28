@@ -484,9 +484,14 @@ namespace Nifty.Knowledge
         // or
         // public Expression Constraints { get; }
         // or
+        // public IEnumerable<Expression> Constraints { get; }
+        // or
         // public Expression<Func<IReadOnlyDictionary<IVariableTerm, Term>, bool>> Constraints { get; }
         // or, perhaps
         // public LambdaExpression Constraints { get; }
+        // or
+        // are these expressed using formulas instead of LINQ expressions?
+        // public IReadOnlyFormulaList Constraints { get; } // each formula would be a constraint which expresses a relationship between variables which should hold, e.g., ?x > ?y
 
         public bool IsGround { get; }
         public bool IsReadOnly { get; }
@@ -1293,6 +1298,9 @@ namespace Nifty
         // bool result = formulas.Query(query);
         //
 
+        // should these methods utilize System.Linq.Expressions.Expression or IFormula for arguments, e.g., GroupBy, Filter, Bind?
+        // could create a mapping between some IFormulas and Expressions
+
         // these conclude a query into one of the four query types
         public static IAskQuery Ask(this IQuery query)
         {
@@ -1394,6 +1402,7 @@ namespace Nifty
 
 
         // these utilize LINQ expression trees and operators are overloaded on IVariableTerm so that these expression trees are valid
+        // or should these express constraints using formulas?
         public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, Expression expression)
         {
             throw new NotImplementedException();
