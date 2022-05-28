@@ -479,6 +479,13 @@ namespace Nifty.Knowledge
     {
         public Expression Expression { get { return Expression.Constant(this); } }
 
+        // per the Filter and Bind operations on queries (see: static class Nifty.Extensions), might IReadOnlyFormulaCollections be able to describe constraints upon their variables?
+        // public bool Constraints(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+        // or
+        // public Expression<Func<IReadOnlyDictionary<IVariableTerm, Term>, bool>> Constraints { get; }
+        // or, perhaps, mapping IVariableTerms to ParameterExpressions
+        // public LambdaExpression Constraints { get; }
+
         public bool IsGround { get; }
         public bool IsReadOnly { get; }
         public bool IsInferred { get; }
@@ -518,6 +525,7 @@ namespace Nifty.Knowledge
         // public IDisposable Query(IAskQuery query, IObserver<Change<bool>> observer);
         // public IDisposable Query(ISelectQuery query, IObserver<Change<IReadOnlyDictionary<IVariableTerm, ITerm>>> observer);
         // public IDisposable Query(IConstructQuery query, IObserver<Change<IReadOnlyFormulaCollection>> observer);
+        // public IDisposable Query(IDescribeQuery query, IObserver<Change<IReadOnlyFormulaCollection>> observer);
 
         // could also use components from Nifty.Knowledge.Updating
 
