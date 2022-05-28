@@ -21,10 +21,10 @@ example:f(1, 2, 3).
 
 In this approach, terms are URI-based, utilizing XML namespaces and, as n-ary encompasses binary, collections of formulas can be knowledge graphs. When creating collections of formulas, developers can specify that they desire for them to be knowledge graphs.
 
-Benefits of the n-ary URI-based approach include expressiveness and modularity.
+Benefits of this n-ary URI-based approach include expressiveness and modularity.
 
 ### Querying
-The expressiveness for querying collections of formulas with Nifty will be comparable with or exceed that of [SPARQL](https://www.w3.org/TR/sparql11-query/) for collections of triples.
+The expressiveness for querying collections of n-ary formulas with Nifty will be comparable with or exceed that of [SPARQL](https://www.w3.org/TR/sparql11-query/) for collections of triples.
 
 N-ary queries can be visualized utilizing a SPARQL-based syntax:
 ```
@@ -57,10 +57,27 @@ bool result = formulas.Query(ask);
 Nifty will deliver both pull- and push-based querying (`IEnumerable` and `IObservable`) and intends to explore the powerful feature of enabling push-based queries which deliver notifications as query results change.
 
 ### Updating
-Nifty provides immutable, read-only, and mutable collections of formulas.
+Nifty provides both immutable, read-only, and mutable collections of formulas.
 
 ### Schema
 Drawing upon Semantic Web technologies, e.g., schema and ontologies, Nifty intends to enable specifying schema of use for validating collections of n-ary formulas.
 
 ### Inference
 Nifty intends to deliver reasoning capabilities for performing inference over collections of n-ary formulas.
+
+
+
+## Automated Planning and Scheduling
+
+### Modelling Actions
+The Nifty project's approach to modelling actions utilizes the interfaces for querying and updating of collections of formulas.
+
+```cs
+public interface IAction : IHasReadOnlyFormulaCollection
+{
+    public IAskQuery Preconditions { get; }
+    public IUpdate Effects { get; }
+}
+```
+
+The inspectable preconditions of an action are represented by a Boolean query to a collection of formulas, e.g., those formulas describing a state of a modelled world. The inspectable effects of an action are represented by an update to a collection of formulas. By extending `IHasReadOnlyFormulaCollection`, actions have metadata.
