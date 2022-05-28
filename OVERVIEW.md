@@ -24,7 +24,7 @@ example:f(1, 2, 3).
 
 In this approach, terms are URI-based, utilizing XML namespaces and, as n-ary encompasses binary, collections of formulas can be knowledge graphs. When creating collections of formulas, developers can specify that they desire for them to be knowledge graphs.
 
-Benefits of this n-ary URI-based approach include both expressiveness and modularity. With respect to expressiveness, beyond formulas being able to have three or more arguments, formulas can have one. Developers can, then, more easily quote nested formulas.
+Benefits of this n-ary URI-based approach include both expressiveness and modularity. With respect to expressiveness, beyond formulas being able to have three or more arguments, formulas can have unary predicates and one argument. Developers can, then, more easily quote nested formulas.
 
 ```
 @prefix example: <http://example.com/>.
@@ -37,6 +37,7 @@ builtin:quote(example:f(1, 2, 3)).
 The expressiveness for querying collections of n-ary formulas with Nifty will be comparable with or exceed that of [SPARQL](https://www.w3.org/TR/sparql11-query/) for collections of triples.
 
 N-ary queries can be visualized utilizing a SPARQL-based syntax:
+
 ```
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 SELECT ?name ?mbox
@@ -46,7 +47,9 @@ WHERE
     foaf:mbox(?x, ?mbox).
 }
 ```
+
 or, for a ternary example:
+
 ```
 PREFIX example: <http://example.com/>
 SELECT ?x
@@ -57,6 +60,7 @@ WHERE
 ```
 
 Nifty provides a [fluent](https://en.wikipedia.org/wiki/Fluent_interface) approach for constructing queries.
+
 ```cs
 IReadOnlyFormulaCollection formulas = ...;
 IAskQuery ask = Factory.Query().Where(...).Ask();
@@ -64,7 +68,7 @@ bool result = formulas.Query(ask);
 ```
 
 #### Dynamic and Reactive Queries
-Nifty will deliver both pull- and push-based querying (`IEnumerable` and `IObservable`) and intends to explore the powerful feature of enabling push-based queries which deliver notifications as query results change.
+Nifty will deliver both pull- and push-based querying (`IEnumerable` and `IObservable`) and intends to explore the powerful feature of enabling push-based queries which deliver notifications as sets of query results change.
 
 ### Updating
 Nifty provides both immutable, read-only, and mutable collections of formulas.
@@ -80,7 +84,7 @@ Nifty intends to deliver reasoning capabilities for performing inference over co
 ## Automated Planning and Scheduling
 
 ### Modelling Actions
-The Nifty project's approach to modelling actions utilizes the interfaces for querying and updating of collections of formulas.
+The Nifty project's approach to modelling actions utilizes the interfaces for querying and updating collections of formulas.
 
 ```cs
 public interface IAction : IHasReadOnlyFormulaCollection
@@ -90,4 +94,4 @@ public interface IAction : IHasReadOnlyFormulaCollection
 }
 ```
 
-The inspectable preconditions of actions are represented by Boolean queries to collections of formulas, e.g., those formulas describing a state of a modelled world. The inspectable effects of actions are represented by updates to collections of formulas. By extending `IHasReadOnlyFormulaCollection`, actions can have metadata.
+The inspectable preconditions of actions are represented by Boolean queries for collections of formulas, e.g., those formulas describing a state of a modelled world. The inspectable effects of actions are represented by updates for collections of formulas. By extending `IHasReadOnlyFormulaCollection`, actions can have metadata.
