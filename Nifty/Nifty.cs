@@ -479,7 +479,7 @@ namespace Nifty.Knowledge
     {
         public Expression Expression { get { return Expression.Constant(this); } }
 
-        // per the Filter and Bind operations on queries (see: static class Nifty.Extensions), might IReadOnlyFormulaCollections be able to describe constraints upon their variables?
+        // per the Filter operation on queries (see: static class Nifty.Extensions), might IReadOnlyFormulaCollections, in particular when IsPattern is true, be able to describe constraints upon their variables?
         // public bool Constraints(IReadOnlyDictionary<IVariableTerm, ITerm> map);
         // or
         // public Expression Constraints { get; }
@@ -526,18 +526,6 @@ namespace Nifty.Knowledge
         public IDisposable Query(IConstructQuery query, IObserver<IReadOnlyFormulaCollection> observer);
         //public IDisposable Query(IDescribeQuery query, IObserver<IReadOnlyFormulaCollection> observer);
 
-        // to do: support advanced querying where observers can receive query results and subsequent notifications as query results change due to formulas being removed from and added to formula collections
-        // should these be on IReadOnlyFormulaCollection or on IFormulaCollection ?
-
-        // public IDisposable Query(IAskQuery query, IObserver<Change<bool>> observer);
-        // public IDisposable Query(ISelectQuery query, IObserver<Change<IReadOnlyDictionary<IVariableTerm, ITerm>>> observer);
-        // public IDisposable Query(IConstructQuery query, IObserver<Change<IReadOnlyFormulaCollection>> observer);
-        // public IDisposable Query(IDescribeQuery query, IObserver<Change<IReadOnlyFormulaCollection>> observer);
-
-        // see also: "incremental tabling"
-
-        // could also use components from Nifty.Knowledge.Updating
-
         public IReadOnlyFormulaCollection Clone();
         public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
     }
@@ -548,6 +536,18 @@ namespace Nifty.Knowledge
 
         public bool Remove(IFormula formula);
         public bool Remove(IReadOnlyFormulaCollection formulas);
+
+        // moved to IFormulaCollection:
+        // to do: support advanced querying where observers can receive query results and subsequent notifications as query results change due to formulas being removed from and added to formula collections
+
+        // public IDisposable Query(IAskQuery query, IObserver<Change<bool>> observer);
+        // public IDisposable Query(ISelectQuery query, IObserver<Change<IReadOnlyDictionary<IVariableTerm, ITerm>>> observer);
+        // public IDisposable Query(IConstructQuery query, IObserver<Change<IReadOnlyFormulaCollection>> observer);
+        // public IDisposable Query(IDescribeQuery query, IObserver<Change<IReadOnlyFormulaCollection>> observer);
+
+        // see also: "incremental tabling"
+
+        // could also use components from Nifty.Knowledge.Updating
     }
 
     public interface IReadOnlyFormulaList : IReadOnlyFormulaCollection, IReadOnlyList<IFormula> { }
@@ -569,6 +569,7 @@ namespace Nifty.Knowledge
 
         public bool IsGround { get; }
 
+        // these could be extension methods
         //public bool IsPredicate(IReadOnlySchema schema)
         //{
         //    throw new NotImplementedException();
@@ -1300,6 +1301,9 @@ namespace Nifty
 
         // should these methods utilize System.Linq.Expressions.Expression or IFormula for arguments, e.g., GroupBy, Filter, Bind?
         // could create a mapping between some IFormulas and Expressions
+        //
+        // IFormula x_gt_y = Factory.Builtin.GreaterThan(x, y);
+        // Expression expr_x_gt_y = Expression.GreaterThan(Expression.Constant(x), Expression.Constant(y));
 
         // these conclude a query into one of the four query types
         public static IAskQuery Ask(this IQuery query)
@@ -1402,7 +1406,9 @@ namespace Nifty
 
 
         // these utilize LINQ expression trees and operators are overloaded on IVariableTerm so that these expression trees are valid
-        // or should these express constraints using formulas?
+        // should these use formulas instead of expression trees?
+        // IFormula x_gt_y = Factory.Builtin.GreaterThan(x, y);
+        // Expression expr_x_gt_y = Expression.GreaterThan(Expression.Constant(x), Expression.Constant(y));
         public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, Expression expression)
         {
             throw new NotImplementedException();
