@@ -15,6 +15,7 @@ using Nifty.Knowledge.Updating;
 using Nifty.Logging;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -126,7 +127,7 @@ namespace Nifty.AutomatedPlanning.Constraints
         public IObserver<TAlphabet> OnNext(TAlphabet value);
     }
 
-    // to do: consider fluent approaches to defining and building automata
+    // to do: consider approaches, e.g., fluent, to defining and building automata
 }
 
 namespace Nifty.Channels
@@ -485,6 +486,7 @@ namespace Nifty.Knowledge
         public bool IsPattern { get; }
         public bool IsValid { get; }
         public bool IsGraph { get; }
+        public bool IsList { get; }
 
         public bool Contains(IFormula formula);
         public bool Contains(IFormula formula, [NotNullWhen(true)] out IReadOnlyFormulaCollection? about);
@@ -516,6 +518,8 @@ namespace Nifty.Knowledge
         public bool Remove(IFormula formula);
         public bool Remove(IReadOnlyFormulaCollection formulas);
     }
+
+    public interface IReadOnlyFormulaList : IReadOnlyFormulaCollection, IReadOnlyList<IFormula> { }
 
     public enum TermType
     {
@@ -631,7 +635,6 @@ namespace Nifty.Knowledge
         public object Visit(ILiteralTerm term);
         public object Visit(IVariableTerm term);
         public object Visit(IFormula formula);
-        //public object Visit(IReadOnlyFormulaCollection collection);
     }
 
     public interface IKnowledgebase : IFormulaCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
@@ -851,6 +854,16 @@ namespace Nifty.Modelling.Domains
 namespace Nifty.Modelling.Users
 {
     public interface IUserModel : IHasReadOnlyFormulaCollection, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+}
+
+namespace Nifty.NaturalLanguage.Evaluation
+{
+
+}
+
+namespace Nifty.NaturalLanguage.Generation
+{
+
 }
 
 namespace Nifty.NaturalLanguage.Processing
