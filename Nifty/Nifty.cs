@@ -1337,9 +1337,13 @@ namespace Nifty
             // return new Query(expr);
 
             // or, if, instead of expression trees, formulas are to be utilized, something like:
-            //var formula = Factory.Formula(Keys.Querying.Where, query.Formula, pattern.Formula);
-            //var formulas = Factory.ReadOnlyFormulaList(new IFormula[] { formula }, query.Formula.Schema);
-            //return new Query(formulas);
+            //
+            // var formula = Factory.Formula(Keys.Querying.Where, query.Formula, pattern.Formula);
+            // var formulas = Factory.ReadOnlyFormulaList(new IFormula[] { formula }, query.Formula.Schema);
+            //
+            // if(!formulas.IsValid) throw new Exception();
+            //
+            // return new Query(formulas);
 
             throw new NotImplementedException();
         }

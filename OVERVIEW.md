@@ -116,7 +116,7 @@ In Nifty, there are different types of updates: simple, query-based, conditional
 
 Drawing upon the Semantic Web technologies of schema and ontologies, Nifty intends to enable specifying schema of use for validating collections of n-ary formulas.
 
-It is a goal is to migrate from `System.Linq.Expressions.Expression`-based representations for constructed queries to formula-based representations and, for these scenarios, schemas should be sufficiently expressive so as to validate those formalas representing queries. That is, n-ary formulas can be constructed as developers make use of fluent interfaces to construct queries and these formulas can be validated by schema.
+It is a goal is to migrate from `System.Linq.Expressions.Expression`-based representations for constructed queries to formula-based representations and, for these scenarios, schemas should be sufficiently expressive so as to validate those formalas representing queries. That is, n-ary formulas can be constructed as developers make use of fluent interfaces to construct queries and these formulas should be able to be validated by schema.
 
 ### Inference
 
