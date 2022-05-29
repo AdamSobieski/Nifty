@@ -478,7 +478,7 @@ namespace Nifty.Knowledge
 {
     public interface IReadOnlyFormulaCollection : ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
     {
-        // public ITerm Term { get { return this; } } // or would this be ITerm Formula { get; } or IReadOnlyFormulaList Formula { get; } to also have a validating schema
+        // or would this be ITerm Formula { get; } or IReadOnlyFormulaList Formula { get; } to also have a validating schema for a formula representing the structure of complex formula collections, e.g., {a} UNION {b}
         public Expression Expression { get { return Expression.Constant(this); } }
 
         // per the Filter operation on queries (see: static class Nifty.Extensions), might IReadOnlyFormulaCollections, in particular when IsPattern is true, be able to describe constraints upon their variables?
@@ -1335,6 +1335,12 @@ namespace Nifty
             var expr = Expression.Call(null, method, query.Expression, pattern.Expression);
 
             // return new Query(expr);
+
+            // or, if, instead of expression trees, formulas are to be utilized, something like:
+            //var formula = Factory.Formula(Keys.Querying.Where, query.Formula, pattern.Formula);
+            //var formulas = Factory.ReadOnlyFormulaList(new IFormula[] { formula }, query.Formula.Schema);
+            //return new Query(formulas);
+
             throw new NotImplementedException();
         }
         public static IQuery GroupBy(this IQuery query, IVariableTerm variable)
