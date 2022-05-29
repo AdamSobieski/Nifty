@@ -1,12 +1,14 @@
 # Technical Overview
 
-This document includes a preliminary technical overview of some of the components of the [Nifty](https://github.com/AdamSobieski/Nifty) project. More content is coming soon.
+This document includes a preliminary technical overview of some of the components of the [Nifty](https://github.com/AdamSobieski/Nifty) project.
+
+More content is coming soon.
 
 ## Knowledge Representation and Reasoning
 
 ### Formula Collections
 
-Nifty intends to deliver to developers the benefits of multiple approachs to knowledge representation and reasoning. Its knowledge representation combines the best of [Prolog](https://en.wikipedia.org/wiki/Prolog) (and [Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))) with the best of [Semantic Web](https://en.wikipedia.org/wiki/Semantic_Web) technologies.
+Nifty intends to deliver to developers the benefits of multiple approaches to knowledge representation and reasoning. Its knowledge representation combines the best of [Prolog](https://en.wikipedia.org/wiki/Prolog) (and [Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))) with the best of [Semantic Web](https://en.wikipedia.org/wiki/Semantic_Web) technologies.
 
 Utilizing a [Turtle](https://www.w3.org/TR/turtle/)-based syntax, we can represent binary formulas using a predicate-calculus notation:
 

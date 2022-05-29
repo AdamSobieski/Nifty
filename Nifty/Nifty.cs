@@ -478,7 +478,7 @@ namespace Nifty.Knowledge
 {
     public interface IReadOnlyFormulaCollection : /* ITerm, */ ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
     {
-        // public ITerm Term { get { return this; } }
+        // public ITerm Term { get { return this; } } // or is this Formula ?
         public Expression Expression { get { return Expression.Constant(this); } }
 
         // per the Filter operation on queries (see: static class Nifty.Extensions), might IReadOnlyFormulaCollections, in particular when IsPattern is true, be able to describe constraints upon their variables?
