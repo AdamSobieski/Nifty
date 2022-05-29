@@ -8,7 +8,7 @@ This document includes a preliminary technical overview of some of the component
 
 Nifty intends to deliver to developers the benefits of multiple approachs to knowledge representation and reasoning. Its knowledge representation combines the best of [Prolog](https://en.wikipedia.org/wiki/Prolog) (and [Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))) with the best of [Semantic Web](https://en.wikipedia.org/wiki/Semantic_Web) technologies.
 
-Utilizing a [Turtle](https://www.w3.org/TR/turtle/)-based syntax, we can represent binary formulas with a predicate-calculus-based approach:
+Utilizing a [Turtle](https://www.w3.org/TR/turtle/)-based syntax, we can represent binary formulas using a predicate-calculus notation:
 
 ```
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
@@ -72,7 +72,7 @@ WHERE
 }
 ```
 
-Nifty provides a [fluent](https://en.wikipedia.org/wiki/Fluent_interface) approach for constructing queries. This includes constructing all four kinds of SPARQL-based queries: ASK, SELECT, CONSTRUCT and DESCRIBE.
+Nifty provides a [fluent](https://en.wikipedia.org/wiki/Fluent_interface) approach for constructing queries. This includes constructing all four kinds of SPARQL-based queries: ASK, SELECT, CONSTRUCT, and DESCRIBE.
 
 ```cs
 IReadOnlyFormulaCollection formulas = ...;
@@ -139,4 +139,5 @@ The inspectable preconditions of actions are represented by Boolean queries for 
 
 
 ## Automata
+
 Coming soon.
