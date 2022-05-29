@@ -6,9 +6,9 @@ This document includes a preliminary technical overview of some of the component
 
 ### Formula Collections
 
-Nifty intends to deliver to developers the benefits of multiple approachs to knowledge representation and reasoning. Its knowledge representation combines the best of [Prolog](https://en.wikipedia.org/wiki/Prolog) (and [Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))) with [Semantic Web](https://en.wikipedia.org/wiki/Semantic_Web) technologies.
+Nifty intends to deliver to developers the benefits of multiple approachs to knowledge representation and reasoning. Its knowledge representation combines the best of [Prolog](https://en.wikipedia.org/wiki/Prolog) (and [Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))) with the best of [Semantic Web](https://en.wikipedia.org/wiki/Semantic_Web) technologies.
 
-Utilizing a [Turtle](https://www.w3.org/TR/turtle/)-based syntax, we can represent binary formulas:
+Utilizing a [Turtle](https://www.w3.org/TR/turtle/)-based syntax, we can represent binary formulas with a predicate-calculus-based approach:
 
 ```
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
@@ -17,7 +17,7 @@ foaf:knows(_:alice, _:bob).
 foaf:knows(_:bob, _:alice).
 ```
 
-and we can represent n-ary formulas, in this case ternary:
+and we can similarly represent n-ary formulas, in this case ternary:
 
 ```
 @prefix example: <http://example.com/>.
@@ -25,9 +25,16 @@ and we can represent n-ary formulas, in this case ternary:
 example:f(1, 2, 3).
 ```
 
-In this approach, terms are URI-based, utilizing XML namespaces and, as n-ary encompasses binary, collections of formulas can be knowledge graphs. When creating collections of formulas, developers can specify that they desire for them to be knowledge graphs.
+In this approach, terms are URI-based, utilizing XML namespaces and, as n-ary encompasses binary, collections of formulas include knowledge graphs. When creating collections of formulas, developers can specify that they desire for them to be knowledge graphs.
 
-Benefits of this n-ary URI-based approach include both expressiveness and modularity.
+```cs
+IReadOnlyFormulaCollection formulaCollection = Factory.ReadOnlyFormulaCollection(..., ...);
+```
+```cs
+IReadOnlyFormulaCollection knowledgeGraph = Factory.ReadOnlyKnowledgeGraph(..., ...);
+```
+
+Benefits of this n-ary, URI-based approach include both expressiveness and modularity.
 
 With respect to expressiveness, beyond formulas being able to have three or more arguments, formulas can have unary predicates and one argument. Developers can, for example, more easily quote nested formulas.
 
@@ -54,7 +61,7 @@ WHERE
 }
 ```
 
-or, for a ternary example:
+or, for an n-ary, in this case ternary, example:
 
 ```
 PREFIX example: <http://example.com/>
@@ -75,7 +82,7 @@ bool result = formulas.Query(ask);
 
 #### Dynamic and Reactive Queries
 
-Nifty will deliver both pull- and push-based querying (`IEnumerable` and `IObservable`) and intends to explore the powerful feature of enabling push-based queries which deliver notifications as sets of query results change.
+Nifty will deliver both pull- and push-based querying (`IEnumerable`- and `IObservable`-based) and intends to explore the powerful feature of enabling push-based queries which deliver notifications as sets of query results change.
 
 ### Updating
 
@@ -95,7 +102,7 @@ Nifty intends to deliver reasoning capabilities for performing inference over co
 
 ### Modelling Actions
 
-The Nifty project's approach to modelling actions utilizes the interfaces for querying and updating collections of formulas.
+The Nifty project's approach to modelling actions utilizes the interfaces for querying and updating collections of n-ary formulas.
 
 ```cs
 public interface IAction : IHasReadOnlyFormulaCollection
