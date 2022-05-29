@@ -72,25 +72,47 @@ WHERE
 }
 ```
 
-Nifty provides a [fluent](https://en.wikipedia.org/wiki/Fluent_interface) approach for constructing queries.
+Nifty provides a [fluent](https://en.wikipedia.org/wiki/Fluent_interface) approach for constructing queries. This includes constructing all four kinds of SPARQL-based queries: ASK, SELECT, CONSTRUCT and DESCRIBE.
 
 ```cs
 IReadOnlyFormulaCollection formulas = ...;
-IAskQuery ask = Factory.Query().Where(...).Ask();
-bool result = formulas.Query(ask);
+IAskQuery askQuery = Factory.Query().Where(...).Ask();
+bool result = formulas.Query(askQuery);
+```
+```cs
+IReadOnlyFormulaCollection formulas = ...;
+ISelectQuery selectQuery = Factory.Query().Where(...).Select(...);
+foreach(var result in formulas.Query(selectQuery))
+{
+    ...
+}
 ```
 
 #### Dynamic and Reactive Queries
 
-Nifty will deliver both pull- and push-based querying (`IEnumerable`- and `IObservable`-based) and intends to explore the powerful feature of enabling push-based queries which deliver notifications as sets of query results change.
+Nifty will deliver both pull- and push-based querying (`IEnumerable`- and `IObservable`-based) and intends to explore the powerful feature of enabling push-based queries which deliver notifications as sets of query results change for mutable collections for formula.
 
 ### Updating
 
-Nifty provides both immutable (read-only) and mutable collections of formulas.
+Nifty provides both immutable (read-only) and mutable collections of formulas. Both can be updated; when applying an update to an immutable collection of formulas, a new collection of formulas is created (which could be an overlay); when updating a mutable collection of formulas, the update can occur in place.
+
+```cs
+public interface IUpdate
+{
+    public UpdateType UpdateType { get; }
+
+    public IReadOnlyFormulaCollection Apply(IReadOnlyFormulaCollection formulas);
+    public void Update(IFormulaCollection formulas);
+
+    public ICompositeUpdate Then(IUpdate action);
+}
+```
+
+In Nifty, there are different types of updates: simple, query-based, conditional, and composite.
 
 ### Schema
 
-Drawing upon Semantic Web technologies, e.g., schema and ontologies, Nifty intends to enable specifying schema of use for validating collections of n-ary formulas.
+Drawing upon the Semantic Web technologies of schema and ontologies, Nifty intends to enable specifying schema of use for validating collections of n-ary formulas.
 
 ### Inference
 
@@ -113,3 +135,8 @@ public interface IAction : IHasReadOnlyFormulaCollection
 ```
 
 The inspectable preconditions of actions are represented by Boolean queries for collections of formulas, e.g., those formulas describing a state of a modelled world. The inspectable effects of actions are represented by updates for collections of formulas. By extending `IHasReadOnlyFormulaCollection`, actions can have metadata.
+
+
+
+## Automata
+Coming soon.

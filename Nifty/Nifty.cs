@@ -562,7 +562,7 @@ namespace Nifty.Knowledge
         Variable,
         Formula,
         // QuotedFormula or a unary predicate 'quote' with same semantics; see also: RDF-star and SPARQL-star (https://www.w3.org/2021/12/rdf-star.html)
-        // FormulaCollection,
+        // FormulaCollection
     }
     public interface ITerm : ISubstitute<ITerm>
     {
