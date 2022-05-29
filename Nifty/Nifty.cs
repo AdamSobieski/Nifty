@@ -476,9 +476,9 @@ namespace Nifty.Events
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : /* ITerm, */ ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
     {
-        // public ITerm Term { get { return this; } } // or is this Formula ?
+        // public ITerm Term { get { return this; } } // or would this be ITerm Formula { get; } or IReadOnlyFormulaList Formula { get; } to also have a validating schema
         public Expression Expression { get { return Expression.Constant(this); } }
 
         // per the Filter operation on queries (see: static class Nifty.Extensions), might IReadOnlyFormulaCollections, in particular when IsPattern is true, be able to describe constraints upon their variables?
@@ -516,7 +516,7 @@ namespace Nifty.Knowledge
         public int Count(ISelectQuery query);
         public int Count(IConstructQuery query);
 
-        public ISimpleUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
+        public IUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
 
         public bool Query(IAskQuery query);
         public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(ISelectQuery query);
@@ -693,7 +693,7 @@ namespace Nifty.Knowledge.Querying
     public interface IQuery
     {
         public QueryType QueryType { get; }
-        public Expression Expression { get; }
+        public Expression Expression { get; } // or is this ITerm Formula { get; } or, better yet, IReadOnlyFormulaList Formula { get; }, a list with one formula and a validating schema
     }
 
     public interface ISelectQuery : IQuery
