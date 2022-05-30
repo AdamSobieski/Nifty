@@ -129,14 +129,14 @@ Nifty intends to deliver reasoning capabilities for performing inference over co
 The Nifty project's approach to modelling actions utilizes the interfaces for querying and updating collections of n-ary formulas.
 
 ```cs
-public interface IAction : IHasReadOnlyFormulaCollection
+public interface IAction : IHasReadOnlyMetadata
 {
     public IAskQuery Preconditions { get; }
     public IUpdate Effects { get; }
 }
 ```
 
-The inspectable preconditions of actions are represented by Boolean queries for collections of formulas, e.g., those formulas describing a state of a modelled world. The inspectable effects of actions are represented by updates for collections of formulas. By extending `IHasReadOnlyFormulaCollection`, actions can have metadata.
+The inspectable preconditions of actions are represented by Boolean queries for collections of formulas, e.g., those formulas describing a state of a modelled world. The inspectable effects of actions are represented by updates for collections of formulas. By extending `IHasReadOnlyMetadata`, actions can have metadata.
 
 
 

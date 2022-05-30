@@ -20,15 +20,15 @@ using System.Xml;
 
 namespace Nifty.Activities
 {
-    public interface IActivityGeneratorStore : IHasReadOnlyFormulaCollection, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
-    public interface IActivityGenerator : IHasReadOnlyFormulaCollection
+    public interface IActivityGeneratorStore : IHasReadOnlyMetadata, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    public interface IActivityGenerator : IHasReadOnlyMetadata
     {
         // public IAskQuery Preconditions { get; }
         // public IUpdate   Effects { get; }
 
         public Task<IActivity> Generate(ISession session, CancellationToken cancellationToken);
     }
-    public interface IActivity : IHasReadOnlyFormulaCollection, ISessionInitializable, ISessionDisposable, IDisposable
+    public interface IActivity : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable, IDisposable
     {
         //public IActivityGenerator Generator { get; }
 
@@ -61,7 +61,7 @@ namespace Nifty.Activities
 
 namespace Nifty.Algorithms
 {
-    public interface IAlgorithm : IHasReadOnlyFormulaCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable
+    public interface IAlgorithm : IHasReadOnlyMetadata, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable
     {
         public IAsyncEnumerator<IActivityGenerator> GetAsyncEnumerator(ISession session, CancellationToken cancellationToken);
     }
@@ -97,7 +97,7 @@ namespace Nifty.AutomatedPlanning.Actions
 {
     // see also: Grover, Sachin, Tathagata Chakraborti, and Subbarao Kambhampati. "What can automated planning do for intelligent tutoring systems?" ICAPS SPARK (2018).
 
-    public interface IAction : IHasReadOnlyFormulaCollection
+    public interface IAction : IHasReadOnlyMetadata
     {
         public IAskQuery Preconditions { get; }
         public IUpdate Effects { get; }
@@ -437,16 +437,16 @@ namespace Nifty.Configuration
 {
     public interface ISetting<out T>
     {
-        public IUriTerm Term { get; }
+        public IUri Term { get; }
         public T DefaultValue { get; }
     }
 
     public interface IConfiguration : ISessionInitializable, ISessionOptimizable, ISessionDisposable, INotifyChanged
     {
-        public bool About(IUriTerm setting, [NotNullWhen(true)] out IReadOnlyFormulaCollection? about);
-        public bool About(IUriTerm setting, [NotNullWhen(true)] out IReadOnlyFormulaCollection? about, string language);
-        public bool TryGetSetting(IUriTerm setting, [NotNullWhen(true)] out IConvertible? value);
-        public bool TryGetSetting(IUriTerm setting, [NotNullWhen(true)] out IConvertible? value, string language);
+        public bool About(IUri setting, [NotNullWhen(true)] out IReadOnlyFormulaCollection? about);
+        public bool About(IUri setting, [NotNullWhen(true)] out IReadOnlyFormulaCollection? about, string language);
+        public bool TryGetSetting(IUri setting, [NotNullWhen(true)] out IConvertible? value);
+        public bool TryGetSetting(IUri setting, [NotNullWhen(true)] out IConvertible? value, string language);
     }
 }
 
@@ -460,7 +460,7 @@ namespace Nifty.Dialogue
 
 namespace Nifty.Events
 {
-    public interface IEventSource : IHasReadOnlyFormulaCollection
+    public interface IEventSource : IHasReadOnlyMetadata
     {
         // this could be an extension method
         // public IDisposable Subscribe(IUriTerm eventType, IEventHandler listener);
@@ -474,12 +474,14 @@ namespace Nifty.Events
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection>, IEventSource, INotifyChanged
     {
         // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, builtin:union(a, b), can have a validating schema
+        // and/or is this part of the metadata from IHasReadOnlyMetadata
         public IReadOnlyFormulaCollection Composition { get; }
 
         // constraints can be added to sets of formulas, typically those sets with variables, e.g., using Filter()
+        // and/or is this part of the metadata from IHasReadOnlyMetadata
         public IReadOnlyFormulaCollection Constraints { get; }
 
         public bool IsGround { get; }
@@ -489,10 +491,9 @@ namespace Nifty.Knowledge
         public bool IsValid { get; }
         public bool IsGraph { get; }
         public bool IsEnumerable { get; }
-        public bool IsIndexed { get; }
+        public bool IsIndexed { get; } // ?
 
         public bool Contains(IFormula formula);
-        public bool Contains(IFormula formula, [NotNullWhen(true)] out IReadOnlyFormulaCollection? about);
 
         public IEnumerable<IDerivation> Derivations(IFormula formula);
 
@@ -507,19 +508,19 @@ namespace Nifty.Knowledge
         public IUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
 
         public bool Query(IAskQuery query);
-        public IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> Query(ISelectQuery query);
+        public IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> Query(ISelectQuery query);
         public IEnumerable<IReadOnlyFormulaCollection> Query(IConstructQuery query);
         public IReadOnlyFormulaCollection Query(IDescribeQuery query);
 
         // public IDisposable Query(IAskQuery query, IObserver<bool> observer);
-        public IDisposable Query(ISelectQuery query, IObserver<IReadOnlyDictionary<IVariableTerm, ITerm>> observer);
+        public IDisposable Query(ISelectQuery query, IObserver<IReadOnlyDictionary<IVariable, ITerm>> observer);
         public IDisposable Query(IConstructQuery query, IObserver<IReadOnlyFormulaCollection> observer);
         //public IDisposable Query(IDescribeQuery query, IObserver<IReadOnlyFormulaCollection> observer);
 
         public IReadOnlyFormulaCollection Clone();
         public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
     }
-    public interface IFormulaCollection : IReadOnlyFormulaCollection
+    public interface IFormulaCollection : IReadOnlyFormulaCollection, IHasMetadata
     {
         // public new IFormulaCollection Constraints { get; }
 
@@ -529,7 +530,6 @@ namespace Nifty.Knowledge
         public bool Remove(IFormula formula);
         public bool Remove(IReadOnlyFormulaCollection formulas);
 
-        // moved to IFormulaCollection:
         // to do: support advanced querying where observers can receive query results and subsequent notifications as query results change due to formulas being removed from and added to formula collections
 
         // public IDisposable Query(IAskQuery query, IObserver<Change<bool>> observer);
@@ -582,38 +582,26 @@ namespace Nifty.Knowledge
         public string? ToString(XmlNamespaceManager xmlns, bool quoting);
     }
 
-    public interface IAnyTerm : ITerm { }
-    public interface IUriTerm : ITerm
+    public interface IAny : ITerm { }
+    public interface IUri : ITerm
     {
         public string Uri { get; }
 
         //public string Namespace { get; }
         //public string LocalName { get; }
     }
-    public interface IBlankTerm : ITerm
+    public interface IBlank : ITerm
     {
         public string Label { get; }
     }
-    public interface ILiteralTerm : ITerm
+    public interface ILiteral : ITerm
     {
         public string Value { get; }
         public string? Language { get; }
         public string? Datatype { get; }
     }
-    public interface IVariableTerm : ITerm
+    public interface IVariable : ITerm
     {
-        // these are for making valid expression trees for query formulation
-        public static ITerm operator +(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
-        public static ITerm operator -(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
-        public static ITerm operator *(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
-        public static ITerm operator /(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
-        public static bool operator <(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
-        public static bool operator >(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
-        public static bool operator <=(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
-        public static bool operator >=(IVariableTerm x, IVariableTerm y) { throw new NotImplementedException(); }
-        // to do: overload operators with int, float, etc. as arguments
-        //...
-
         public string Name { get; }
     }
     // what about
@@ -628,42 +616,37 @@ namespace Nifty.Knowledge
 
         public int Count { get; }
         public ITerm this[int index] { get; }
-
-        public bool Matches(IFormula other);
-
-        public bool IsValid(IReadOnlySchema schema);
     }
 
     public interface IHasVariables
     {
-        public IReadOnlyList<IVariableTerm> GetVariables();
+        public IReadOnlyList<IVariable> GetVariables();
     }
     public interface ISubstitute<out T> : IHasVariables
     {
-        public T Substitute(IReadOnlyDictionary<IVariableTerm, ITerm> map);
+        public T Substitute(IReadOnlyDictionary<IVariable, ITerm> map);
     }
 
     public interface IHasTerm
     {
         public ITerm Term { get; }
     }
-    public interface IHasReadOnlyFormulaCollection : IHasTerm
+    public interface IHasReadOnlyMetadata : IHasTerm
     {
-        // or is this IReadOnlyFormulaList About { get; }
         public IReadOnlyFormulaCollection About { get; }
     }
-    public interface IHasFormulaCollection : IHasReadOnlyFormulaCollection
+    public interface IHasMetadata : IHasReadOnlyMetadata
     {
         public new IFormulaCollection About { get; }
     }
 
     public interface ITermVisitor
     {
-        public object Visit(IAnyTerm term);
-        public object Visit(IUriTerm term);
-        public object Visit(IBlankTerm term);
-        public object Visit(ILiteralTerm term);
-        public object Visit(IVariableTerm term);
+        public object Visit(IAny term);
+        public object Visit(IUri term);
+        public object Visit(IBlank term);
+        public object Visit(ILiteral term);
+        public object Visit(IVariable term);
         public object Visit(IFormula formula);
     }
 
@@ -715,7 +698,7 @@ namespace Nifty.Knowledge.Querying
 
 namespace Nifty.Knowledge.Reasoning
 {
-    public interface IReasoner : IHasReadOnlyFormulaCollection
+    public interface IReasoner : IHasReadOnlyMetadata
     {
         public IConfiguration Configuration { get; }
 
@@ -881,12 +864,12 @@ namespace Nifty.Messaging
 
 namespace Nifty.Modelling.Domains
 {
-    public interface IDomainModel : IHasReadOnlyFormulaCollection, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    public interface IDomainModel : IHasReadOnlyMetadata, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
 }
 
 namespace Nifty.Modelling.Users
 {
-    public interface IUserModel : IHasReadOnlyFormulaCollection, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    public interface IUserModel : IHasReadOnlyMetadata, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
 }
 
 namespace Nifty.NaturalLanguage.Evaluation
@@ -929,7 +912,7 @@ namespace Nifty.Sessions
         public void Dispose(ISession session);
     }
 
-    public interface ISession : IHasReadOnlyFormulaCollection, IInitializable, IOptimizable, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IActivityGenerator>
+    public interface ISession : IHasReadOnlyMetadata, IInitializable, IOptimizable, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IActivityGenerator>
     {
         public IConfiguration Configuration { get; }
         public IKnowledgebase Knowledgebase { get; }
@@ -1020,53 +1003,53 @@ namespace Nifty
             {
                 // https://docs.microsoft.com/en-us/dotnet/standard/data/xml/mapping-xml-data-types-to-clr-types
 
-                public static readonly IUriTerm @string = Factory.Uri("http://www.w3.org/2001/XMLSchema#string");
+                public static readonly IUri @string = Factory.Uri("http://www.w3.org/2001/XMLSchema#string");
 
-                public static readonly IUriTerm @duration = Factory.Uri("http://www.w3.org/2001/XMLSchema#duration");
-                public static readonly IUriTerm @dateTime = Factory.Uri("http://www.w3.org/2001/XMLSchema#dateTime");
-                public static readonly IUriTerm @time = Factory.Uri("http://www.w3.org/2001/XMLSchema#time");
-                public static readonly IUriTerm @date = Factory.Uri("http://www.w3.org/2001/XMLSchema#date");
+                public static readonly IUri @duration = Factory.Uri("http://www.w3.org/2001/XMLSchema#duration");
+                public static readonly IUri @dateTime = Factory.Uri("http://www.w3.org/2001/XMLSchema#dateTime");
+                public static readonly IUri @time = Factory.Uri("http://www.w3.org/2001/XMLSchema#time");
+                public static readonly IUri @date = Factory.Uri("http://www.w3.org/2001/XMLSchema#date");
                 //...
-                public static readonly IUriTerm @anyURI = Factory.Uri("http://www.w3.org/2001/XMLSchema#anyURI");
-                public static readonly IUriTerm @QName = Factory.Uri("http://www.w3.org/2001/XMLSchema#QName");
+                public static readonly IUri @anyURI = Factory.Uri("http://www.w3.org/2001/XMLSchema#anyURI");
+                public static readonly IUri @QName = Factory.Uri("http://www.w3.org/2001/XMLSchema#QName");
 
-                public static readonly IUriTerm @boolean = Factory.Uri("http://www.w3.org/2001/XMLSchema#boolean");
+                public static readonly IUri @boolean = Factory.Uri("http://www.w3.org/2001/XMLSchema#boolean");
 
-                public static readonly IUriTerm @byte = Factory.Uri("http://www.w3.org/2001/XMLSchema#byte");
-                public static readonly IUriTerm @unsignedByte = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedByte");
-                public static readonly IUriTerm @short = Factory.Uri("http://www.w3.org/2001/XMLSchema#short");
-                public static readonly IUriTerm @unsignedShort = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedShort");
-                public static readonly IUriTerm @int = Factory.Uri("http://www.w3.org/2001/XMLSchema#int");
-                public static readonly IUriTerm @unsignedInt = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedInt");
-                public static readonly IUriTerm @long = Factory.Uri("http://www.w3.org/2001/XMLSchema#long");
-                public static readonly IUriTerm @unsignedLong = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedLong");
+                public static readonly IUri @byte = Factory.Uri("http://www.w3.org/2001/XMLSchema#byte");
+                public static readonly IUri @unsignedByte = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedByte");
+                public static readonly IUri @short = Factory.Uri("http://www.w3.org/2001/XMLSchema#short");
+                public static readonly IUri @unsignedShort = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedShort");
+                public static readonly IUri @int = Factory.Uri("http://www.w3.org/2001/XMLSchema#int");
+                public static readonly IUri @unsignedInt = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedInt");
+                public static readonly IUri @long = Factory.Uri("http://www.w3.org/2001/XMLSchema#long");
+                public static readonly IUri @unsignedLong = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedLong");
 
-                public static readonly IUriTerm @decimal = Factory.Uri("http://www.w3.org/2001/XMLSchema#decimal");
+                public static readonly IUri @decimal = Factory.Uri("http://www.w3.org/2001/XMLSchema#decimal");
 
-                public static readonly IUriTerm @float = Factory.Uri("http://www.w3.org/2001/XMLSchema#float");
-                public static readonly IUriTerm @double = Factory.Uri("http://www.w3.org/2001/XMLSchema#double");
+                public static readonly IUri @float = Factory.Uri("http://www.w3.org/2001/XMLSchema#float");
+                public static readonly IUri @double = Factory.Uri("http://www.w3.org/2001/XMLSchema#double");
             }
             public static class Dc
             {
-                public static readonly IUriTerm title = Factory.Uri("http://purl.org/dc/terms/title");
-                public static readonly IUriTerm description = Factory.Uri("http://purl.org/dc/terms/description");
+                public static readonly IUri title = Factory.Uri("http://purl.org/dc/terms/title");
+                public static readonly IUri description = Factory.Uri("http://purl.org/dc/terms/description");
             }
             public static class Swo
             {
-                public static readonly IUriTerm version = Factory.Uri("http://www.ebi.ac.uk/swo/SWO_0004000");
+                public static readonly IUri version = Factory.Uri("http://www.ebi.ac.uk/swo/SWO_0004000");
             }
             public static class Rdf
             {
-                public static readonly IUriTerm type = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-                public static readonly IUriTerm subject = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#subject");
-                public static readonly IUriTerm predicate = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate");
-                public static readonly IUriTerm @object = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#object");
+                public static readonly IUri type = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+                public static readonly IUri subject = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#subject");
+                public static readonly IUri predicate = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate");
+                public static readonly IUri @object = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#object");
 
-                public static readonly IUriTerm Statement = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement");
+                public static readonly IUri Statement = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement");
             }
             public static class Foaf
             {
-                public static readonly IUriTerm name = Factory.Uri("http://xmlns.com/foaf/0.1/name");
+                public static readonly IUri name = Factory.Uri("http://xmlns.com/foaf/0.1/name");
             }
             public static class Lom
             {
@@ -1074,8 +1057,8 @@ namespace Nifty
             }
             public static class Eo
             {
-                public static readonly IUriTerm raisesEventType = Factory.Uri("http://www.event-ontology.org/raisesEventType");
-                public static readonly IUriTerm Event = Factory.Uri("http://www.event-ontology.org/Event");
+                public static readonly IUri raisesEventType = Factory.Uri("http://www.event-ontology.org/raisesEventType");
+                public static readonly IUri Event = Factory.Uri("http://www.event-ontology.org/Event");
             }
         }
 
@@ -1089,21 +1072,21 @@ namespace Nifty
         {
             //public static readonly IUriTerm All = Factory.Uri("http://www.w3.org/2002/07/owl#Thing");
 
-            public static readonly IUriTerm InitializedSession = Factory.Uri("http://www.events.org/events/InitializedSession");
-            public static readonly IUriTerm ObtainedGenerator = Factory.Uri("http://www.events.org/events/ObtainedGenerator");
-            public static readonly IUriTerm GeneratingActivity = Factory.Uri("http://www.events.org/events/GeneratingActivity");
-            public static readonly IUriTerm GeneratedActivity = Factory.Uri("http://www.events.org/events/GeneratedActivity");
-            public static readonly IUriTerm ExecutingActivity = Factory.Uri("http://www.events.org/events/ExecutingActivity");
-            public static readonly IUriTerm ExecutedActivity = Factory.Uri("http://www.events.org/events/ExecutedActivity");
-            public static readonly IUriTerm DisposingSession = Factory.Uri("http://www.events.org/events/DisposingSession");
+            public static readonly IUri InitializedSession = Factory.Uri("http://www.events.org/events/InitializedSession");
+            public static readonly IUri ObtainedGenerator = Factory.Uri("http://www.events.org/events/ObtainedGenerator");
+            public static readonly IUri GeneratingActivity = Factory.Uri("http://www.events.org/events/GeneratingActivity");
+            public static readonly IUri GeneratedActivity = Factory.Uri("http://www.events.org/events/GeneratedActivity");
+            public static readonly IUri ExecutingActivity = Factory.Uri("http://www.events.org/events/ExecutingActivity");
+            public static readonly IUri ExecutedActivity = Factory.Uri("http://www.events.org/events/ExecutedActivity");
+            public static readonly IUri DisposingSession = Factory.Uri("http://www.events.org/events/DisposingSession");
 
             public static class Data
             {
-                public static readonly IUriTerm Algorithm = Factory.Uri("urn:eventdata:Algorithm");
-                public static readonly IUriTerm Generator = Factory.Uri("urn:eventdata:Generator");
-                public static readonly IUriTerm Activity = Factory.Uri("urn:eventdata:Activity");
-                public static readonly IUriTerm User = Factory.Uri("urn:eventdata:User");
-                public static readonly IUriTerm Result = Factory.Uri("urn:eventdata:Result");
+                public static readonly IUri Algorithm = Factory.Uri("urn:eventdata:Algorithm");
+                public static readonly IUri Generator = Factory.Uri("urn:eventdata:Generator");
+                public static readonly IUri Activity = Factory.Uri("urn:eventdata:Activity");
+                public static readonly IUri User = Factory.Uri("urn:eventdata:User");
+                public static readonly IUri Result = Factory.Uri("urn:eventdata:Result");
             }
         }
     }
@@ -1112,16 +1095,16 @@ namespace Nifty
     {
         internal sealed class SettingImpl<T> : ISetting<T>
         {
-            public SettingImpl(IUriTerm term, T defaultValue)
+            public SettingImpl(IUri term, T defaultValue)
             {
                 m_term = term;
                 m_defaultValue = defaultValue;
             }
 
-            private readonly IUriTerm m_term;
+            private readonly IUri m_term;
             private readonly T m_defaultValue;
 
-            public IUriTerm Term => m_term;
+            public IUri Term => m_term;
 
             public T DefaultValue => m_defaultValue;
         }
@@ -1130,87 +1113,87 @@ namespace Nifty
             return new SettingImpl<T>(Uri(uri), defaultValue);
         }
 
-        public static IAnyTerm Any()
+        public static IAny Any()
         {
             throw new NotImplementedException();
         }
-        public static IAnyTerm Any(string language)
+        public static IAny Any(string language)
         {
             throw new NotImplementedException();
         }
-        public static IUriTerm Uri(string uri)
+        public static IUri Uri(string uri)
         {
             throw new NotImplementedException();
         }
-        public static IBlankTerm Blank()
+        public static IBlank Blank()
         {
             throw new NotImplementedException();
         }
-        public static IBlankTerm Blank(string id)
+        public static IBlank Blank(string id)
         {
             throw new NotImplementedException();
         }
-        public static IVariableTerm Variable(string name)
+        public static IVariable Variable(string name)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(bool value)
+        public static ILiteral Literal(bool value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(sbyte value)
+        public static ILiteral Literal(sbyte value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(byte value)
+        public static ILiteral Literal(byte value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(short value)
+        public static ILiteral Literal(short value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(ushort value)
+        public static ILiteral Literal(ushort value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(int value)
+        public static ILiteral Literal(int value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(uint value)
+        public static ILiteral Literal(uint value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(long value)
+        public static ILiteral Literal(long value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(ulong value)
+        public static ILiteral Literal(ulong value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(float value)
+        public static ILiteral Literal(float value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(double value)
+        public static ILiteral Literal(double value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(string value)
+        public static ILiteral Literal(string value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(string value, string language)
+        public static ILiteral Literal(string value, string language)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(string value, string language, IUriTerm datatypeUri)
+        public static ILiteral Literal(string value, string language, IUri datatypeUri)
         {
             throw new NotImplementedException();
         }
-        public static ILiteralTerm Literal(string value, IUriTerm datatypeUri)
+        public static ILiteral Literal(string value, IUri datatypeUri)
         {
             throw new NotImplementedException();
         }
@@ -1361,7 +1344,7 @@ namespace Nifty
         // ...
 
         // would using lambda be benefitted by extending IFormula, e.g., ILambdaFormula : IFormula ?
-        public static IFormula Lambda(ITerm body, params IVariableTerm[]? parameters)
+        public static IFormula Lambda(ITerm body, params IVariable[]? parameters)
         {
             throw new NotImplementedException();
         }
@@ -1392,7 +1375,7 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static ISelectQuery Select(this IQuery query, params IVariableTerm[] variables)
+        public static ISelectQuery Select(this IQuery query, params IVariable[] variables)
         {
             throw new NotImplementedException();
         }
@@ -1411,27 +1394,27 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IQuery GroupBy(this IQuery query, IVariableTerm variable)
+        public static IQuery GroupBy(this IQuery query, IVariable variable)
         {
             throw new NotImplementedException();
         }
-        public static IQuery GroupBy(this IQuery query, IVariableTerm variable, IFormula having)
+        public static IQuery GroupBy(this IQuery query, IVariable variable, IFormula having)
         {
             throw new NotImplementedException();
         }
-        public static IQuery OrderBy(this IQuery query, IVariableTerm variable)
+        public static IQuery OrderBy(this IQuery query, IVariable variable)
         {
             throw new NotImplementedException();
         }
-        public static IQuery OrderByDescending(this IQuery query, IVariableTerm variable)
+        public static IQuery OrderByDescending(this IQuery query, IVariable variable)
         {
             throw new NotImplementedException();
         }
-        public static IQuery ThenBy(this IQuery query, IVariableTerm variable)
+        public static IQuery ThenBy(this IQuery query, IVariable variable)
         {
             throw new NotImplementedException();
         }
-        public static IQuery ThenByDescending(this IQuery query, IVariableTerm variable)
+        public static IQuery ThenByDescending(this IQuery query, IVariable variable)
         {
             throw new NotImplementedException();
         }
@@ -1486,14 +1469,14 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariableTerm variable, IFormula expression)
+        public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
         {
             throw new NotImplementedException();
         }
 
 
         // support for inline data
-        public static IReadOnlyFormulaCollection Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> values)
+        public static IReadOnlyFormulaCollection Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
         {
             throw new NotImplementedException();
         }
