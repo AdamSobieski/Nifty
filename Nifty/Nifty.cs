@@ -476,10 +476,10 @@ namespace Nifty.Knowledge
 {
     public interface IReadOnlyFormulaCollection : ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
     {
-        // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, can have a validating schema
+        // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, builtin:union(a, b), can have a validating schema
         public IReadOnlyFormulaCollection Composition { get; }
 
-        // these can be added to sets of formulas, typically those with variables, using Filter()
+        // constraints can be added to sets of formulas, typically those with variables, using Filter()
         public IReadOnlyFormulaCollection Constraints { get; }
 
         public bool IsGround { get; }
@@ -687,7 +687,7 @@ namespace Nifty.Knowledge.Querying
     public interface IQuery
     {
         public QueryType QueryType { get; }
-        public IReadOnlyFormulaCollection Composition { get; } // or is this ITerm Formula { get; } or, better yet, IReadOnlyFormulaList Formula { get; }, a list with one formula and a validating schema
+        public IReadOnlyFormulaCollection Composition { get; }
     }
 
     public interface ISelectQuery : IQuery
@@ -736,7 +736,8 @@ namespace Nifty.Knowledge.Reasoning
 
 namespace Nifty.Knowledge.Schema
 {
-    // It is a goal is to migrate from `System.Linq.Expressions.Expression`-based representations for constructed queries to formula-based representations and, for these scenarios, schemas should be sufficiently expressive so as to validate those formalas representing queries. That is, n-ary formulas can be constructed as developers make use of fluent interfaces to construct queries and these formulas should be able to be validated by schema.
+    // Schemas should be sufficiently expressive so as to validate those formalas representing queries.
+    // That is, n-ary formulas can be constructed as developers make use of fluent interfaces to construct queries and these formulas should be able to be validated by schema.
 
     public interface IReadOnlySchema : IReadOnlyFormulaCollection
     {
@@ -1107,7 +1108,7 @@ namespace Nifty
 
     public static partial class Factory
     {
-        // there might be better way, e.g., using a formula collection or two which describe the terms to be combined into a formula
+        // there might be better ways, e.g., allowing developers to provide formula collections which describe the terms to be combined into formulas
         public static class Builtin
         {
             public static IFormula Add(ITerm x, ITerm y)
@@ -1130,19 +1131,7 @@ namespace Nifty
             {
                 throw new NotImplementedException();
             }
-            public static IFormula Multiply(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula NotEquals(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
             public static IFormula GreaterThan(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula LessThan(ITerm x, ITerm y)
             {
                 throw new NotImplementedException();
             }
@@ -1150,10 +1139,36 @@ namespace Nifty
             {
                 throw new NotImplementedException();
             }
+            public static IFormula LessThan(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
             public static IFormula LessThanOrEqual(ITerm x, ITerm y)
             {
                 throw new NotImplementedException();
             }
+            public static IFormula Multiply(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula Not(ITerm x)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula NotEquals(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula Or(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula Subtract(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+
+            // ...
         }
 
         internal sealed class SettingImpl<T> : ISetting<T>
@@ -1459,6 +1474,8 @@ namespace Nifty
         // these methods could be useful for having secondary and primary formulas in coupled pairs of sets of formulas, useful for queries where one (set of) expression(s) is 'primary', e.g., a query, and the rest of the formulas support its validation
         // so, a query could be represented as a coupled pair of sets of formulas, having a 'primary' and 'secondary' inflection, where there is one formula in the 'primary' set
         // this would facilitate scenarios including obtaining the main content, the query formula, and adding to it, while also merging any secondary content
+        // public void GetFirstAndRest(IReadOnlyFormulaCollection formulas, out IReadOnlyFormulaCollection first, out IReadOnlyFormulaCollection rest);
+        //
         public static IReadOnlyFormulaCollection First(this IReadOnlyFormulaCollection rest, IReadOnlyFormulaCollection first)
         {
             throw new NotImplementedException();
