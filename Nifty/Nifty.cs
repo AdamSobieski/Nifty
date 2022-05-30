@@ -16,8 +16,6 @@ using Nifty.Logging;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Xml;
 
 namespace Nifty.Activities
@@ -478,25 +476,11 @@ namespace Nifty.Knowledge
 {
     public interface IReadOnlyFormulaCollection : ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
     {
-        // or would this be ITerm Formula { get; }
-        // or IReadOnlyFormulaList Formula { get; }
-        // or IReadOnlyFormulaCollection Composition { get; }
-        // to also have a validating schema for a formula representing the structure of complex formula collections, e.g., {a} UNION {b}
-        public Expression Expression { get { return Expression.Constant(this); } }
+        // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, can have a validating schema
+        public IReadOnlyFormulaCollection Composition { get; }
 
-        // per the Filter operation on queries (see: static class Nifty.Extensions), might IReadOnlyFormulaCollections, in particular when IsPattern is true, be able to describe constraints upon their variables?
-        // public bool Constraints(IReadOnlyDictionary<IVariableTerm, ITerm> map);
-        // or
-        // public Expression Constraints { get; }
-        // or
-        // public IEnumerable<Expression> Constraints { get; }
-        // or
-        // public Expression<Func<IReadOnlyDictionary<IVariableTerm, Term>, bool>> Constraints { get; }
-        // or, perhaps
-        // public LambdaExpression Constraints { get; }
-        // or
-        // are these expressed using formulas instead of LINQ expressions?
-        // public IReadOnlyFormulaList Constraints { get; } // each formula would be a constraint which expresses a relationship between variables which should hold, e.g., ?x > ?y
+        // these can be added to sets of formulas, typically those with variables, using Filter()
+        public IReadOnlyFormulaCollection Constraints { get; }
 
         public bool IsGround { get; }
         public bool IsReadOnly { get; }
@@ -703,7 +687,7 @@ namespace Nifty.Knowledge.Querying
     public interface IQuery
     {
         public QueryType QueryType { get; }
-        public Expression Expression { get; } // or is this ITerm Formula { get; } or, better yet, IReadOnlyFormulaList Formula { get; }, a list with one formula and a validating schema
+        public IReadOnlyFormulaCollection Composition { get; } // or is this ITerm Formula { get; } or, better yet, IReadOnlyFormulaList Formula { get; }, a list with one formula and a validating schema
     }
 
     public interface ISelectQuery : IQuery
@@ -1123,6 +1107,55 @@ namespace Nifty
 
     public static partial class Factory
     {
+        // there might be better way, e.g., using a formula collection or two which describe the terms to be combined into a formula
+        public static class Builtin
+        {
+            public static IFormula Add(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula And(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula Divide(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula Equals(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula ExclusiveOr(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula Multiply(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula NotEquals(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula GreaterThan(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula LessThan(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula GreaterThanOrEqual(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+            public static IFormula LessThanOrEqual(ITerm x, ITerm y)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         internal sealed class SettingImpl<T> : ISetting<T>
         {
             public SettingImpl(IUriTerm term, T defaultValue)
@@ -1138,7 +1171,6 @@ namespace Nifty
 
             public T DefaultValue => m_defaultValue;
         }
-
         public static ISetting<T> Setting<T>(string uri, T defaultValue)
         {
             return new SettingImpl<T>(Uri(uri), defaultValue);
@@ -1313,12 +1345,6 @@ namespace Nifty
         // bool result = formulas.Query(query);
         //
 
-        // should these methods utilize System.Linq.Expressions.Expression or IFormula for arguments, e.g., GroupBy, Filter, Bind?
-        // could create a mapping between some IFormulas and Expressions
-        //
-        // IFormula x_gt_y = Factory.Builtin.GreaterThan(x, y);
-        // Expression expr_x_gt_y = Expression.GreaterThan(Expression.Constant(x), Expression.Constant(y));
-
         // these conclude a query into one of the four query types
         public static IAskQuery Ask(this IQuery query)
         {
@@ -1341,16 +1367,16 @@ namespace Nifty
         // these methods build queries before they are concluded into one of four query types
         public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
         {
-            var method = MethodBase.GetCurrentMethod() as MethodInfo;
-            if (method == null) throw new Exception();
+            //var method = MethodBase.GetCurrentMethod() as MethodInfo;
+            //if (method == null) throw new Exception();
 
-            var expr = Expression.Call(null, method, query.Expression, pattern.Expression);
+            //var expr = Expression.Call(null, method, query.Expression, pattern.Expression);
 
             // return new Query(expr);
 
             // or, if, instead of expression trees, formulas are to be utilized, something like:
             //
-            // var formula = Factory.Formula(Keys.Querying.Where, query.Formula, pattern.Formula);
+            // var formula = Factory.Formula(Keys.Querying.Where, GetFormula(query), GetFormula(pattern));
             // var formulas = Factory.ReadOnlyFormulaList(new IFormula[] { formula }, query.Formula.Schema);
             //
             // if(!formulas.IsValid) throw new Exception();
@@ -1363,7 +1389,7 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IQuery GroupBy(this IQuery query, IVariableTerm variable, Expression having)
+        public static IQuery GroupBy(this IQuery query, IVariableTerm variable, IFormula having)
         {
             throw new NotImplementedException();
         }
@@ -1443,21 +1469,18 @@ namespace Nifty
         }
 
 
-        // these utilize LINQ expression trees and operators are overloaded on IVariableTerm so that these expression trees are valid
-        // should these use formulas instead of expression trees?
         // IFormula x_gt_y = Factory.Builtin.GreaterThan(x, y);
-        // Expression expr_x_gt_y = Expression.GreaterThan(Expression.Constant(x), Expression.Constant(y));
-        public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, Expression expression)
+        public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariableTerm variable, Expression expression)
+        public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariableTerm variable, IFormula expression)
         {
             throw new NotImplementedException();
         }
 
 
-        // support for inline data (https://www.w3.org/TR/sparql11-query/#inline-data)
+        // support for inline data
         public static IReadOnlyFormulaCollection Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> values)
         {
             throw new NotImplementedException();
