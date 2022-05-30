@@ -509,7 +509,8 @@ namespace Nifty.Knowledge
 
         public IEnumerable<IDerivation> Derivations(IFormula formula);
 
-        public IQueryable<IFormula> Find(IFormula formula);
+        public IEnumerable<IFormula> Find(IFormula formula);
+        public IDisposable Find(IFormula formula, IObserver<IFormula> observer);
 
         public int Count();
         public int Count(IFormula formula);
@@ -654,6 +655,7 @@ namespace Nifty.Knowledge
     }
     public interface IHasReadOnlyFormulaCollection : IHasTerm
     {
+        // or is this IReadOnlyFormulaList About { get; }
         public IReadOnlyFormulaCollection About { get; }
     }
     public interface IHasFormulaCollection : IHasReadOnlyFormulaCollection
