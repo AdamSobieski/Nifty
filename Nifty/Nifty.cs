@@ -521,6 +521,8 @@ namespace Nifty.Knowledge
     }
     public interface IFormulaCollection : IReadOnlyFormulaCollection
     {
+        // public new IFormulaCollection Constraints { get; }
+
         public bool Add(IFormula formula);
         public bool Add(IReadOnlyFormulaCollection formulas);
 
@@ -1108,69 +1110,6 @@ namespace Nifty
 
     public static partial class Factory
     {
-        // there might be better ways, e.g., allowing developers to provide formula collections which describe the terms to be combined into formulas
-        public static class Builtin
-        {
-            public static IFormula Add(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula And(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula Divide(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula Equals(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula ExclusiveOr(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula GreaterThan(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula GreaterThanOrEqual(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula LessThan(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula LessThanOrEqual(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula Multiply(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula Not(ITerm x)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula NotEquals(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula Or(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-            public static IFormula Subtract(ITerm x, ITerm y)
-            {
-                throw new NotImplementedException();
-            }
-
-            // ...
-        }
-
         internal sealed class SettingImpl<T> : ISetting<T>
         {
             public SettingImpl(IUriTerm term, T defaultValue)
@@ -1347,6 +1286,69 @@ namespace Nifty
         }
     }
 
+    // there might be better ways, e.g., allowing developers to provide formula collections which describe the terms to be combined into formulas
+    public static class Formula
+    {
+        public static IFormula Add(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula And(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Divide(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Equals(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula ExclusiveOr(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula GreaterThan(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula GreaterThanOrEqual(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula LessThan(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula LessThanOrEqual(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Multiply(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Not(ITerm x)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula NotEquals(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Or(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Subtract(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+
+        // ...
+    }
+
     public static partial class Extensions
     {
         // the expressiveness for querying formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
@@ -1486,9 +1488,9 @@ namespace Nifty
         }
 
 
-        // IFormula x_gt_y = Factory.Builtin.GreaterThan(x, y);
         public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
         {
+            // IFormula x_gt_y = Formula.GreaterThan(x, y);
             throw new NotImplementedException();
         }
         public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariableTerm variable, IFormula expression)
