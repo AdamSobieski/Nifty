@@ -1409,22 +1409,6 @@ namespace Nifty
         // these methods build queries before they are concluded into one of four query types
         public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
         {
-            //var method = MethodBase.GetCurrentMethod() as MethodInfo;
-            //if (method == null) throw new Exception();
-
-            //var expr = Expression.Call(null, method, query.Expression, pattern.Expression);
-
-            // return new Query(expr);
-
-            // or, if, instead of expression trees, formulas are to be utilized, something like:
-            //
-            // var formula = Factory.Formula(Keys.Querying.Where, GetFormula(query), GetFormula(pattern));
-            // var formulas = Factory.ReadOnlyFormulaList(new IFormula[] { formula }, query.Formula.Schema);
-            //
-            // if(!formulas.IsValid) throw new Exception();
-            //
-            // return new Query(formulas);
-
             throw new NotImplementedException();
         }
         public static IQuery GroupBy(this IQuery query, IVariableTerm variable)
@@ -1498,24 +1482,8 @@ namespace Nifty
         }
 
 
-        // on the topic of representing queries as formulas
-        // these methods could be useful for having secondary and primary formulas in coupled pairs of sets of formulas, useful for queries where one (set of) expression(s) is 'primary', e.g., a query, and the rest of the formulas support its validation
-        // so, a query could be represented as a coupled pair of sets of formulas, having a 'primary' and 'secondary' inflection, where there is one formula in the 'primary' set
-        // this would facilitate scenarios including obtaining the main content, e.g., the query formula, and adding to it, while also merging any secondary content
-        // extension method: public static void GetFirstAndRest(this IReadOnlyFormulaCollection formulas, out IReadOnlyFormulaCollection first, out IReadOnlyFormulaCollection rest);
-        public static IReadOnlyFormulaCollection First(this IReadOnlyFormulaCollection rest, IReadOnlyFormulaCollection first)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection Rest(this IReadOnlyFormulaCollection first, IReadOnlyFormulaCollection rest)
-        {
-            return rest.First(first);
-        }
-
-
         public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
         {
-            // IFormula x_gt_y = Formula.GreaterThan(x, y);
             throw new NotImplementedException();
         }
         public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariableTerm variable, IFormula expression)
@@ -1526,6 +1494,16 @@ namespace Nifty
 
         // support for inline data
         public static IReadOnlyFormulaCollection Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariableTerm, ITerm>> values)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public static IReadOnlyFormulaCollection First(this IReadOnlyFormulaCollection rest, IReadOnlyFormulaCollection first)
+        {
+            return first.Rest(rest);
+        }
+        public static IReadOnlyFormulaCollection Rest(this IReadOnlyFormulaCollection first, IReadOnlyFormulaCollection rest)
         {
             throw new NotImplementedException();
         }
