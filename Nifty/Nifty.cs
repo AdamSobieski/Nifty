@@ -627,12 +627,9 @@ namespace Nifty.Knowledge
         public T Substitute(IReadOnlyDictionary<IVariable, ITerm> map);
     }
 
-    public interface IHasTerm
+    public interface IHasReadOnlyMetadata
     {
-        public ITerm Term { get; }
-    }
-    public interface IHasReadOnlyMetadata : IHasTerm
-    {
+        public ITerm Identifier { get; }
         public IReadOnlyFormulaCollection About { get; }
     }
     public interface IHasMetadata : IHasReadOnlyMetadata
@@ -669,7 +666,7 @@ namespace Nifty.Knowledge.Querying
         Describe
     }
 
-    public interface IQuery
+    public interface IQuery // : IHasReadOnlyMetadata
     {
         public QueryType QueryType { get; }
         public IReadOnlyFormulaCollection Composition { get; }
@@ -1220,6 +1217,8 @@ namespace Nifty
             }
         }
 
+
+
         public static IReadOnlySchema ReadOnlyFormulaCollectionSchemaWithSelfSchema(IEnumerable<IFormula> formulas)
         {
             throw new NotImplementedException();
@@ -1261,6 +1260,46 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
+        public static IReadOnlySchema ReadOnlyFormulaCollectionSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlySchema ReadOnlyFormulaCollectionSchema(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlySchema ReadOnlyKnowledgeGraphSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlySchema ReadOnlyKnowledgeGraphSchema(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        public static ISchema FormulaCollectionSchema(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        public static ISchema KnowledgeGraphSchema(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        {
+            throw new NotImplementedException();
+        }
 
 
         public static IQuery Query()
@@ -1441,8 +1480,6 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-
-
         public static IReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
         {
             throw new NotImplementedException();
@@ -1464,7 +1501,6 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
-
         public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
         {
             throw new NotImplementedException();
@@ -1482,11 +1518,19 @@ namespace Nifty
         }
 
 
+        // a means of forming a composition: builtin:first_rest({first}, {rest})
         public static IReadOnlyFormulaCollection First(this IReadOnlyFormulaCollection rest, IReadOnlyFormulaCollection first)
         {
             return first.Rest(rest);
         }
         public static IReadOnlyFormulaCollection Rest(this IReadOnlyFormulaCollection first, IReadOnlyFormulaCollection rest)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        // returns a set of formulas which describe another set of formulas, e.g., using reification
+        public static IReadOnlyFormulaCollection About(this IReadOnlyFormulaCollection formulas)
         {
             throw new NotImplementedException();
         }
