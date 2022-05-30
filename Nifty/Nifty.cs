@@ -1430,12 +1430,16 @@ namespace Nifty
         }
 
         // on the topic of representing queries as formulas
-        // this method, Main, could be useful for having secondary and primary formulas in a coupled pair of sets of formulas, useful for queries where one (set of) expression(s) is 'primary', e.g., a query, and the rest of the formulas support its validation
+        // these methods could be useful for having secondary and primary formulas in coupled pairs of sets of formulas, useful for queries where one (set of) expression(s) is 'primary', e.g., a query, and the rest of the formulas support its validation
         // so, a query could be represented as a coupled pair of sets of formulas, having a 'primary' and 'secondary' inflection, where there is one formula in the 'primary' set
-        // this would enable scenarios including obtaining the main content, the query formula, and adding to it, while merging any secondary content
-        public static IReadOnlyFormulaCollection Main(this IReadOnlyFormulaCollection secondary, IReadOnlyFormulaCollection primary)
+        // this would facilitate scenarios including obtaining the main content, the query formula, and adding to it, while also merging any secondary content
+        public static IReadOnlyFormulaCollection First(this IReadOnlyFormulaCollection rest, IReadOnlyFormulaCollection first)
         {
             throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Rest(this IReadOnlyFormulaCollection first, IReadOnlyFormulaCollection rest)
+        {
+            return rest.First(first);
         }
 
 
