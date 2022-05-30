@@ -744,6 +744,8 @@ namespace Nifty.Knowledge.Reasoning
 
 namespace Nifty.Knowledge.Schema
 {
+    // It is a goal is to migrate from `System.Linq.Expressions.Expression`-based representations for constructed queries to formula-based representations and, for these scenarios, schemas should be sufficiently expressive so as to validate those formalas representing queries. That is, n-ary formulas can be constructed as developers make use of fluent interfaces to construct queries and these formulas should be able to be validated by schema.
+
     public interface IReadOnlySchema : IReadOnlyFormulaCollection
     {
         //public Task<bool> Validate(IFormula formula);
