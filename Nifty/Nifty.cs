@@ -478,7 +478,10 @@ namespace Nifty.Knowledge
 {
     public interface IReadOnlyFormulaCollection : ISubstitute<IReadOnlyFormulaCollection>, IHasReadOnlySchema, IEventSource, INotifyChanged
     {
-        // or would this be ITerm Formula { get; } or IReadOnlyFormulaList Formula { get; } to also have a validating schema for a formula representing the structure of complex formula collections, e.g., {a} UNION {b}
+        // or would this be ITerm Formula { get; }
+        // or IReadOnlyFormulaList Formula { get; }
+        // or IReadOnlyFormulaCollection Composition { get; }
+        // to also have a validating schema for a formula representing the structure of complex formula collections, e.g., {a} UNION {b}
         public Expression Expression { get { return Expression.Constant(this); } }
 
         // per the Filter operation on queries (see: static class Nifty.Extensions), might IReadOnlyFormulaCollections, in particular when IsPattern is true, be able to describe constraints upon their variables?
@@ -627,6 +630,11 @@ namespace Nifty.Knowledge
 
         public string Name { get; }
     }
+    // what about
+    // public interface IBoxTerm // : ILiteralTerm ?
+    // {
+    //     public object Value { get; }
+    // }
 
     public interface IFormula : ITerm
     {
@@ -1394,11 +1402,12 @@ namespace Nifty
 
 
         // these are operations pertaining to formula patterns utilized by the Where operator
-        public static IReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        public static IReadOnlyFormulaCollection Merge(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
         {
-            // or is this Merge(...) ?
             throw new NotImplementedException();
         }
+
+
         public static IReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
         {
             throw new NotImplementedException();
@@ -1416,6 +1425,15 @@ namespace Nifty
             throw new NotImplementedException();
         }
         public static IReadOnlyFormulaCollection Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        {
+            throw new NotImplementedException();
+        }
+
+        // on the topic of representing queries as formulas
+        // this method, Main, could be useful for having secondary and primary formulas in a coupled pair of sets of formulas, useful for queries where one (set of) expression(s) is 'primary', e.g., a query, and the rest of the formulas support its validation
+        // so, a query could be represented as a coupled pair of sets of formulas, having a 'primary' and 'secondary' inflection, where there is one formula in the 'primary' set
+        // this would enable scenarios including obtaining the main content, the query formula, and adding to it, while merging any secondary content
+        public static IReadOnlyFormulaCollection Main(this IReadOnlyFormulaCollection secondary, IReadOnlyFormulaCollection primary)
         {
             throw new NotImplementedException();
         }
