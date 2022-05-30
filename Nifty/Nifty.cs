@@ -479,7 +479,7 @@ namespace Nifty.Knowledge
         // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, builtin:union(a, b), can have a validating schema
         public IReadOnlyFormulaCollection Composition { get; }
 
-        // constraints can be added to sets of formulas, typically those with variables, using Filter()
+        // constraints can be added to sets of formulas, typically those sets with variables, e.g., using Filter()
         public IReadOnlyFormulaCollection Constraints { get; }
 
         public bool IsGround { get; }
@@ -617,7 +617,7 @@ namespace Nifty.Knowledge
         public string Name { get; }
     }
     // what about
-    // public interface IBoxTerm // : ILiteralTerm ?
+    // public interface IBoxTerm
     // {
     //     public object Value { get; }
     // }
@@ -739,7 +739,7 @@ namespace Nifty.Knowledge.Reasoning
 namespace Nifty.Knowledge.Schema
 {
     // Schemas should be sufficiently expressive so as to validate those formalas representing queries.
-    // That is, n-ary formulas can be constructed as developers make use of fluent interfaces to construct queries and these formulas should be able to be validated by schema.
+    // That is, n-ary formulas are constructed as developers make use of fluent interfaces to construct queries and these formulas should be able to be validated by schema.
 
     public interface IReadOnlySchema : IReadOnlyFormulaCollection
     {
@@ -1287,13 +1287,17 @@ namespace Nifty
     }
 
     // there might be better ways, e.g., allowing developers to provide formula collections which describe the terms to be combined into formulas
-    public static class Formula
+    public static partial class Formula
     {
         public static IFormula Add(ITerm x, ITerm y)
         {
             throw new NotImplementedException();
         }
         public static IFormula And(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula AndAlso(ITerm x, ITerm y)
         {
             throw new NotImplementedException();
         }
@@ -1329,6 +1333,10 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
+        public static IFormula Negate(ITerm x)
+        {
+            throw new NotImplementedException();
+        }
         public static IFormula Not(ITerm x)
         {
             throw new NotImplementedException();
@@ -1341,25 +1349,42 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
+        public static IFormula OrElse(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
         public static IFormula Subtract(ITerm x, ITerm y)
         {
             throw new NotImplementedException();
         }
 
         // ...
+
+        // would using lambda be benefitted by extending IFormula, e.g., ILambdaFormula : IFormula ?
+        public static IFormula Lambda(ITerm body, params IVariableTerm[]? parameters)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public static partial class Extensions
     {
         // the expressiveness for querying formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
 
-        // "LINQ to N-ary SPARQL"
+        // "Fluent N-ary SPARQL"
         //
         // example syntax:
         //
         // IReadOnlyFormulaCollection formulas = ...;
-        // IAskQuery query = Factory.Query().Where(...).Ask();
-        // bool result = formulas.Query(query);
+        //
+        // IAskQuery askQuery = Factory.Query().Where(...).Ask();
+        // bool result = formulas.Query(askQuery);
+        //
+        // ISelectQuery selectQuery = Factory.Query().Where(...).Select(...);
+        // foreach(var result in formulas.Query(selectQuery))
+        // {
+        //     ...
+        // }
         //
 
         // these conclude a query into one of the four query types
@@ -1472,12 +1497,12 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
+
         // on the topic of representing queries as formulas
         // these methods could be useful for having secondary and primary formulas in coupled pairs of sets of formulas, useful for queries where one (set of) expression(s) is 'primary', e.g., a query, and the rest of the formulas support its validation
         // so, a query could be represented as a coupled pair of sets of formulas, having a 'primary' and 'secondary' inflection, where there is one formula in the 'primary' set
-        // this would facilitate scenarios including obtaining the main content, the query formula, and adding to it, while also merging any secondary content
-        // public void GetFirstAndRest(IReadOnlyFormulaCollection formulas, out IReadOnlyFormulaCollection first, out IReadOnlyFormulaCollection rest);
-        //
+        // this would facilitate scenarios including obtaining the main content, e.g., the query formula, and adding to it, while also merging any secondary content
+        // extension method: public static void GetFirstAndRest(this IReadOnlyFormulaCollection formulas, out IReadOnlyFormulaCollection first, out IReadOnlyFormulaCollection rest);
         public static IReadOnlyFormulaCollection First(this IReadOnlyFormulaCollection rest, IReadOnlyFormulaCollection first)
         {
             throw new NotImplementedException();
