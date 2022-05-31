@@ -484,9 +484,11 @@ namespace Nifty.Knowledge
         public bool IsEnumerable { get; }
 
         public bool HasSchema { get; } // IHasReadOnlySchema
+        public bool HasIdentifier { get; } // IHasReadOnlyIdentifier
         public bool HasMetadata { get; } // IHasReadOnlyMetadata
         public bool HasComposition { get; } // IHasReadOnlyComposition
         public bool HasConstraints { get; } // IHasReadOnlyConstraints
+        //...
 
         public bool Contains(IFormula formula);
 
@@ -545,7 +547,6 @@ namespace Nifty.Knowledge
         Literal,
         Variable,
         Formula,
-        // QuotedFormula or a unary predicate 'quote' with same semantics; see also: RDF-star and SPARQL-star (https://www.w3.org/2021/12/rdf-star.html)
         // FormulaCollection
     }
     public interface ITerm : ISubstitute<ITerm>
@@ -620,9 +621,13 @@ namespace Nifty.Knowledge
         public T Substitute(IReadOnlyDictionary<IVariable, ITerm> map);
     }
 
-    public interface IHasReadOnlyMetadata
+    public interface IHasReadOnlyIdentifier
     {
         public ITerm Identifier { get; }
+    }
+
+    public interface IHasReadOnlyMetadata : IHasReadOnlyIdentifier
+    {
         public IReadOnlyFormulaCollection About { get; }
     }
     public interface IHasMetadata : IHasReadOnlyMetadata
@@ -1580,18 +1585,18 @@ namespace Nifty
 
         internal static IFormula ElementAt(this IReadOnlyFormulaCollection formulas, int index)
         {
-            if (formulas is IReadOnlyList<IFormula> list)
+            if (formulas.IsEnumerable)
             {
-                return list[index];
+                if (formulas is IReadOnlyList<IFormula> list)
+                {
+                    return list[index];
+                }
+                else if (formulas is IEnumerable<IFormula> enumerable)
+                {
+                    return Enumerable.ElementAt(enumerable, index);
+                }
             }
-            else if (formulas is IEnumerable<IFormula> enumerable)
-            {
-                return Enumerable.ElementAt(enumerable, index);
-            }
-            else
-            {
-                throw new ArgumentException("Argument is neither indexed nor enumerable.", nameof(formulas));
-            }
+            throw new ArgumentException("Argument is neither indexed nor enumerable.", nameof(formulas));
         }
 
         internal static bool TryGetSchema(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlySchema? schema)
@@ -1604,6 +1609,19 @@ namespace Nifty
             else
             {
                 schema = null;
+                return false;
+            }
+        }
+        internal static bool TryGetIdentifier(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? identifier)
+        {
+            if (formulas.HasIdentifier && formulas is IHasReadOnlyIdentifier hasIdentifier)
+            {
+                identifier = hasIdentifier.Identifier;
+                return true;
+            }
+            else
+            {
+                identifier = null;
                 return false;
             }
         }
@@ -1624,7 +1642,7 @@ namespace Nifty
         }
         internal static bool TryGetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? composition)
         {
-            if(formulas.HasComposition && formulas is IHasReadOnlyComposition hasComposition)
+            if (formulas.HasComposition && formulas is IHasReadOnlyComposition hasComposition)
             {
                 composition = hasComposition.Composition;
                 return true;
