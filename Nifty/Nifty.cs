@@ -460,13 +460,13 @@ namespace Nifty.Dialogue
 
 namespace Nifty.Events
 {
-    public interface IEventSource : IHasReadOnlyMetadata
+    public interface IEventSource // : IHasReadOnlyMetadata
     {
         // this could be an extension method
         // public IDisposable Subscribe(IUriTerm eventType, IEventHandler listener);
         public IDisposable Subscribe(IAskQuery query, IEventHandler listener);
     }
-    public interface IEventHandler // : IHasReadOnlyFormulaCollection
+    public interface IEventHandler // : IHasReadOnlyMetadata
     {
         public Task Handle(IEventSource source, ITerm eventInstance, IReadOnlyFormulaCollection aboutEventInstance, ITerm eventData, IReadOnlyFormulaCollection aboutEventData);
     }
@@ -474,16 +474,19 @@ namespace Nifty.Events
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection>, IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : ISubstitute<IReadOnlyFormulaCollection> //, IEventSource, INotifyChanged
     {
-        public bool IsGround { get; }
         public bool IsReadOnly { get; }
+        public bool IsGround { get; }
         public bool IsInferred { get; }
         public bool IsValid { get; }
         public bool IsGraph { get; }
         public bool IsEnumerable { get; }
-        public bool HasComposition { get; }
-        public bool HasConstraints { get; }
+
+        public bool HasSchema { get; } // IHasReadOnlySchema
+        public bool HasMetadata { get; } // IHasReadOnlyMetadata
+        public bool HasComposition { get; } // IHasReadOnlyComposition
+        public bool HasConstraints { get; } // IHasReadOnlyConstraints
 
         public bool Contains(IFormula formula);
 
@@ -514,8 +517,6 @@ namespace Nifty.Knowledge
     }
     public interface IFormulaCollection : IReadOnlyFormulaCollection, IHasMetadata
     {
-        // public new IFormulaCollection Constraints { get; }
-
         public bool Add(IFormula formula);
         public bool Add(IReadOnlyFormulaCollection formulas);
 
@@ -597,7 +598,7 @@ namespace Nifty.Knowledge
         public string Name { get; }
     }
     // what about
-    // public interface IBoxTerm
+    // public interface IBox
     // {
     //     public object Value { get; }
     // }
@@ -629,14 +630,17 @@ namespace Nifty.Knowledge
         public new IFormulaCollection About { get; }
     }
 
-
-    public interface IHasComposition
+    public interface IHasReadOnlyComposition
     {
-        // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, builtin:union(a, b), can have a validating schema
+        // the formula describing the composition of this formula collection, e.g., {a} UNION {b}, builtin:union(a, b), can have metadata and a validating schema
         public IReadOnlyFormulaCollection Composition { get; }
     }
+    public interface IHasComposition : IHasReadOnlyComposition
+    {
+        public new IFormulaCollection Composition { get; }
+    }
 
-    public interface IHasConstraints
+    public interface IHasReadOnlyConstraints
     {
         // constraints can be added to sets of formulas, typically those sets with variables, e.g., using Filter()
         // and/or is this part of the metadata from IHasReadOnlyMetadata
@@ -646,7 +650,10 @@ namespace Nifty.Knowledge
 
         public IReadOnlyFormulaCollection Constraints { get; }
     }
-
+    public interface IHasConstraints : IHasReadOnlyConstraints
+    {
+        public new IFormulaCollection Constraints { get; }
+    }
 
     public interface ITermVisitor
     {
@@ -679,7 +686,7 @@ namespace Nifty.Knowledge.Querying
 
     // A query is a formula collection; it can accumulate formulas as it is constructed (instead of only accumulating metadata)
     // and it has an auxiliary formula collection with one formula, its composition, which resembles IQueryable::Expression.
-    public interface IQuery : IReadOnlyFormulaCollection, IHasComposition
+    public interface IQuery : IReadOnlyFormulaCollection, IHasReadOnlyComposition
     {
         public QueryType QueryType { get; }
     }
@@ -787,7 +794,7 @@ namespace Nifty.Knowledge.Updating
         /* Other? */
     }
 
-    public interface IUpdate // : IReadOnlyFormulaCollection ?, IHasComposition ?
+    public interface IUpdate // : IReadOnlyFormulaCollection, IHasComposition ?
     {
         public UpdateType UpdateType { get; }
 
@@ -1584,6 +1591,61 @@ namespace Nifty
             else
             {
                 throw new ArgumentException("Argument is neither indexed nor enumerable.", nameof(formulas));
+            }
+        }
+
+        internal static bool TryGetSchema(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlySchema? schema)
+        {
+            if (formulas.HasSchema && formulas is IHasReadOnlySchema hasSchema)
+            {
+                schema = hasSchema.Schema;
+                return true;
+            }
+            else
+            {
+                schema = null;
+                return false;
+            }
+        }
+        internal static bool TryGetMetadata(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? identifier, [NotNullWhen(true)] out IReadOnlyFormulaCollection? metadata)
+        {
+            if (formulas.HasMetadata && formulas is IHasReadOnlyMetadata hasMetadata)
+            {
+                identifier = hasMetadata.Identifier;
+                metadata = hasMetadata.About;
+                return true;
+            }
+            else
+            {
+                identifier = null;
+                metadata = null;
+                return false;
+            }
+        }
+        internal static bool TryGetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? composition)
+        {
+            if(formulas.HasComposition && formulas is IHasReadOnlyComposition hasComposition)
+            {
+                composition = hasComposition.Composition;
+                return true;
+            }
+            else
+            {
+                composition = null;
+                return false;
+            }
+        }
+        internal static bool TryGetConstraints(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? constraints)
+        {
+            if (formulas.HasConstraints && formulas is IHasReadOnlyConstraints hasConstraints)
+            {
+                constraints = hasConstraints.Constraints;
+                return true;
+            }
+            else
+            {
+                constraints = null;
+                return false;
             }
         }
     }
