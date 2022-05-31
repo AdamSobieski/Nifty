@@ -603,6 +603,15 @@ namespace Nifty.Knowledge
     // {
     //     public object Value { get; }
     // }
+    // and
+    // public struct Literal
+    // {
+    //    public string Value { get; }
+    //    public string? Language { get; }
+    //    public string? Datatype { get; }
+    // }
+    // where ITerm literal = Factory.Literal(...) could be ITerm literal = Factory.Box(new Literal(...))...
+    // or an internal datatype, IBoxLiteral, which could accompany IBoxInt32, IBoxFloat, IBoxDouble, etc...
 
     public interface IFormula : ITerm
     {

@@ -27,7 +27,18 @@ and we can similarly represent n-ary formulas, in this case ternary:
 example:f(1, 2, 3).
 ```
 
-In this approach, terms are URI-based, utilizing XML namespaces and, as n-ary encompasses binary, collections of formulas include knowledge graphs. When creating collections of formulas, developers can specify that they desire for them to be knowledge graphs.
+In this approach, terms are URI-based, utilizing XML namespaces and, as n-ary encompasses binary, collections of formulas include knowledge graphs.
+
+Formulas can be n-ary and can be triples.
+
+```cs
+IFormula nary = Factory.Formula(...);
+```
+```cs
+IFormula triple = Factory.Triple(...);
+```
+
+When creating collections of formulas, developers can specify whether they desire for them to be knowledge graphs.
 
 ```cs
 IReadOnlyFormulaCollection formulaCollection = Factory.ReadOnlyFormulaCollection(..., ...);
@@ -36,9 +47,9 @@ IReadOnlyFormulaCollection formulaCollection = Factory.ReadOnlyFormulaCollection
 IReadOnlyFormulaCollection knowledgeGraph = Factory.ReadOnlyKnowledgeGraph(..., ...);
 ```
 
-Benefits of this n-ary, URI-based approach include both expressiveness and modularity.
+Benefits of this n-ary, URI-based approach include both its expressiveness and modularity.
 
-With respect to expressiveness, beyond formulas being able to have three or more arguments, formulas can have unary predicates and one argument. Developers can, for example, more easily quote nested formulas.
+With respect to its expressiveness, in addition to being able to express ternary and higher arity formulas, this approach can express unary formulas. Developers could, for example, more easily quote nested formulas.
 
 ```
 @prefix example: <http://example.com/>.
