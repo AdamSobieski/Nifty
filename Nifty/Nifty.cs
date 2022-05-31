@@ -476,12 +476,6 @@ namespace Nifty.Knowledge
 {
     public interface IReadOnlyFormulaCollection : IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection>, IEventSource, INotifyChanged
     {
-        // constraints can be added to sets of formulas, typically those sets with variables, e.g., using Filter()
-        // and/or is this part of the metadata from IHasReadOnlyMetadata
-        // should all formula collections have this or should there be a property 'HasConstraints'?
-        // are these formulas or metadata formulas, e.g., builtin:holds(identifier, constraint_1)
-        public IReadOnlyFormulaCollection Constraints { get; }
-
         public bool IsGround { get; }
         public bool IsReadOnly { get; }
         public bool IsInferred { get; }
@@ -489,6 +483,7 @@ namespace Nifty.Knowledge
         public bool IsGraph { get; }
         public bool IsEnumerable { get; }
         public bool HasComposition { get; }
+        public bool HasConstraints { get; }
 
         public bool Contains(IFormula formula);
 
@@ -635,11 +630,21 @@ namespace Nifty.Knowledge
     }
 
 
-    // refactor to IReadOnlyFormulaCollectionWithComposition ?
-    public interface IHasComposition : IReadOnlyFormulaCollection
+    public interface IHasComposition
     {
         // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, builtin:union(a, b), can have a validating schema
         public IReadOnlyFormulaCollection Composition { get; }
+    }
+
+    public interface IHasConstraints
+    {
+        // constraints can be added to sets of formulas, typically those sets with variables, e.g., using Filter()
+        // and/or is this part of the metadata from IHasReadOnlyMetadata
+        // should all formula collections have this or should there be a property 'HasConstraints'?
+        // might these be formulas or metadata formulas, e.g., builtin:holds(identifier, constraint_1)
+        // public IReadOnlyFormulaCollection Constraints { get; }
+
+        public IReadOnlyFormulaCollection Constraints { get; }
     }
 
 
@@ -674,7 +679,7 @@ namespace Nifty.Knowledge.Querying
 
     // A query is a formula collection; it can accumulate formulas as it is constructed (instead of only accumulating metadata)
     // and it has an auxiliary formula collection with one formula, its composition, which resembles IQueryable::Expression.
-    public interface IQuery : IHasComposition
+    public interface IQuery : IReadOnlyFormulaCollection, IHasComposition
     {
         public QueryType QueryType { get; }
     }
@@ -1510,52 +1515,52 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IHasComposition Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
 
 
         // these are operations pertaining to formula patterns utilized by the Where operator
-        public static IHasComposition Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IHasComposition Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IReadOnlyFormulaCollection Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IHasComposition Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IReadOnlyFormulaCollection Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IHasComposition NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IReadOnlyFormulaCollection NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IHasComposition Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IReadOnlyFormulaCollection Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
 
-        public static IHasComposition Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
+        public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
         {
             throw new NotImplementedException();
         }
-        public static IHasComposition Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
+        public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
         {
             throw new NotImplementedException();
         }
 
 
         // support for inline data
-        public static IHasComposition Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
+        public static IReadOnlyFormulaCollection Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
         {
             throw new NotImplementedException();
         }
 
 
-        // returns a set of formulas which describe another set of formulas, e.g., using reification
+        // returns a set of formulas which describes another set of formulas, e.g., using reification
         public static (ITerm Identifier, IReadOnlyFormulaCollection About) About(this IReadOnlyFormulaCollection formulas)
         {
             throw new NotImplementedException();
