@@ -478,15 +478,16 @@ namespace Nifty.Knowledge
     {
         // constraints can be added to sets of formulas, typically those sets with variables, e.g., using Filter()
         // and/or is this part of the metadata from IHasReadOnlyMetadata
+        // should all formula collections have this or should there be a property 'HasConstraints'?
         public IReadOnlyFormulaCollection Constraints { get; }
 
         public bool IsGround { get; }
         public bool IsReadOnly { get; }
         public bool IsInferred { get; }
-        public bool IsPattern { get; }
         public bool IsValid { get; }
         public bool IsGraph { get; }
         public bool IsEnumerable { get; }
+        public bool HasComposition { get; }
 
         public bool Contains(IFormula formula);
 
@@ -633,12 +634,9 @@ namespace Nifty.Knowledge
     }
 
 
-    // when IReadOnlyFormulaCollection::IsPattern is true, the formula collection also implements this interface
-    // could refactor IsPattern to HasComposition and IReadOnlyPattern to IHasComposition
-    public interface IReadOnlyPattern : IReadOnlyFormulaCollection
+    public interface IHasComposition : IReadOnlyFormulaCollection
     {
         // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, builtin:union(a, b), can have a validating schema
-        // and/or is this part of the metadata from IHasReadOnlyMetadata
         public IReadOnlyFormulaCollection Composition { get; }
     }
 
@@ -672,11 +670,9 @@ namespace Nifty.Knowledge.Querying
         Describe
     }
 
-    // IQuery implements IReadOnlyFormulaCollection.
-    // Queries are formula collections with one formula.
-    // That one formula is the composition of the query, resembling IQueryable::Expression .
-    // As formula collections, queries also have metadata and schema for validating their compositions.
-    public interface IQuery : IReadOnlyFormulaCollection
+    // A query is a formula collection; it accumulates formulas as it is constructed (instead of only accumulating metadata)
+    // and it has an auxiliary formula collection with one formula, its composition, which resembles IQueryable::Expression.
+    public interface IQuery : IHasComposition
     {
         public QueryType QueryType { get; }
     }
@@ -784,7 +780,7 @@ namespace Nifty.Knowledge.Updating
         /* Other? */
     }
 
-    public interface IUpdate
+    public interface IUpdate // : IReadOnlyFormulaCollection
     {
         public UpdateType UpdateType { get; }
 
@@ -1425,6 +1421,8 @@ namespace Nifty
         // the expressiveness for querying formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
 
         // "Fluent N-ary SPARQL"
+        //        
+        // to do: https://www.w3.org/TR/sparql11-query/#subqueries
         //
         // example syntax:
         //
@@ -1438,7 +1436,7 @@ namespace Nifty
         // {
         //     ...
         // }
-        //
+
 
         // these conclude a query into one of the four query types
         public static IAskQuery Ask(this IQuery query)
@@ -1510,46 +1508,46 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyPattern Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IHasComposition Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
 
 
         // these are operations pertaining to formula patterns utilized by the Where operator
-        public static IReadOnlyPattern Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IHasComposition Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyPattern Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IHasComposition Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyPattern Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IHasComposition Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyPattern NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IHasComposition NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyPattern Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IHasComposition Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyPattern Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
+        public static IHasComposition Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyPattern Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
+        public static IHasComposition Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
         {
             throw new NotImplementedException();
         }
 
 
         // support for inline data
-        public static IReadOnlyPattern Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
+        public static IHasComposition Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
         {
             throw new NotImplementedException();
         }
