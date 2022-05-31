@@ -515,7 +515,7 @@ namespace Nifty.Knowledge
         public IReadOnlyFormulaCollection Clone();
         public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
     }
-    public interface IFormulaCollection : IReadOnlyFormulaCollection, IHasMetadata
+    public interface IFormulaCollection : IReadOnlyFormulaCollection
     {
         public bool Add(IFormula formula);
         public bool Add(IReadOnlyFormulaCollection formulas);
