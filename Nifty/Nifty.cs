@@ -487,7 +487,6 @@ namespace Nifty.Knowledge
         public bool IsValid { get; }
         public bool IsGraph { get; }
         public bool IsEnumerable { get; }
-        public bool IsIndexed { get; } // ?
 
         public bool Contains(IFormula formula);
 
@@ -633,6 +632,17 @@ namespace Nifty.Knowledge
         public new IFormulaCollection About { get; }
     }
 
+
+    // when IReadOnlyFormulaCollection::IsPattern is true, the formula collection also implements this interface
+    // could refactor IsPattern to HasComposition and IReadOnlyPattern to IHasComposition
+    public interface IReadOnlyPattern : IReadOnlyFormulaCollection
+    {
+        // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, builtin:union(a, b), can have a validating schema
+        // and/or is this part of the metadata from IHasReadOnlyMetadata
+        public IReadOnlyFormulaCollection Composition { get; }
+    }
+
+
     public interface ITermVisitor
     {
         public object Visit(IAny term);
@@ -662,11 +672,13 @@ namespace Nifty.Knowledge.Querying
         Describe
     }
 
+    // IQuery implements IReadOnlyFormulaCollection.
+    // Queries are formula collections with one formula.
+    // That one formula is the composition of the query, resembling IQueryable::Expression .
+    // As formula collections, queries also have metadata and schema for validating their compositions.
     public interface IQuery : IReadOnlyFormulaCollection
     {
         public QueryType QueryType { get; }
-
-        // public IReadOnlyFormulaCollection Composition { get; } ?
     }
 
     public interface ISelectQuery : IQuery
@@ -687,14 +699,6 @@ namespace Nifty.Knowledge.Querying
     public interface IDescribeQuery : IQuery
     {
 
-    }
-
-    // when IReadOnlyFormulaCollection::IsPattern is true, it also implements this interface
-    public interface IReadOnlyPattern : IReadOnlyFormulaCollection
-    {
-        // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, builtin:union(a, b), can have a validating schema
-        // and/or is this part of the metadata from IHasReadOnlyMetadata
-        public IReadOnlyFormulaCollection Composition { get; }
     }
 }
 
@@ -1223,7 +1227,6 @@ namespace Nifty
         }
 
 
-
         public static IReadOnlySchema ReadOnlyFormulaCollectionSchemaWithSelfSchema(IEnumerable<IFormula> formulas)
         {
             throw new NotImplementedException();
@@ -1557,7 +1560,7 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection About(this IReadOnlyFormulaCollection formulas, ITerm id)
+        public static IReadOnlyFormulaCollection About(this IReadOnlyFormulaCollection formulas, ITerm identifier)
         {
             throw new NotImplementedException();
         }
