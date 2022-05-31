@@ -479,6 +479,7 @@ namespace Nifty.Knowledge
         // constraints can be added to sets of formulas, typically those sets with variables, e.g., using Filter()
         // and/or is this part of the metadata from IHasReadOnlyMetadata
         // should all formula collections have this or should there be a property 'HasConstraints'?
+        // are these formulas or metadata formulas, e.g., builtin:holds(identifier, constraint_1)
         public IReadOnlyFormulaCollection Constraints { get; }
 
         public bool IsGround { get; }
@@ -634,6 +635,7 @@ namespace Nifty.Knowledge
     }
 
 
+    // refactor to IReadOnlyFormulaCollectionWithComposition ?
     public interface IHasComposition : IReadOnlyFormulaCollection
     {
         // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, builtin:union(a, b), can have a validating schema
@@ -670,7 +672,7 @@ namespace Nifty.Knowledge.Querying
         Describe
     }
 
-    // A query is a formula collection; it accumulates formulas as it is constructed (instead of only accumulating metadata)
+    // A query is a formula collection; it can accumulate formulas as it is constructed (instead of only accumulating metadata)
     // and it has an auxiliary formula collection with one formula, its composition, which resembles IQueryable::Expression.
     public interface IQuery : IHasComposition
     {
@@ -780,7 +782,7 @@ namespace Nifty.Knowledge.Updating
         /* Other? */
     }
 
-    public interface IUpdate // : IReadOnlyFormulaCollection
+    public interface IUpdate // : IReadOnlyFormulaCollection ?, IHasComposition ?
     {
         public UpdateType UpdateType { get; }
 
@@ -1312,23 +1314,23 @@ namespace Nifty
         }
 
 
-        internal static IQuery Query(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        internal static IQuery Query(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema, IReadOnlyFormulaCollection composition)
         {
             throw new NotImplementedException();
         }
-        internal static IAskQuery AskQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        internal static IAskQuery AskQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema, IReadOnlyFormulaCollection composition)
         {
             throw new NotImplementedException();
         }
-        internal static IConstructQuery ConstructQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema /* ... */)
+        internal static IConstructQuery ConstructQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema, IReadOnlyFormulaCollection composition /* , ... */)
         {
             throw new NotImplementedException();
         }
-        internal static ISelectQuery SelectQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema /* ... */)
+        internal static ISelectQuery SelectQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema, IReadOnlyFormulaCollection composition /* , ... */)
         {
             throw new NotImplementedException();
         }
-        internal static IDescribeQuery DescribeQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema /* ... */)
+        internal static IDescribeQuery DescribeQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema, IReadOnlyFormulaCollection composition /* , ... */)
         {
             throw new NotImplementedException();
         }
