@@ -476,10 +476,6 @@ namespace Nifty.Knowledge
 {
     public interface IReadOnlyFormulaCollection : IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection>, IEventSource, INotifyChanged
     {
-        // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, builtin:union(a, b), can have a validating schema
-        // and/or is this part of the metadata from IHasReadOnlyMetadata
-        public IReadOnlyFormulaCollection Composition { get; }
-
         // constraints can be added to sets of formulas, typically those sets with variables, e.g., using Filter()
         // and/or is this part of the metadata from IHasReadOnlyMetadata
         public IReadOnlyFormulaCollection Constraints { get; }
@@ -666,10 +662,11 @@ namespace Nifty.Knowledge.Querying
         Describe
     }
 
-    public interface IQuery // : IReadOnlyFormulaCollection ? // : IHasReadOnlyMetadata ? // : IHasReadOnlySchema ?
+    public interface IQuery : IReadOnlyFormulaCollection
     {
         public QueryType QueryType { get; }
-        public IReadOnlyFormulaCollection Composition { get; }
+
+        // public IReadOnlyFormulaCollection Composition { get; } ?
     }
 
     public interface ISelectQuery : IQuery
@@ -690,6 +687,14 @@ namespace Nifty.Knowledge.Querying
     public interface IDescribeQuery : IQuery
     {
 
+    }
+
+    // when IReadOnlyFormulaCollection::IsPattern is true, it also implements this interface
+    public interface IReadOnlyPattern : IReadOnlyFormulaCollection
+    {
+        // the formula(s) describing the composition of this set, e.g., {a} UNION {b}, builtin:union(a, b), can have a validating schema
+        // and/or is this part of the metadata from IHasReadOnlyMetadata
+        public IReadOnlyFormulaCollection Composition { get; }
     }
 }
 
@@ -1260,49 +1265,71 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
-        public static IReadOnlySchema ReadOnlyFormulaCollectionSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta)
+        public static IReadOnlySchema ReadOnlyFormulaCollectionSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlySchema ReadOnlyFormulaCollectionSchema(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        public static IReadOnlySchema ReadOnlyFormulaCollectionSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlySchema ReadOnlyKnowledgeGraphSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta)
+        public static IReadOnlySchema ReadOnlyKnowledgeGraphSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlySchema ReadOnlyKnowledgeGraphSchema(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        public static IReadOnlySchema ReadOnlyKnowledgeGraphSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
-        public static ISchema FormulaCollectionSchema(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        public static ISchema FormulaCollectionSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
-        public static ISchema KnowledgeGraphSchema(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        public static ISchema KnowledgeGraphSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
-        public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
-        public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, ITerm id, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
 
 
         public static IQuery Query()
+        {
+            throw new NotImplementedException();
+        }
+
+
+        internal static IQuery Query(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        internal static IAskQuery AskQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        {
+            throw new NotImplementedException();
+        }
+        internal static IConstructQuery ConstructQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema /* ... */)
+        {
+            throw new NotImplementedException();
+        }
+        internal static ISelectQuery SelectQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema /* ... */)
+        {
+            throw new NotImplementedException();
+        }
+        internal static IDescribeQuery DescribeQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema /* ... */)
         {
             throw new NotImplementedException();
         }
@@ -1476,60 +1503,50 @@ namespace Nifty
         }
 
 
-        // these are operations pertaining to formula patterns utilized by the Where operator
         public static IReadOnlyFormulaCollection Merge(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IReadOnlyPattern Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+
+        // these are operations pertaining to formula patterns utilized by the Where operator
+        public static IReadOnlyPattern Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IReadOnlyPattern Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IReadOnlyPattern Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IReadOnlyPattern NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IReadOnlyPattern Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
+        public static IReadOnlyPattern Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
+        public static IReadOnlyPattern Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
         {
             throw new NotImplementedException();
         }
 
 
         // support for inline data
-        public static IReadOnlyFormulaCollection Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        // a means of forming a composition: builtin:first_rest({first}, {rest})
-        public static IReadOnlyFormulaCollection First(this IReadOnlyFormulaCollection rest, IReadOnlyFormulaCollection first)
-        {
-            return first.Rest(rest);
-        }
-        public static IReadOnlyFormulaCollection Rest(this IReadOnlyFormulaCollection first, IReadOnlyFormulaCollection rest)
+        public static IReadOnlyPattern Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
         {
             throw new NotImplementedException();
         }
@@ -1543,6 +1560,23 @@ namespace Nifty
         public static IReadOnlyFormulaCollection About(this IReadOnlyFormulaCollection formulas, ITerm id)
         {
             throw new NotImplementedException();
+        }
+
+
+        internal static IFormula ElementAt(this IReadOnlyFormulaCollection formulas, int index)
+        {
+            if (formulas is IReadOnlyList<IFormula> list)
+            {
+                return list[index];
+            }
+            else if (formulas is IEnumerable<IFormula> enumerable)
+            {
+                return Enumerable.ElementAt(enumerable, index);
+            }
+            else
+            {
+                throw new ArgumentException("Argument is neither indexed nor enumerable.", nameof(formulas));
+            }
         }
     }
 }
