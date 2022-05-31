@@ -41,10 +41,10 @@ IFormula triple = Factory.Triple(...);
 When creating collections of formulas, developers can specify whether they desire for them to be knowledge graphs.
 
 ```cs
-IReadOnlyFormulaCollection formulaCollection = Factory.ReadOnlyFormulaCollection(..., ...);
+IReadOnlyFormulaCollection formulaCollection = Factory.ReadOnlyFormulaCollection(...);
 ```
 ```cs
-IReadOnlyFormulaCollection knowledgeGraph = Factory.ReadOnlyKnowledgeGraph(..., ...);
+IReadOnlyFormulaCollection knowledgeGraph = Factory.ReadOnlyKnowledgeGraph(...);
 ```
 
 Benefits of this n-ary, URI-based approach include both its expressiveness and modularity.

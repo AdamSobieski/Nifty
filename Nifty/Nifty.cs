@@ -468,7 +468,7 @@ namespace Nifty.Events
     }
     public interface IEventHandler // : IHasReadOnlyMetadata
     {
-        public Task Handle(IEventSource source, ITerm eventInstance, IReadOnlyFormulaCollection aboutEventInstance, ITerm eventData, IReadOnlyFormulaCollection aboutEventData);
+        public Task Handle(IEventSource source, IReadOnlyFormulaCollection @event, IReadOnlyFormulaCollection data);
     }
 }
 
@@ -544,9 +544,9 @@ namespace Nifty.Knowledge
         Any,
         Blank,
         Uri,
-        Literal,
         Variable,
         Formula,
+        Box
         // FormulaCollection
     }
     public interface ITerm : ISubstitute<ITerm>
@@ -588,30 +588,64 @@ namespace Nifty.Knowledge
     {
         public string Label { get; }
     }
-    public interface ILiteral : ITerm
-    {
-        public string Value { get; }
-        public string? Language { get; }
-        public string? Datatype { get; }
-    }
+    //public interface ILiteral : ITerm
+    //{
+    //    public string Value { get; }
+    //    public string? Language { get; }
+    //    public string? Datatype { get; }
+    //}
     public interface IVariable : ITerm
     {
         public string Name { get; }
     }
-    // what about
-    // public interface IBox
-    // {
-    //     public object Value { get; }
-    // }
-    // and
-    // public struct Literal
-    // {
-    //    public string Value { get; }
-    //    public string? Language { get; }
-    //    public string? Datatype { get; }
-    // }
-    // where ITerm literal = Factory.Literal(...) could be ITerm literal = Factory.Box(new Literal(...))...
-    // or an internal datatype, IBoxLiteral, which could accompany IBoxInt32, IBoxFloat, IBoxDouble, etc...
+
+    // considering a model which includes the capability of boxing and unboxing system builtins and other datatypes
+    // implementations might include optimized internal datatypes: BoxedString, BoxedLiteral, BoxedInt32, BoxedFloat, BoxedDouble, etc...
+    public interface IBox : ITerm
+    {
+        public object Value { get; }
+        public BoxType BoxType { get; } // resembling System.TypeCode
+    }
+    public enum BoxType
+    {
+        Empty = 0,
+        Object = 1,
+        DBNull = 2,
+        Boolean = 3,
+        Char = 4,
+        SByte = 5,
+        Byte = 6,
+        Int16 = 7,
+        UInt16 = 8,
+        Int32 = 9,
+        UInt32 = 10,
+        Int64 = 11,
+        UInt64 = 12,
+        Single = 13,
+        Double = 14,
+        Decimal = 0xF,
+        DateTime = 0x10,
+        String = 18,
+        Literal = 19
+    }
+    public struct Literal
+    {
+        public Literal(string value, string? language, string? datatype)
+        {
+            this.value = value;
+            this.language = language;
+            this.datatype = datatype;
+        }
+
+        // the struct's data could be one string using RDF literal notation or other delimiters
+        private readonly string value;
+        private readonly string? language;
+        private readonly string? datatype;
+
+        public string Value { get { return value; } }
+        public string? Language { get { return language; } }
+        public string? Datatype { get { return datatype; } } // or is this IUri Datatype ?
+    }
 
     public interface IFormula : ITerm
     {
@@ -674,9 +708,9 @@ namespace Nifty.Knowledge
         public object Visit(IAny term);
         public object Visit(IUri term);
         public object Visit(IBlank term);
-        public object Visit(ILiteral term);
         public object Visit(IVariable term);
         public object Visit(IFormula formula);
+        public object Visit(IBox term);
     }
 
     public interface IKnowledgebase : IFormulaCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
@@ -1167,63 +1201,68 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(bool value)
+        public static IBox Literal(bool value)
+        {
+            // return Box(new Literal(value.ToString(), null, Keys.Semantics.Xsd.boolean.Uri));
+            throw new NotImplementedException();
+        }
+        public static IBox Literal(sbyte value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(sbyte value)
+        public static IBox Literal(byte value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(byte value)
+        public static IBox Literal(short value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(short value)
+        public static IBox Literal(ushort value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(ushort value)
+        public static IBox Literal(int value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(int value)
+        public static IBox Literal(uint value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(uint value)
+        public static IBox Literal(long value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(long value)
+        public static IBox Literal(ulong value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(ulong value)
+        public static IBox Literal(float value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(float value)
+        public static IBox Literal(double value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(double value)
+        public static IBox Literal(string value)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(string value)
+        public static IBox Literal(string value, string language)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(string value, string language)
+        public static IBox Literal(string value, string language, IUri datatypeUri)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(string value, string language, IUri datatypeUri)
+        public static IBox Literal(string value, IUri datatypeUri)
         {
             throw new NotImplementedException();
         }
-        public static ILiteral Literal(string value, IUri datatypeUri)
+        public static IBox Box(object value)
         {
             throw new NotImplementedException();
         }
