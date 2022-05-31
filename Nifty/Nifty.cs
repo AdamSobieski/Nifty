@@ -666,7 +666,7 @@ namespace Nifty.Knowledge.Querying
         Describe
     }
 
-    public interface IQuery // : IHasReadOnlyMetadata
+    public interface IQuery // : IReadOnlyFormulaCollection ? // : IHasReadOnlyMetadata ? // : IHasReadOnlySchema ?
     {
         public QueryType QueryType { get; }
         public IReadOnlyFormulaCollection Composition { get; }
@@ -1308,7 +1308,8 @@ namespace Nifty
         }
     }
 
-    // there might be better ways, e.g., allowing developers to provide formula collections which describe the terms to be combined into formulas
+    // there might be other, possibly better, ways, e.g., allowing developers to provide formula collections which describe the terms to be combined into formulas
+    // in this case, these would be generators which bind to the most specific predicates depending on the types of the terms, e.g., integers or complex numbers.
     public static partial class Formula
     {
         public static IFormula Add(ITerm x, ITerm y)
@@ -1476,27 +1477,32 @@ namespace Nifty
 
 
         // these are operations pertaining to formula patterns utilized by the Where operator
-        public static IReadOnlyFormulaCollection Merge(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        public static IReadOnlyFormulaCollection Merge(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        public static IReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+
+        public static IReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        public static IReadOnlyFormulaCollection Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        public static IReadOnlyFormulaCollection Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection pattern)
+        public static IReadOnlyFormulaCollection NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
@@ -1530,7 +1536,11 @@ namespace Nifty
 
 
         // returns a set of formulas which describe another set of formulas, e.g., using reification
-        public static IReadOnlyFormulaCollection About(this IReadOnlyFormulaCollection formulas)
+        public static (ITerm Identifier, IReadOnlyFormulaCollection About) About(this IReadOnlyFormulaCollection formulas)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection About(this IReadOnlyFormulaCollection formulas, ITerm id)
         {
             throw new NotImplementedException();
         }
