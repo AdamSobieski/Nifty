@@ -93,6 +93,11 @@ namespace Nifty.Analytics
     }
 }
 
+namespace Nifty.Automata
+{
+    // see also: http://learnlib.github.io/automatalib/maven-site/latest/apidocs/net/automatalib/automata/Automaton.html
+}
+
 namespace Nifty.AutomatedPlanning.Actions
 {
     // see also: Grover, Sachin, Tathagata Chakraborti, and Subbarao Kambhampati. "What can automated planning do for intelligent tutoring systems?" ICAPS SPARK (2018).
@@ -139,215 +144,9 @@ namespace Nifty.Collections
     public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IList<KeyValuePair<TKey, TValue>> { }
 }
 
-namespace Nifty.Collections.Automata
-{
-    // see also: http://learnlib.github.io/automatalib/maven-site/latest/apidocs/net/automatalib/automata/Automaton.html
-}
-
 namespace Nifty.Collections.Graphs
 {
-    // initial graph model based on Infer.NET
 
-    public interface IReadOnlyEdge<TNode>
-    {
-        public TNode Source { get; }
-        public TNode Target { get; }
-    }
-
-    public interface IEdge<TNode> : IReadOnlyEdge<TNode>
-    {
-        public new TNode Source { get; set; }
-        public new TNode Target { get; set; }
-    }
-
-    public interface IHasOutEdges<TEdge>
-    {
-        public ICollection<TEdge> OutEdges { get; }
-    }
-
-    public interface IHasInEdges<TEdge>
-    {
-        public ICollection<TEdge> InEdges { get; }
-    }
-
-    public interface IHasTargets<TNode>
-    {
-        public ICollection<TNode> Targets { get; }
-    }
-
-    public interface IHasSources<TNode>
-    {
-        public ICollection<TNode> Sources { get; }
-    }
-
-    public interface IHasSourcesAndTargets<TNode> : IHasSources<TNode>, IHasTargets<TNode> { }
-
-    public interface IHasInAndOutEdges<TEdge> : IHasInEdges<TEdge>, IHasOutEdges<TEdge> { }
-
-    public interface IReadOnlyGraph<TNode>
-    {
-        public IEnumerable<TNode> Nodes { get; }
-
-        public int EdgeCount();
-
-        public int NeighborCount(TNode node);
-
-        public IEnumerable<TNode> NeighborsOf(TNode node);
-
-        public bool ContainsEdge(TNode source, TNode target);
-    }
-
-    public interface IGraph<TNode> : IReadOnlyGraph<TNode>
-    {
-        public TNode AddNode();
-        public bool RemoveNodeAndEdges(TNode node);
-        public void Clear();
-        public void AddEdge(TNode source, TNode target);
-        public bool RemoveEdge(TNode source, TNode target);
-        public void ClearEdges();
-        public void ClearEdgesOf(TNode node);
-    }
-
-    public interface IReadOnlyDirectedGraph<TNode> : IReadOnlyGraph<TNode>
-    {
-        public int TargetCount(TNode source);
-        public int SourceCount(TNode target);
-        public IEnumerable<TNode> TargetsOf(TNode source);
-        public IEnumerable<TNode> SourcesOf(TNode target);
-    }
-
-    public interface IDirectedGraph<TNode> : IReadOnlyDirectedGraph<TNode>, IGraph<TNode>
-    {
-        public void ClearEdgesOutOf(TNode source);
-        public void ClearEdgesInto(TNode target);
-    }
-
-    public interface IReadOnlyGraph<TNode, TEdge> : IReadOnlyGraph<TNode>
-    {
-        public IEnumerable<TEdge> Edges { get; }
-
-        public TEdge GetEdge(TNode source, TNode target);
-
-        public bool TryGetEdge(TNode source, TNode target, out TEdge edge);
-
-        public IEnumerable<TEdge> EdgesOf(TNode node);
-    }
-
-    public interface IReadOnlyMultigraph<TNode, TEdge> : IReadOnlyGraph<TNode, TEdge>
-    {
-        public int EdgeCount(TNode source, TNode target);
-
-        public IEnumerable<TEdge> EdgesLinking(TNode source, TNode target);
-
-        public bool AnyEdge(TNode source, TNode target, out TEdge edge);
-    }
-
-    public interface IGraph<TNode, TEdge> : IReadOnlyGraph<TNode, TEdge>, IGraph<TNode>
-    {
-        public new TEdge AddEdge(TNode source, TNode target);
-        public bool RemoveEdge(TEdge edge);
-    }
-
-    public interface IReadOnlyDirectedGraph<TNode, TEdge> : IReadOnlyGraph<TNode, TEdge>, IReadOnlyDirectedGraph<TNode>
-    {
-        public TNode SourceOf(TEdge edge);
-        public TNode TargetOf(TEdge edge);
-        public IEnumerable<TEdge> EdgesOutOf(TNode source);
-        public IEnumerable<TEdge> EdgesInto(TNode target);
-    }
-
-    public interface IDirectedGraph<TNode, TEdge> : IReadOnlyDirectedGraph<TNode, TEdge>, IGraph<TNode, TEdge>, IDirectedGraph<TNode> { }
-
-    public interface IReadOnlyLabeledGraph<TNode, TLabel> : IReadOnlyGraph<TNode>
-    {
-        public new ILabeledCollection<TNode, TLabel> Nodes { get; }
-    }
-
-    public interface ILabeledEdgeGraph<TNode, TLabel> : IReadOnlyGraph<TNode>
-    {
-        public void AddEdge(TNode fromNode, TNode toNode, TLabel label);
-        public void RemoveEdge(TNode fromNode, TNode toNode, TLabel label);
-        public void ClearEdges(TLabel label);
-    }
-
-    public interface ILabeledCollection<TItem, TLabel> : ICollection<TItem>
-    {
-        ICollection<TLabel> Labels { get; }
-        ICollection<TItem> WithLabel(TLabel label);
-    }
-
-    public class IndexedProperty<TKey, TValue>
-    {
-        public readonly Converter<TKey, TValue> Get;
-
-        public readonly Action<TKey, TValue> Set;
-
-        public readonly Action Clear;
-
-        public TValue this[TKey key]
-        {
-            get { return Get(key); }
-            set { Set(key, value); }
-        }
-
-        public IndexedProperty(Converter<TKey, TValue> getter, Action<TKey, TValue> setter, Action clearer)
-        {
-            Get = getter;
-            Set = setter;
-            Clear = clearer;
-        }
-
-        public IndexedProperty(IDictionary<TKey, TValue> dictionary, TValue defaultValue)
-        {
-            Get = delegate (TKey key)
-            {
-                TValue value;
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-                bool containsKey = dictionary.TryGetValue(key, out value);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning disable CS8603 // Possible null reference return.
-                if (!containsKey) return defaultValue;
-                else return value;
-#pragma warning restore CS8603 // Possible null reference return.
-            };
-            Set = delegate (TKey key, TValue value) { dictionary[key] = value; };
-            Clear = dictionary.Clear;
-        }
-    }
-
-    public interface ICanCreateNodeData<TNode>
-    {
-        public IndexedProperty<TNode, T> CreateNodeData<T>(T defaultValue);
-    }
-
-    public interface ICanCreateEdgeData<TEdge>
-    {
-        public IndexedProperty<TEdge, T> CreateEdgeData<T>(T defaultValue);
-    }
-
-    public sealed class EdgeNotFoundException : Exception
-    {
-        public EdgeNotFoundException()
-        {
-        }
-
-        public EdgeNotFoundException(object source, object target)
-            : base("No edge from " + source + " to " + target)
-        {
-        }
-    }
-
-    public sealed class AmbiguousEdgeException : Exception
-    {
-        public AmbiguousEdgeException()
-        {
-        }
-
-        public AmbiguousEdgeException(object source, object target)
-            : base("Ambiguous edge from " + source + " to " + target)
-        {
-        }
-    }
 }
 
 namespace Nifty.Common
@@ -617,8 +416,6 @@ namespace Nifty.Knowledge
         public string Name { get; }
     }
 
-    // considering a model which includes the capability of boxing and unboxing system builtins and other datatypes
-    // implementations might include optimized internal datatypes: BoxedString, BoxedLiteral, BoxedInt32, BoxedFloat, BoxedDouble, etc...
     public interface IBox : ITerm
     {
         public object Value { get; }
@@ -710,8 +507,8 @@ namespace Nifty.Knowledge
         public object Visit(IUri term);
         public object Visit(IBlank term);
         public object Visit(IVariable term);
-        public object Visit(IFormula formula);
         public object Visit(IBox term);
+        public object Visit(IFormula formula);
     }
 
     public interface IKnowledgebase : IFormulaCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
@@ -960,6 +757,11 @@ namespace Nifty.NaturalLanguage.Processing
     //public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IUpdate, float>> { }
     public interface IOnlineNaturalLanguageParser : IObserver<IOrderedDictionary<string, float>>, IObservable<IOrderedDictionary<IUpdate, float>> { }
     // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IOrderedDictionary<string, float>, IOrderedDictionary<IFormulaCollectionUpdate, float>> { }
+}
+
+namespace Nifty.Plugins
+{
+    // architecture will support extensible add-ons and plugins
 }
 
 namespace Nifty.Sessions
