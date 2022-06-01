@@ -229,8 +229,8 @@ namespace Nifty.Configuration
 
     public interface IConfiguration : ISessionInitializable, ISessionOptimizable, ISessionDisposable, INotifyChanged
     {
-        public bool About(IUri setting, [NotNullWhen(true)] out IReadOnlyFormulaCollection? about);
-        public bool About(IUri setting, [NotNullWhen(true)] out IReadOnlyFormulaCollection? about, string language);
+        public bool About(IUri setting, [NotNullWhen(true)] out IReadOnlyFormulaCollection? description);
+        public bool About(IUri setting, [NotNullWhen(true)] out IReadOnlyFormulaCollection? description, string language);
         public bool TryGetSetting(IUri setting, [NotNullWhen(true)] out IConvertible? value);
         public bool TryGetSetting(IUri setting, [NotNullWhen(true)] out IConvertible? value, string language);
     }
@@ -248,7 +248,10 @@ namespace Nifty.Dialogue
 
 namespace Nifty.Extensibility
 {
-    // architecture will support developing extensible add-ons and plugins
+    // the Nifty architecture will support developing extensible add-ons and plugins
+
+    // see also: https://github.com/weikio/PluginFramework
+    // see also: https://github.com/merken/Prise
 }
 
 namespace Nifty.Knowledge
@@ -956,7 +959,7 @@ namespace Nifty.Planning.Actions
 namespace Nifty.Planning.Constraints
 {
     // traversing automata to process sequences, e.g., of actions
-    // should OnNext() return a next stateful interface instance or should it more resemble IObserver<> and return void, perhaps encapsulating automata traversal?
+    // should OnNext() return a next, stateful interface instance or should it more resemble IObserver<> and return void, perhaps encapsulating automata traversal?
 
     public interface IContext<in TAlphabet>
     {
