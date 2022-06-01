@@ -11,7 +11,7 @@ The Nifty project is a framework for creating adaptive instructional systems. Th
 [RDF](https://www.w3.org/RDF/), [OWL](https://www.w3.org/OWL/), [SPARQL](https://www.w3.org/TR/sparql11-query/), [SPIN](https://spinrdf.org/), [xAPI](https://github.com/adlnet/xAPI-Spec), [XES](https://xes-standard.org/)
 
 ### Related Standards Organizations
-[Adaptive Instructional Systems Working Group](https://sagroups.ieee.org/2247-1/), [W3C](https://www.w3.org/)
+[IEEE Adaptive Instructional Systems Working Group](https://sagroups.ieee.org/2247-1/), [W3C](https://www.w3.org/)
 
 ### Related Design Recommendations
 * [Design Recommendations for Intelligent Tutoring Systems – Volume 1 (Learner Modeling)](https://aisconsortium.com/wp-content/uploads/Design-Recommendations-for-ITS_Volume-1-Learner-Modeling.pdf)

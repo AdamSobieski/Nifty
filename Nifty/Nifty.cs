@@ -96,38 +96,6 @@ namespace Nifty.Analytics
 namespace Nifty.Automata
 {
     // see also: http://learnlib.github.io/automatalib/maven-site/latest/apidocs/net/automatalib/automata/Automaton.html
-}
-
-namespace Nifty.AutomatedPlanning.Actions
-{
-    // see also: Grover, Sachin, Tathagata Chakraborti, and Subbarao Kambhampati. "What can automated planning do for intelligent tutoring systems?" ICAPS SPARK (2018).
-
-    public interface IAction : IHasReadOnlyMetadata
-    {
-        public IAskQuery Preconditions { get; }
-        public IUpdate Effects { get; }
-    }
-
-    public interface IActionGenerator : ISubstitute<IAction> { }
-}
-
-namespace Nifty.AutomatedPlanning.Constraints
-{
-    // here will go constraints and preferences for uses upon objects and upon sequences of objects, e.g., upon sequences of actions
-    // this namespace will utilize Nifty.Collections.Automata
-    // this namespace will be general-purpose
-    // this namespace may be either Nifty.AutomatedPlanning.Constraints or Nifty.Constraints
-
-    // here is a sketch of an System.IObserver<>-like interface which can process a sequence of inputs while potentially transitioning upon a recognizing automata
-    public interface IObserver<in TAlphabet>
-    {
-        public bool Continue { get; } // continued input sequences can be valid at future points
-        public bool Recognized { get; } // the input sequence is valid at this point
-
-        public void OnCompleted();
-        public void OnError(Exception error);
-        public IObserver<TAlphabet> OnNext(TAlphabet value);
-    }
 
     // to do: consider approaches, e.g., fluent, to defining and building automata
 }
@@ -270,6 +238,8 @@ namespace Nifty.Configuration
 
 namespace Nifty.Dialogue
 {
+    // see also: https://github.com/microsoft/botframework-sdk
+
     public interface IDialogueSystem : ISessionInitializable, ISessionOptimizable, IEventHandler, IEventSource, ISessionDisposable
     {
         public IDisposable SetCurrentActivity(IActivity activity);
@@ -280,8 +250,6 @@ namespace Nifty.Events
 {
     public interface IEventSource // : IHasReadOnlyMetadata
     {
-        // this could be an extension method
-        // public IDisposable Subscribe(IUriTerm eventType, IEventHandler listener);
         public IDisposable Subscribe(IAskQuery query, IEventHandler listener);
     }
     public interface IEventHandler // : IHasReadOnlyMetadata
@@ -377,20 +345,6 @@ namespace Nifty.Knowledge
 
         public bool IsGround { get; }
 
-        // these could be extension methods
-        //public bool IsPredicate(IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public int HasArity(IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public IEnumerable<ITerm> ClassesOfArgument(int index, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
         public object Visit(ITermVisitor visitor);
 
         public bool Matches(ITerm other);
@@ -410,12 +364,6 @@ namespace Nifty.Knowledge
     {
         public string Label { get; }
     }
-    //public interface ILiteral : ITerm
-    //{
-    //    public string Value { get; }
-    //    public string? Language { get; }
-    //    public string? Datatype { get; }
-    //}
     public interface IVariable : ITerm
     {
         public string Name { get; }
@@ -457,6 +405,8 @@ namespace Nifty.Knowledge
         public int Count { get; }
         public ITerm this[int index] { get; }
     }
+
+    // public interface ILambdaFormula : IFormula { }
 
     public interface IHasVariables
     {
@@ -535,8 +485,6 @@ namespace Nifty.Knowledge.Querying
         Describe
     }
 
-    // A query is a formula collection; it can accumulate formulas as it is constructed (instead of only accumulating metadata)
-    // and it has an auxiliary formula collection with one formula, its composition, which resembles IQueryable::Expression.
     public interface IQuery : IReadOnlyFormulaCollection, IHasReadOnlyComposition
     {
         public QueryType QueryType { get; }
@@ -560,6 +508,240 @@ namespace Nifty.Knowledge.Querying
     public interface IDescribeQuery : IQuery
     {
 
+    }
+
+
+
+    public static partial class Query
+    {
+        // "Fluent N-ary SPARQL"
+        //        
+        // the expressiveness for querying formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
+        // to do: https://www.w3.org/TR/sparql11-query/#subqueries
+        //
+        // example syntax:
+        //
+        // IReadOnlyFormulaCollection formulas = ...;
+        //
+        // IAskQuery askQuery = Factory.Query().Where(...).Ask();
+        // bool result = formulas.Query(askQuery);
+        //
+        // ISelectQuery selectQuery = Factory.Query().Where(...).Select(...);
+        // foreach(var result in formulas.Query(selectQuery))
+        // {
+        //     ...
+        // }
+
+
+        // these conclude a query into one of the four query types
+        public static IAskQuery Ask(this IQuery query)
+        {
+            throw new NotImplementedException();
+        }
+        public static ISelectQuery Select(this IQuery query, params IVariable[] variables)
+        {
+            throw new NotImplementedException();
+        }
+        public static IConstructQuery Construct(this IQuery query, IReadOnlyFormulaCollection template)
+        {
+            throw new NotImplementedException();
+        }
+        public static IDescribeQuery Describe(this IQuery query, params ITerm[] terms)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        // these methods build queries before they are concluded into one of four query types
+        public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery GroupBy(this IQuery query, IVariable variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery GroupBy(this IQuery query, IVariable variable, IFormula having)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery OrderBy(this IQuery query, IVariable variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery OrderByDescending(this IQuery query, IVariable variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery ThenBy(this IQuery query, IVariable variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery ThenByDescending(this IQuery query, IVariable variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery Distinct(this IQuery query)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery Reduced(this IQuery query)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery Offset(this IQuery query, int offset)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery Limit(this IQuery query, int limit)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public static IReadOnlyFormulaCollection Merge(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        // these are operations pertaining to formula patterns utilized by the Where operator
+        public static IReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        // support for inline data
+        public static IReadOnlyFormulaCollection Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        // returns a set of formulas which describes another set of formulas, e.g., using reification
+        public static (ITerm Identifier, IReadOnlyFormulaCollection About) About(this IReadOnlyFormulaCollection formulas)
+        {
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection About(this IReadOnlyFormulaCollection formulas, ITerm identifier)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        internal static IFormula ElementAt(this IReadOnlyFormulaCollection formulas, int index)
+        {
+            if (formulas.IsEnumerable)
+            {
+                if (formulas is IReadOnlyList<IFormula> list)
+                {
+                    return list[index];
+                }
+                else if (formulas is IEnumerable<IFormula> enumerable)
+                {
+                    return Enumerable.ElementAt(enumerable, index);
+                }
+            }
+            throw new ArgumentException("Argument is neither indexed nor enumerable.", nameof(formulas));
+        }
+
+        internal static bool TryGetSchema(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlySchema? schema)
+        {
+            if (formulas.HasSchema && formulas is IHasReadOnlySchema hasSchema)
+            {
+                schema = hasSchema.Schema;
+                return true;
+            }
+            else
+            {
+                schema = null;
+                return false;
+            }
+        }
+        internal static bool TryGetIdentifier(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? identifier)
+        {
+            if (formulas.HasIdentifier && formulas is IHasReadOnlyIdentifier hasIdentifier)
+            {
+                identifier = hasIdentifier.Identifier;
+                return true;
+            }
+            else
+            {
+                identifier = null;
+                return false;
+            }
+        }
+        internal static bool TryGetMetadata(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? identifier, [NotNullWhen(true)] out IReadOnlyFormulaCollection? metadata)
+        {
+            if (formulas.HasMetadata && formulas is IHasReadOnlyMetadata hasMetadata)
+            {
+                identifier = hasMetadata.Identifier;
+                metadata = hasMetadata.About;
+                return true;
+            }
+            else
+            {
+                identifier = null;
+                metadata = null;
+                return false;
+            }
+        }
+        internal static bool TryGetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? composition)
+        {
+            if (formulas.HasComposition && formulas is IHasReadOnlyComposition hasComposition)
+            {
+                composition = hasComposition.Composition;
+                return true;
+            }
+            else
+            {
+                composition = null;
+                return false;
+            }
+        }
+        internal static bool TryGetConstraints(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? constraints)
+        {
+            if (formulas.HasConstraints && formulas is IHasReadOnlyConstraints hasConstraints)
+            {
+                constraints = hasConstraints.Constraints;
+                return true;
+            }
+            else
+            {
+                constraints = null;
+                return false;
+            }
+        }
     }
 }
 
@@ -630,10 +812,6 @@ namespace Nifty.Knowledge.Serialization
 namespace Nifty.Knowledge.Updating
 {
     // see also: https://en.wikipedia.org/wiki/Delta_encoding
-
-    // to do: consider kinds of actions upon formula collections and knowledge graphs, e.g., simple (deltas / diffs), query-based updates / rules, composite, etc.
-    //        updates could have properties such as being reversible, having an undo method (see also: transactions)
-    //        how might this model of knowledgebase updates pertain to planning actions, action sequences, and plans?
 
     public enum UpdateType
     {
@@ -726,7 +904,15 @@ namespace Nifty.MachineLearning.ReinforcementLearning
 
 namespace Nifty.Messaging
 {
+    public interface IMessageSource
+    {
+        public IDisposable Subscribe(IAskQuery query, IMessageHandler listener);
+    }
 
+    public interface IMessageHandler
+    {
+        public Task Handle(IMessageSource source, IReadOnlyFormulaCollection message);
+    }
 }
 
 namespace Nifty.Modelling.Domains
@@ -751,17 +937,41 @@ namespace Nifty.NaturalLanguage.Generation
 
 namespace Nifty.NaturalLanguage.Processing
 {
-    // utilizing mutable ordered dictionaries, observers can provide feedback to observables with respect to the numerical weights on hypotheses
-    // these dictionaries are ordered, sorted, so that consumers can inspect and enumerate the key-value pairs in order of decreasing weights on the hypotheses
-    // downstream observers could, then, utilize reasoners to prune "deltas" which result in paradoxes by setting the numerical weights of the relevant "deltas" to 0 and/or by removing them from dictionary instances
-    // as envisioned, feedback propagates across components, enabling adaptation and learning
-    // dictionary implementations might implement INotifyCollectionChanged (see also: https://gist.github.com/kzu/cfe3cb6e4fe3efea6d24) and/or receive callbacks in their constructors
-    // these scenarios might be benefitted by a new interface type, perhaps one extending IDictionary<T, float>
-    // see also: https://en.wikipedia.org/wiki/Online_algorithm
-
-    //public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IUpdate, float>> { }
     public interface IOnlineNaturalLanguageParser : IObserver<IOrderedDictionary<string, float>>, IObservable<IOrderedDictionary<IUpdate, float>> { }
-    // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IOrderedDictionary<string, float>, IOrderedDictionary<IFormulaCollectionUpdate, float>> { }
+}
+
+namespace Nifty.Planning.Actions
+{
+    // see also: Grover, Sachin, Tathagata Chakraborti, and Subbarao Kambhampati. "What can automated planning do for intelligent tutoring systems?" ICAPS SPARK (2018).
+
+    public interface IAction : IHasReadOnlyMetadata
+    {
+        public IAskQuery Preconditions { get; }
+        public IUpdate Effects { get; }
+    }
+
+    public interface IActionGenerator : ISubstitute<IAction> { }
+}
+
+namespace Nifty.Planning.Constraints
+{
+    // traversing automata to process sequences, e.g., of actions
+    // should OnNext() return a next stateful interface instance or should it more resemble IObserver<> and return void, perhaps encapsulating automata traversal?
+
+    public interface IContext<in TAlphabet>
+    {
+        public void OnCompleted();
+        public void OnError(Exception error);
+        public IContext<TAlphabet> OnNext(TAlphabet value);
+    }
+
+    public interface IRecognitionContext<in TAlphabet> : IContext<TAlphabet>
+    {
+        public bool Continue { get; } // continued input sequences can be recognized at future points
+        public bool Recognized { get; } // the input sequence is recognized at this point
+
+        public new IRecognitionContext<TAlphabet> OnNext(TAlphabet value);
+    }
 }
 
 namespace Nifty.Sessions
@@ -1208,6 +1418,20 @@ namespace Nifty
     // in this case, these would be generators which bind to the most specific predicates depending on the types of the terms, e.g., integers or complex numbers.
     public static partial class Formula
     {
+        // these could be extension methods
+        //public bool IsPredicate(this ITerm term, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public int HasArity(this ITerm term, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public IEnumerable<ITerm> ClassesOfArgument(this ITerm term, int index, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
         public static IFormula Add(ITerm x, ITerm y)
         {
             throw new NotImplementedException();
@@ -1286,236 +1510,5 @@ namespace Nifty
         }
     }
 
-    public static partial class Extensions
-    {
-        // the expressiveness for querying formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
-
-        // "Fluent N-ary SPARQL"
-        //        
-        // to do: https://www.w3.org/TR/sparql11-query/#subqueries
-        //
-        // example syntax:
-        //
-        // IReadOnlyFormulaCollection formulas = ...;
-        //
-        // IAskQuery askQuery = Factory.Query().Where(...).Ask();
-        // bool result = formulas.Query(askQuery);
-        //
-        // ISelectQuery selectQuery = Factory.Query().Where(...).Select(...);
-        // foreach(var result in formulas.Query(selectQuery))
-        // {
-        //     ...
-        // }
-
-
-        // these conclude a query into one of the four query types
-        public static IAskQuery Ask(this IQuery query)
-        {
-            throw new NotImplementedException();
-        }
-        public static ISelectQuery Select(this IQuery query, params IVariable[] variables)
-        {
-            throw new NotImplementedException();
-        }
-        public static IConstructQuery Construct(this IQuery query, IReadOnlyFormulaCollection template)
-        {
-            throw new NotImplementedException();
-        }
-        public static IDescribeQuery Describe(this IQuery query, params ITerm[] terms)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        // these methods build queries before they are concluded into one of four query types
-        public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery GroupBy(this IQuery query, IVariable variable)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery GroupBy(this IQuery query, IVariable variable, IFormula having)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery OrderBy(this IQuery query, IVariable variable)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery OrderByDescending(this IQuery query, IVariable variable)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery ThenBy(this IQuery query, IVariable variable)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery ThenByDescending(this IQuery query, IVariable variable)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery Distinct(this IQuery query)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery Reduced(this IQuery query)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery Offset(this IQuery query, int offset)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery Limit(this IQuery query, int limit)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public static IReadOnlyFormulaCollection Merge(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        // these are operations pertaining to formula patterns utilized by the Where operator
-        public static IReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        // support for inline data
-        public static IReadOnlyFormulaCollection Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        // returns a set of formulas which describes another set of formulas, e.g., using reification
-        public static (ITerm Identifier, IReadOnlyFormulaCollection About) About(this IReadOnlyFormulaCollection formulas)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection About(this IReadOnlyFormulaCollection formulas, ITerm identifier)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        internal static IFormula ElementAt(this IReadOnlyFormulaCollection formulas, int index)
-        {
-            if (formulas.IsEnumerable)
-            {
-                if (formulas is IReadOnlyList<IFormula> list)
-                {
-                    return list[index];
-                }
-                else if (formulas is IEnumerable<IFormula> enumerable)
-                {
-                    return Enumerable.ElementAt(enumerable, index);
-                }
-            }
-            throw new ArgumentException("Argument is neither indexed nor enumerable.", nameof(formulas));
-        }
-
-        internal static bool TryGetSchema(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlySchema? schema)
-        {
-            if (formulas.HasSchema && formulas is IHasReadOnlySchema hasSchema)
-            {
-                schema = hasSchema.Schema;
-                return true;
-            }
-            else
-            {
-                schema = null;
-                return false;
-            }
-        }
-        internal static bool TryGetIdentifier(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? identifier)
-        {
-            if (formulas.HasIdentifier && formulas is IHasReadOnlyIdentifier hasIdentifier)
-            {
-                identifier = hasIdentifier.Identifier;
-                return true;
-            }
-            else
-            {
-                identifier = null;
-                return false;
-            }
-        }
-        internal static bool TryGetMetadata(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? identifier, [NotNullWhen(true)] out IReadOnlyFormulaCollection? metadata)
-        {
-            if (formulas.HasMetadata && formulas is IHasReadOnlyMetadata hasMetadata)
-            {
-                identifier = hasMetadata.Identifier;
-                metadata = hasMetadata.About;
-                return true;
-            }
-            else
-            {
-                identifier = null;
-                metadata = null;
-                return false;
-            }
-        }
-        internal static bool TryGetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? composition)
-        {
-            if (formulas.HasComposition && formulas is IHasReadOnlyComposition hasComposition)
-            {
-                composition = hasComposition.Composition;
-                return true;
-            }
-            else
-            {
-                composition = null;
-                return false;
-            }
-        }
-        internal static bool TryGetConstraints(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? constraints)
-        {
-            if (formulas.HasConstraints && formulas is IHasReadOnlyConstraints hasConstraints)
-            {
-                constraints = hasConstraints.Constraints;
-                return true;
-            }
-            else
-            {
-                constraints = null;
-                return false;
-            }
-        }
-    }
+    // "Fluent N-ary SPARQL" moved to Nifty.Knowledge.Querying
 }
