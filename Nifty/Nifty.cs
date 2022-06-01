@@ -6,13 +6,13 @@ using Nifty.Collections;
 using Nifty.Common;
 using Nifty.Configuration;
 using Nifty.Dialogue;
-using Nifty.Events;
 using Nifty.Knowledge;
 using Nifty.Knowledge.Querying;
 using Nifty.Knowledge.Reasoning;
 using Nifty.Knowledge.Schema;
 using Nifty.Knowledge.Updating;
 using Nifty.Logging;
+using Nifty.Messaging.Events;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
 using System.Diagnostics.CodeAnalysis;
@@ -243,18 +243,6 @@ namespace Nifty.Dialogue
     public interface IDialogueSystem : ISessionInitializable, ISessionOptimizable, IEventHandler, IEventSource, ISessionDisposable
     {
         public IDisposable SetCurrentActivity(IActivity activity);
-    }
-}
-
-namespace Nifty.Events
-{
-    public interface IEventSource // : IHasReadOnlyMetadata
-    {
-        public IDisposable Subscribe(IAskQuery query, IEventHandler listener);
-    }
-    public interface IEventHandler // : IHasReadOnlyMetadata
-    {
-        public Task Handle(IEventSource source, IReadOnlyFormulaCollection @event, IReadOnlyFormulaCollection data);
     }
 }
 
@@ -912,6 +900,18 @@ namespace Nifty.Messaging
     public interface IMessageHandler
     {
         public Task Handle(IMessageSource source, IReadOnlyFormulaCollection message);
+    }
+}
+
+namespace Nifty.Messaging.Events
+{
+    public interface IEventSource
+    {
+        public IDisposable Subscribe(IAskQuery query, IEventHandler listener);
+    }
+    public interface IEventHandler
+    {
+        public Task Handle(IEventSource source, IReadOnlyFormulaCollection @event, IReadOnlyFormulaCollection data);
     }
 }
 
