@@ -290,6 +290,11 @@ namespace Nifty.Events
     }
 }
 
+namespace Nifty.Extensibility
+{
+    // architecture will support developing extensible add-ons and plugins
+}
+
 namespace Nifty.Knowledge
 {
     public interface IReadOnlyFormulaCollection : ISubstitute<IReadOnlyFormulaCollection> //, IEventSource, INotifyChanged
@@ -757,11 +762,6 @@ namespace Nifty.NaturalLanguage.Processing
     //public interface IOnlineNaturalLanguageParser : IObserver<IDictionary<string, float>>, IObservable<IDictionary<IUpdate, float>> { }
     public interface IOnlineNaturalLanguageParser : IObserver<IOrderedDictionary<string, float>>, IObservable<IOrderedDictionary<IUpdate, float>> { }
     // public interface IOnlineNaturalLanguageParser : System.Reactive.Subjects.ISubject<IOrderedDictionary<string, float>, IOrderedDictionary<IFormulaCollectionUpdate, float>> { }
-}
-
-namespace Nifty.Plugins
-{
-    // architecture will support extensible add-ons and plugins
 }
 
 namespace Nifty.Sessions
