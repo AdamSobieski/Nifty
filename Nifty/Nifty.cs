@@ -12,6 +12,7 @@ using Nifty.Knowledge.Reasoning;
 using Nifty.Knowledge.Schema;
 using Nifty.Knowledge.Updating;
 using Nifty.Logging;
+using Nifty.Messaging;
 using Nifty.Messaging.Events;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
@@ -252,6 +253,8 @@ namespace Nifty.Extensibility
 
     // see also: https://github.com/weikio/PluginFramework
     // see also: https://github.com/merken/Prise
+
+    // see also: https://stackoverflow.com/questions/835182/choosing-between-mef-and-maf-system-addin
 }
 
 namespace Nifty.Knowledge
@@ -856,7 +859,7 @@ namespace Nifty.Knowledge.Updating
 namespace Nifty.Logging
 {
     // see also: https://developer.mozilla.org/en-US/docs/Web/API/console
-    public interface ILog : ISessionInitializable, IEventHandler, ISessionDisposable
+    public interface ILog : ISessionInitializable, IMessageHandler, IEventHandler, ISessionDisposable
     {
         public void WriteLine(string format, params object?[]? args);
     }
