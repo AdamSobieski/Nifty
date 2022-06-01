@@ -352,6 +352,25 @@ namespace Nifty.Collections.Graphs
 
 namespace Nifty.Common
 {
+    public struct Literal
+    {
+        public Literal(string value, string? language, string? datatype)
+        {
+            this.value = value;
+            this.language = language;
+            this.datatype = datatype;
+        }
+
+        // the struct's data could be one string using RDF literal notation or other delimiters
+        private readonly string value;
+        private readonly string? language;
+        private readonly string? datatype;
+
+        public string Value { get { return value; } }
+        public string? Language { get { return language; } }
+        public string? Datatype { get { return datatype; } } // or is this IUri Datatype ?
+    }
+
     public interface IInitializable
     {
         public IDisposable Initialize();
@@ -544,10 +563,9 @@ namespace Nifty.Knowledge
         Any,
         Blank,
         Uri,
+        Box,
         Variable,
         Formula,
-        Box
-        // FormulaCollection
     }
     public interface ITerm : ISubstitute<ITerm>
     {
@@ -604,7 +622,7 @@ namespace Nifty.Knowledge
     public interface IBox : ITerm
     {
         public object Value { get; }
-        public BoxType BoxType { get; } // resembling System.TypeCode
+        public BoxType BoxType { get; } // resembling System.TypeCode, or is this Type Type { get; }
     }
     public enum BoxType
     {
@@ -626,25 +644,8 @@ namespace Nifty.Knowledge
         Decimal = 0xF,
         DateTime = 0x10,
         String = 18,
-        Literal = 19
-    }
-    public struct Literal
-    {
-        public Literal(string value, string? language, string? datatype)
-        {
-            this.value = value;
-            this.language = language;
-            this.datatype = datatype;
-        }
-
-        // the struct's data could be one string using RDF literal notation or other delimiters
-        private readonly string value;
-        private readonly string? language;
-        private readonly string? datatype;
-
-        public string Value { get { return value; } }
-        public string? Language { get { return language; } }
-        public string? Datatype { get { return datatype; } } // or is this IUri Datatype ?
+        Literal = 19, // Nifty.Commons.Literal
+        FormulaCollection = 20
     }
 
     public interface IFormula : ITerm
