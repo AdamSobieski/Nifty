@@ -543,18 +543,23 @@ namespace Nifty.Knowledge.Querying
         // these methods build queries before they are concluded into one of four query types
         public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
         {
-            // considering something like:
+            // considering constraints as special formulas in query formula collections which describe relationships between variables instead of as occurring in metadata or elsewhere
+            // this means that formulas for constraints are extensible and a topic for query schema which will also be extensible
+
+            // something like:
 
             //if (query.GetComposition(out ITerm? qc)
             //    && pattern.GetComposition(out ITerm? pc)
             //    && query.GetSchema(out IReadOnlySchema? qs)
             //    && query.GetMetadata(out IReadOnlyFormulaCollection? qm)
             //    && qm.GetSchema(out IReadOnlySchema? qms)
-            //    && pattern.GetMetadata(out IReadOnlyFormulaCollection? pm))
+            //    && pattern.GetMetadata(out IReadOnlyFormulaCollection? pm)
+            //    && query.GetConstraints(out IEnumerable<IFormula>? qconstraints)
+            //    && pattern.GetConstraints(out IEnumerable<IFormula>? pconstraints))
             //{
             //    ITerm nid = Factory.Blank();
-            //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery) }, qms).Merge(qm).Merge(pm); // merge metadata from query and pattern into new query...
-            //    IQuery nq = Factory.Query(new IFormula[] { Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }, nid, nm, qs);
+            //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery) }, qms).Merge(qm).Merge(pm);
+            //    IQuery nq = Factory.Query(new IFormula[] { Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }.Concat(qconstraints).Concat(pconstraints), nid, nm, qs);
 
             //    if (!nq.IsValid) throw new Exception();
 
@@ -775,7 +780,7 @@ namespace Nifty.Knowledge.Reasoning
 
     // formula evaluation
     // the default evaluator will evaluate the builtin predicates, resembling expression trees and lambda.
-    // in addition to reasoners, this is a topic for extensiblity, extensible evaluatable vocabulary
+    // in addition to reasoners, these are topics for extensiblity, extensible default formula schema and extensible evaluatable vocabulary
     public interface IFormulaEvaluator
     {
 

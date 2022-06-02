@@ -83,7 +83,7 @@ and asserting that nested formulas, e.g., constraints on variables, evaluate to 
 @prefix example: <http://example.com/>.
 @prefix builtin: <http://www.builtin.com/>.
 
-builtin:holds(example:f(1, 2, 3)).
+builtin:holds(builtin:greaterThan(?x, ?y)).
 ```
 
 
