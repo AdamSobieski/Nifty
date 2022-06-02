@@ -249,7 +249,7 @@ namespace Nifty.Dialogue
 
 namespace Nifty.Extensibility
 {
-    // the Nifty architecture will support developing extensible add-ons and plugins
+    // the Nifty architecture will support developing add-ons, plugins, and extensions
 
     // see also: https://github.com/weikio/PluginFramework
     // see also: https://github.com/merken/Prise
@@ -549,7 +549,7 @@ namespace Nifty.Knowledge.Querying
             //    && pattern.GetMetadata(out IReadOnlyFormulaCollection? pm))
             //{
             //    ITerm nid = Factory.Blank();
-            //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery) }.Concat(qm.AsEnumerable()).Concat(pm.AsEnumerable()), qms); // merge metadata from query and pattern into new query...
+            //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery) }, qms).Merge(qm).Merge(pm); // merge metadata from query and pattern into new query...
             //    IQuery nq = Factory.Query(new IFormula[] { Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }, nid, nm, qs);
 
             //    if (!nq.IsValid) throw new Exception();
@@ -1543,7 +1543,7 @@ namespace Nifty
 
         // ...
 
-        // would using lambda be benefitted by extending IFormula, e.g., ILambdaFormula : IFormula ?
+        // would using lambdas be benefitted by extending IFormula, e.g., ILambdaFormula : IFormula ?
         public static IFormula Lambda(ITerm body, params IVariable[]? parameters)
         {
             throw new NotImplementedException();
