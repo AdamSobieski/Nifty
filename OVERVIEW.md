@@ -57,7 +57,9 @@ IReadOnlyFormulaCollection knowledgeGraph = Factory.ReadOnlyKnowledgeGraph(...);
 
 Benefits of this n-ary, URI-based approach include both its expressiveness and modularity.
 
-With respect to its expressiveness, in addition to being able to express ternary and higher arity formulas, this approach can express unary formulas. Developers could, for example, more easily quote nested formulas.
+With respect to its expressiveness, in addition to being able to express ternary and higher arity formulas, this approach can express unary formulas.
+
+Uses of unary formulas include, but are not limited to: quoting nested formulas,
 
 ```
 @prefix example: <http://example.com/>.
@@ -65,6 +67,26 @@ With respect to its expressiveness, in addition to being able to express ternary
 
 builtin:quote(example:f(1, 2, 3)).
 ```
+
+evaluating nested formulas,
+
+```
+@prefix example: <http://example.com/>.
+@prefix builtin: <http://www.builtin.com/>.
+
+builtin:evaluate(example:f(1, 2, 3)).
+```
+
+and asserting that nested formulas, e.g., constraints on variables, evaluate to true
+
+```
+@prefix example: <http://example.com/>.
+@prefix builtin: <http://www.builtin.com/>.
+
+builtin:holds(example:f(1, 2, 3)).
+```
+
+
 
 ### Querying
 

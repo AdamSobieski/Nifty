@@ -266,13 +266,14 @@ namespace Nifty.Knowledge
         public bool IsGround { get; }
         public bool IsInferred { get; }
         public bool IsValid { get; }
+        public bool IsEmpty { get; }
         public bool IsGraph { get; }
         public bool IsEnumerable { get; }
 
         public bool HasSchema { get; } // IHasReadOnlySchema
         public bool HasIdentifier { get; } // IHasReadOnlyIdentifier
         public bool HasMetadata { get; } // IHasReadOnlyMetadata
-        public bool HasConstraints { get; } // IHasReadOnlyConstraints
+        // public bool HasConstraints { get; } // IHasReadOnlyConstraints
         //...
 
         public bool Contains(IFormula formula);
@@ -406,9 +407,10 @@ namespace Nifty.Knowledge
     {
         public IReadOnlyList<IVariable> GetVariables();
     }
-    public interface ISubstitute<out T> : IHasVariables
+    public interface ISubstitute<T> : IHasVariables
     {
-        public T Substitute(IReadOnlyDictionary<IVariable, ITerm> map);
+        public bool CanSubstitute(IReadOnlyDictionary<IVariable, ITerm> map);
+        public bool Substitute(IReadOnlyDictionary<IVariable, ITerm> map, out T? result);
     }
 
     public interface IHasReadOnlyIdentifier
@@ -425,20 +427,20 @@ namespace Nifty.Knowledge
         public new IFormulaCollection About { get; }
     }
 
-    public interface IHasReadOnlyConstraints
-    {
-        // constraints can be added to sets of formulas, typically those sets with variables, e.g., using Filter()
-        // and/or is this part of the metadata from IHasReadOnlyMetadata
-        // should all formula collections have this or should there be a property 'HasConstraints'?
-        // might these be formulas or metadata formulas, e.g., builtin:holds(identifier, constraint_1)
-        // public IReadOnlyFormulaCollection Constraints { get; }
+    //public interface IHasReadOnlyConstraints
+    //{
+    //    // constraints can be added to sets of formulas, typically those sets with variables, e.g., using Filter()
+    //    // and/or is this part of the metadata from IHasReadOnlyMetadata
+    //    // should all formula collections have this or should there be a property 'HasConstraints'?
+    //    // might these be formulas or metadata formulas, e.g., builtin:holds(identifier, constraint_1)
+    //    // public IReadOnlyFormulaCollection Constraints { get; }
 
-        public IReadOnlyFormulaCollection Constraints { get; }
-    }
-    public interface IHasConstraints : IHasReadOnlyConstraints
-    {
-        public new IFormulaCollection Constraints { get; }
-    }
+    //    public IReadOnlyFormulaCollection Constraints { get; }
+    //}
+    //public interface IHasConstraints : IHasReadOnlyConstraints
+    //{
+    //    public new IFormulaCollection Constraints { get; }
+    //}
 
     public interface ITermVisitor
     {
@@ -678,10 +680,6 @@ namespace Nifty.Knowledge.Querying
             throw new ArgumentException("Argument is neither indexed nor enumerable.", nameof(formulas));
         }
 
-        internal static IEnumerable<IFormula> AsEnumerable(this IReadOnlyFormulaCollection formulas)
-        {
-            throw new NotImplementedException();
-        }
         internal static bool GetSchema(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlySchema? schema)
         {
             if (formulas.HasSchema && formulas is IHasReadOnlySchema hasSchema)
@@ -744,18 +742,9 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-        internal static bool GetConstraints(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? constraints)
+        internal static bool GetConstraints(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IEnumerable<IFormula>? constraints)
         {
-            if (formulas.HasConstraints && formulas is IHasReadOnlyConstraints hasConstraints)
-            {
-                constraints = hasConstraints.Constraints;
-                return true;
-            }
-            else
-            {
-                constraints = Factory.EmptyCollection;
-                return true;
-            }
+            throw new NotImplementedException();
         }
     }
 }
