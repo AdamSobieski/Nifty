@@ -452,6 +452,8 @@ namespace Nifty.Knowledge
         public object Visit(IFormula formula);
     }
 
+
+
     public interface IKnowledgebase : IFormulaCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
 }
 
@@ -767,6 +769,14 @@ namespace Nifty.Knowledge.Reasoning
     }
 
     public interface IDerivation
+    {
+
+    }
+
+    // formula evaluation
+    // the default evaluator will evaluate the builtin predicates, resembling expression trees and lambda.
+    // in addition to reasoners, this is a topic for extensiblity, extensible evaluatable vocabulary
+    public interface IFormulaEvaluator
     {
 
     }
