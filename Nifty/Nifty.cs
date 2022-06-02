@@ -541,10 +541,15 @@ namespace Nifty.Knowledge.Querying
         {
             // considering something like:
 
-            //if (query.TryGetComposition(out ITerm? qc) && pattern.TryGetComposition(out ITerm? pc) && query.TryGetSchema(out IReadOnlySchema? qs) && query.TryGetMetadata(out IReadOnlyFormulaCollection? qm) && qm.TryGetSchema(out IReadOnlySchema? qms))
+            //if (query.GetComposition(out ITerm? qc)
+            //    && pattern.GetComposition(out ITerm? pc)
+            //    && query.GetSchema(out IReadOnlySchema? qs)
+            //    && query.GetMetadata(out IReadOnlyFormulaCollection? qm)
+            //    && qm.GetSchema(out IReadOnlySchema? qms)
+            //    && pattern.GetMetadata(out IReadOnlyFormulaCollection? pm))
             //{
             //    ITerm nid = Factory.Blank();
-            //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery) }, qms);
+            //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery) }.Concat(qm.AsEnumerable()).Concat(pm.AsEnumerable()), qms); // merge metadata from query and pattern into new query...
             //    IQuery nq = Factory.Query(new IFormula[] { Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }, nid, nm, qs);
 
             //    if (!nq.IsValid) throw new Exception();
@@ -673,7 +678,11 @@ namespace Nifty.Knowledge.Querying
             throw new ArgumentException("Argument is neither indexed nor enumerable.", nameof(formulas));
         }
 
-        internal static bool TryGetSchema(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlySchema? schema)
+        internal static IEnumerable<IFormula> AsEnumerable(this IReadOnlyFormulaCollection formulas)
+        {
+            throw new NotImplementedException();
+        }
+        internal static bool GetSchema(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlySchema? schema)
         {
             if (formulas.HasSchema && formulas is IHasReadOnlySchema hasSchema)
             {
@@ -682,11 +691,11 @@ namespace Nifty.Knowledge.Querying
             }
             else
             {
-                schema = null;
-                return false;
+                schema = Factory.EmptySchema;
+                return true;
             }
         }
-        internal static bool TryGetIdentifier(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? identifier)
+        internal static bool GetIdentifier(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? identifier)
         {
             if (formulas.HasIdentifier && formulas is IHasReadOnlyIdentifier hasIdentifier)
             {
@@ -695,11 +704,11 @@ namespace Nifty.Knowledge.Querying
             }
             else
             {
-                identifier = null;
-                return false;
+                identifier = Factory.Box(formulas);
+                return true;
             }
         }
-        internal static bool TryGetMetadata(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? metadata)
+        internal static bool GetMetadata(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? metadata)
         {
             if (formulas.HasMetadata && formulas is IHasReadOnlyMetadata hasMetadata)
             {
@@ -708,11 +717,11 @@ namespace Nifty.Knowledge.Querying
             }
             else
             {
-                metadata = null;
-                return false;
+                metadata = Factory.EmptyCollection;
+                return true;
             }
         }
-        internal static bool TryGetMetadata(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? identifier, [NotNullWhen(true)] out IReadOnlyFormulaCollection? metadata)
+        internal static bool GetMetadata(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? identifier, [NotNullWhen(true)] out IReadOnlyFormulaCollection? metadata)
         {
             if (formulas.HasMetadata && formulas is IHasReadOnlyMetadata hasMetadata)
             {
@@ -722,20 +731,20 @@ namespace Nifty.Knowledge.Querying
             }
             else
             {
-                identifier = null;
-                metadata = null;
-                return false;
+                identifier = Factory.Box(formulas);
+                metadata = Factory.EmptyCollection;
+                return true;
             }
         }
-        internal static bool TryGetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? composition)
+        internal static bool GetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? composition)
         {
             throw new NotImplementedException();
         }
-        internal static bool TryGetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? composition, [NotNullWhen(true)] out IEnumerable<IFormula>? rest)
+        internal static bool GetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? composition, [NotNullWhen(true)] out IEnumerable<IFormula>? rest)
         {
             throw new NotImplementedException();
         }
-        internal static bool TryGetConstraints(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? constraints)
+        internal static bool GetConstraints(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? constraints)
         {
             if (formulas.HasConstraints && formulas is IHasReadOnlyConstraints hasConstraints)
             {
@@ -744,8 +753,8 @@ namespace Nifty.Knowledge.Querying
             }
             else
             {
-                constraints = null;
-                return false;
+                constraints = Factory.EmptyCollection;
+                return true;
             }
         }
     }
@@ -1317,6 +1326,14 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
+
+        public static IReadOnlyFormulaCollection EmptyCollection
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
         public static IReadOnlySchema EmptySchema
         {
             get
