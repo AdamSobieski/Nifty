@@ -6,7 +6,7 @@ More content is coming soon.
 
 ## Extensibility
 
-The architecture of the Nifty project will provide developers with means of conveniently exploring new theories and rapidly prototyping adaptive instructional systems. Nifty will utilize the [Managed Extensibility Framework](https://en.wikipedia.org/wiki/Managed_Extensibility_Framework) to enable the development of interoperable components, addons and plugins.
+The architecture of the Nifty project will provide developers with means of conveniently exploring new theories and rapidly prototyping adaptive instructional systems. Nifty will utilize the Managed Extensibility Framework ([System.Composition](https://www.nuget.org/packages/System.Composition/)) to enable the development of interoperable components, addons, plugins, and extensions.
 
 ## Knowledge Representation and Reasoning
 
