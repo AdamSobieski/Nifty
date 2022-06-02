@@ -542,11 +542,11 @@ namespace Nifty.Knowledge.Querying
         {
             // considering something like:
 
-            //if (query.TryGetComposition(out ITerm? qc, out IEnumerable<IFormula>? qr) && pattern.TryGetComposition(out ITerm? pc) && query.TryGetSchema(out IReadOnlySchema? qs))
+            //if (query.TryGetComposition(out ITerm? qc) && pattern.TryGetComposition(out ITerm? pc) && query.TryGetSchema(out IReadOnlySchema? qs) && query.TryGetMetadata(out IReadOnlyFormulaCollection? qm) && qm.TryGetSchema(out IReadOnlySchema? qms))
             //{
             //    ITerm nid = Factory.Blank();
-            //    IReadOnlyFormulaCollection nmeta = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery) }, Factory.EmptySchema); // (1) this should use inference, (2) does it have a schema
-            //    IQuery nq = Factory.Query(new IFormula[] { Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }.Concat(qr), nid, nmeta, qs);
+            //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery) }, qms); // (1) this should use inference
+            //    IQuery nq = Factory.Query(new IFormula[] { Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }, nid, nm, qs);
 
             //    if (!nq.IsValid) throw new Exception();
 
@@ -697,6 +697,19 @@ namespace Nifty.Knowledge.Querying
             else
             {
                 identifier = null;
+                return false;
+            }
+        }
+        internal static bool TryGetMetadata(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? metadata)
+        {
+            if (formulas.HasMetadata && formulas is IHasReadOnlyMetadata hasMetadata)
+            {
+                metadata = hasMetadata.About;
+                return true;
+            }
+            else
+            {
+                metadata = null;
                 return false;
             }
         }
