@@ -543,9 +543,6 @@ namespace Nifty.Knowledge.Querying
         // these methods build queries before they are concluded into one of four query types
         public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
         {
-            // considering constraints as special formulas in query formula collections which describe relationships between variables instead of as occurring in metadata or elsewhere
-            // this means that formulas for constraints are extensible and a topic for query schema which will also be extensible
-
             // something like:
 
             //if (query.GetComposition(out ITerm? qc)
@@ -553,13 +550,11 @@ namespace Nifty.Knowledge.Querying
             //    && query.GetSchema(out IReadOnlySchema? qs)
             //    && query.GetMetadata(out IReadOnlyFormulaCollection? qm)
             //    && qm.GetSchema(out IReadOnlySchema? qms)
-            //    && pattern.GetMetadata(out IReadOnlyFormulaCollection? pm)
-            //    && query.GetConstraints(out IEnumerable<IFormula>? qconstraints)
-            //    && pattern.GetConstraints(out IEnumerable<IFormula>? pconstraints))
+            //    && pattern.GetMetadata(out IReadOnlyFormulaCollection? pm))
             //{
             //    ITerm nid = Factory.Blank();
             //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery) }, qms).Merge(qm).Merge(pm);
-            //    IQuery nq = Factory.Query(new IFormula[] { Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }.Concat(qconstraints).Concat(pconstraints), nid, nm, qs);
+            //    IQuery nq = Factory.Query(new IFormula[] { Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }, nid, nm, qs);
 
             //    if (!nq.IsValid) throw new Exception();
 
