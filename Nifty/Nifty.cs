@@ -471,7 +471,6 @@ namespace Nifty.Knowledge.Querying
 
     public interface IQuery : IReadOnlyFormulaCollection
     {
-        // might this be an extension method which utilizes the formula collection's metadata?
         public QueryType QueryType { get; }
     }
 
@@ -545,7 +544,7 @@ namespace Nifty.Knowledge.Querying
             //if (query.TryGetComposition(out ITerm? qc) && pattern.TryGetComposition(out ITerm? pc) && query.TryGetSchema(out IReadOnlySchema? qs) && query.TryGetMetadata(out IReadOnlyFormulaCollection? qm) && qm.TryGetSchema(out IReadOnlySchema? qms))
             //{
             //    ITerm nid = Factory.Blank();
-            //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery) }, qms); // (1) this should use inference
+            //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery) }, qms);
             //    IQuery nq = Factory.Query(new IFormula[] { Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }, nid, nm, qs);
 
             //    if (!nq.IsValid) throw new Exception();
