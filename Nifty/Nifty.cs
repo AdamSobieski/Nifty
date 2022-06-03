@@ -393,7 +393,7 @@ namespace Nifty.Knowledge
 
     public interface IHasVariables
     {
-        public IReadOnlyList<IVariable> GetVariables();
+        public IReadOnlyList<IVariable> Variables { get; }
     }
     public interface ISubstitute<T> : IHasVariables
     {
@@ -611,8 +611,8 @@ namespace Nifty.Knowledge.Building
 
         public bool Add(IFormula formula);
 
-        public void SetMetadata(IReadOnlyFormulaCollection metadata);
-        public void SetSchema(IReadOnlySchema schema);
+        //public void SetMetadata(IReadOnlyFormulaCollection metadata);
+        //public void SetSchema(IReadOnlySchema schema);
 
         public IReadOnlyFormulaCollection Build(bool isReadOnly = true); // perhaps other parameters
     }
@@ -630,6 +630,27 @@ namespace Nifty.Knowledge.Building
 
 namespace Nifty.Knowledge.Querying
 {
+    // "Fluent N-ary SPARQL"
+    // version 0.2
+    // 
+    // the expressiveness for querying formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
+    // see also: https://www.w3.org/2001/sw/DataAccess/rq23/examples.html
+    //
+    // to do: https://www.w3.org/TR/sparql11-query/#subqueries
+    //
+    // example syntax:
+    //
+    // IReadOnlyFormulaCollection formulas = ...;
+    //
+    // IAskQuery askQuery = Factory.Query().Where(...).Ask();
+    // bool result = formulas.Query(askQuery);
+    //
+    // ISelectQuery selectQuery = Factory.Query().Where(...).Select(...);
+    // foreach(var result in formulas.Query(selectQuery))
+    // {
+    //     ...
+    // }
+
     public enum QueryType
     {
         None,
@@ -665,29 +686,8 @@ namespace Nifty.Knowledge.Querying
     }
 
 
-    public static partial class Query
+    public static class Query
     {
-        // "Fluent N-ary SPARQL"
-        // version 0.2
-        // 
-        // the expressiveness for querying formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
-        //
-        // to do: https://www.w3.org/TR/sparql11-query/#subqueries
-        //
-        // example syntax:
-        //
-        // IReadOnlyFormulaCollection formulas = ...;
-        //
-        // IAskQuery askQuery = Factory.Query().Where(...).Ask();
-        // bool result = formulas.Query(askQuery);
-        //
-        // ISelectQuery selectQuery = Factory.Query().Where(...).Select(...);
-        // foreach(var result in formulas.Query(selectQuery))
-        // {
-        //     ...
-        // }
-
-
         // these conclude a query into one of the four query types
         public static IAskQuery Ask(this IQuery query)
         {
@@ -712,19 +712,20 @@ namespace Nifty.Knowledge.Querying
         {
             // something like:
             //
-            // if (query.GetComposition(out ITerm? qc) && pattern.GetComposition(out ITerm? pc))
-            // {
-            //     var builder = Factory.QueryBuilder(query.Schema, query.About.Schema);
-            //
-            //     builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.WhereQuery));
-            //     builder.About.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Querying.where, qc, pc)));
-            //
-            //     var result = builder.Build();
-            //     if (!result.About.IsValid) throw new Exception();
-            //
-            //     return result;
-            // }
-            // throw new Exception();
+            //if (query.GetComposition(out ITerm? qc) && pattern.GetComposition(out ITerm? pc))
+            //{
+            //    var builder = Factory.QueryBuilder(query.Schema, query.About.Schema);
+
+            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.Query));
+            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.WhereQuery));
+            //    builder.About.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Querying.where, qc, pc)));
+
+            //    var result = builder.Build();
+            //    if (!result.About.IsValid) throw new Exception();
+
+            //    return result;
+            //}
+            //throw new Exception();
 
             throw new NotImplementedException();
         }
@@ -792,6 +793,7 @@ namespace Nifty.Knowledge.Querying
             //{
             //    var builder = Factory.FormulaCollectionBuilder(); // ? there should be builtin schema to use here
             //
+            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.Expression));
             //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.UnionExpression));
             //    builder.About.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Composition.union, fc, oc)));
             //
@@ -832,6 +834,7 @@ namespace Nifty.Knowledge.Querying
             //
             //    var qe = Factory.Formula(Keys.quote, expression);
             //
+            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.Expression));
             //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.FilterExpression));
             //    builder.About.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Composition.filter, fc, qe)));
             //    builder.About.Add(Factory.Formula(Keys.Constraints.hasConstraint, builder.Id, qe));
@@ -859,11 +862,7 @@ namespace Nifty.Knowledge.Querying
 
 
         // returns a set of formulas which describes another set of formulas, e.g., using reification
-        public static (ITerm Identifier, IReadOnlyFormulaCollection About) About(this IReadOnlyFormulaCollection formulas)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection About(this IReadOnlyFormulaCollection formulas, ITerm identifier)
+        public static IReadOnlyFormulaCollection About(this IReadOnlyFormulaCollection formulas)
         {
             throw new NotImplementedException();
         }
@@ -908,6 +907,11 @@ namespace Nifty.Knowledge.Querying
             // search for the predicate 'hasConstraint' in metadata and then unquote the quoted formula
             throw new NotImplementedException();
         }
+    }
+
+    public static class Composition
+    {
+
     }
 }
 
@@ -1673,6 +1677,7 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
+
         public static IFormulaCollectionBuilder FormulaCollectionBuilder(IReadOnlySchema schema, IReadOnlySchema metadataSchema)
         {
             throw new NotImplementedException();
