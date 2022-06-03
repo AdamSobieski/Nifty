@@ -562,6 +562,25 @@ namespace Nifty.Knowledge.Querying
             //}
             //throw new Exception();
 
+            // or, considering the possibility that the constructed queries are, except for constraints, expressed in the metadata space, something like:
+
+            //if (query.GetComposition(out ITerm? qc)
+            //    && pattern.GetComposition(out ITerm? pc)
+            //    && query.GetSchema(out IReadOnlySchema? qs)
+            //    && query.GetMetadata(out IReadOnlyFormulaCollection? qm)
+            //    && qm.GetSchema(out IReadOnlySchema? qms)
+            //    && pattern.GetMetadata(out IReadOnlyFormulaCollection? pm))
+            //{
+            //    ITerm nid = Factory.Blank();
+            //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery), Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }, qms);
+            //    IQuery nq = Factory.Query(Enumerable.Empty<IFormula>(), nid, nm, qs);
+
+            //    if (!nq.IsValid) throw new Exception();
+
+            //    return nq;
+            //}
+            //throw new Exception();
+
             throw new NotImplementedException();
         }
         public static IQuery GroupBy(this IQuery query, IVariable variable)
@@ -778,7 +797,7 @@ namespace Nifty.Knowledge.Reasoning
     // in addition to reasoners, these are topics for extensiblity, extensible default formula schema and extensible evaluatable vocabulary
     public interface IFormulaEvaluator
     {
-
+        public bool Evaluate(IFormula formula, [NotNullWhen(true)] out ITerm? evaluation);
     }
 }
 
