@@ -425,19 +425,190 @@ namespace Nifty.Knowledge
 
 namespace Nifty.Knowledge.Building
 {
+    // implementations can implement formula collection interfaces and formula collection builder interfaces, resembling something like:
+
+    //internal class FormulaCollectionImplementation : IFormulaCollection, IFormulaCollectionBuilder, IEnumerable<IFormula>
+    //{
+    //    public FormulaCollectionImplementation()
+    //    {
+    //        m_isBuilt = false;
+    //        m_isReadOnly = false;
+    //        m_isValid = null;
+    //        m_isGround = null;
+
+    //        m_id = Factory.Box(this); // a rationale for the *Builder interfaces is that, with *Builder, developers can easily have the formula collection's id be Factory.Box(this) instead of Factory.Blank()
+    //        m_formulas = new(0);
+
+    //        m_metadata = null;
+    //        m_schema = null;
+    //    }
+
+    //    ITerm m_id;
+    //    bool m_isBuilt;
+    //    bool m_isReadOnly;
+    //    bool? m_isValid;
+    //    bool? m_isGround;
+
+    //    HashSet<IFormula> m_formulas;
+    //    IReadOnlyFormulaCollection? m_metadata;
+    //    IReadOnlySchema? m_schema;
+
+    //    public ITerm Id
+    //    {
+    //        get
+    //        {
+    //            return m_id;
+    //        }
+    //    }
+
+    //    bool IFormulaCollectionBuilder.IsBuilt => m_isBuilt;
+
+    //    public bool IsReadOnly => m_isReadOnly;
+    //    public bool IsGround
+    //    {
+    //        get
+    //        {
+    //            bool? r;
+
+    //            if (m_isReadOnly)
+    //            {
+    //                if (m_isGround == null)
+    //                {
+    //                    m_isGround = m_formulas.All(f => f.IsGround);
+    //                }
+    //                r = m_isGround ?? throw new Exception();
+    //            }
+    //            else
+    //            {
+    //                r = m_formulas.All(f => f.IsGround);
+    //            }
+
+    //            return (bool)r;
+    //        }
+    //    }
+    //    public bool IsInferred => false;
+    //    public bool IsValid
+    //    {
+    //        get
+    //        {
+    //            bool? r;
+
+    //            if (m_isReadOnly)
+    //            {
+    //                if (m_isValid == null)
+    //                {
+    //                    m_isValid = m_schema?.Validate(this).Result;
+    //                }
+    //                r = m_isValid ?? throw new Exception();
+    //            }
+    //            else
+    //            {
+    //                r = m_schema?.Validate(this).Result ?? throw new Exception();
+    //            }
+    //            return (bool)r;
+    //        }
+    //    }
+    //    public bool IsEmpty => m_formulas.Count == 0;
+    //    public bool IsGraph => false;
+    //    public bool IsEnumerable => true;
+
+    //    IFormulaCollectionBuilder IFormulaCollectionBuilder.About
+    //    {
+    //        get
+    //        {
+    //            if (m_isBuilt) throw new InvalidOperationException();
+    //            if (m_metadata == null) m_metadata = new FormulaCollectionImplementation();
+    //            return m_metadata as IFormulaCollectionBuilder ?? throw new Exception();
+    //        }
+    //    }
+
+    //    ISchemaBuilder IFormulaCollectionBuilder.Schema
+    //    {
+    //        get
+    //        {
+    //            if (m_isBuilt) throw new InvalidOperationException();
+    //            if (m_schema == null) m_schema = new SchemaImplementation();
+    //            return m_schema as ISchemaBuilder ?? throw new Exception();
+    //        }
+    //    }
+
+    //    bool IFormulaCollectionBuilder.Add(IFormula formula)
+    //    {
+    //        if (m_isBuilt) throw new InvalidOperationException();
+    //        return m_formulas.Add(formula);
+    //    }
+    //    bool IFormulaCollection.Add(IFormula formula)
+    //    {
+    //        if (m_isReadOnly) throw new InvalidOperationException();
+    //        return m_formulas.Add(formula);
+    //    }
+
+    //    void IFormulaCollectionBuilder.SetMetadata(IReadOnlyFormulaCollection metadata)
+    //    {
+    //        if (m_isBuilt) throw new InvalidOperationException();
+    //        if (m_metadata != null) throw new InvalidOperationException();
+    //        m_metadata = metadata;
+    //    }
+    //    void IFormulaCollectionBuilder.SetSchema(IReadOnlySchema schema)
+    //    {
+    //        if (m_isBuilt) throw new InvalidOperationException();
+    //        if (m_schema != null) throw new InvalidOperationException();
+    //        m_schema = schema;
+    //    }
+
+    //    IReadOnlyFormulaCollection IFormulaCollectionBuilder.Build(bool isReadOnly)
+    //    {
+    //        if (m_isBuilt) throw new InvalidOperationException();
+
+    //        if (m_metadata is IFormulaCollectionBuilder mb && !mb.IsBuilt)
+    //        {
+    //            m_metadata = mb.Build(isReadOnly);
+    //        }
+    //        else if (m_metadata == null)
+    //        {
+    //            m_metadata = Factory.EmptyFormulaCollection;
+    //        }
+
+    //        if (m_schema is ISchemaBuilder sb && !sb.IsBuilt)
+    //        {
+    //            m_schema = sb.Build(isReadOnly);
+    //        }
+    //        else if (m_schema == null)
+    //        {
+    //            m_schema = Factory.EmptySchema;
+    //        }
+
+    //        m_isReadOnly = isReadOnly;
+    //        m_isBuilt = true;
+
+    //        return this;
+    //    }
+
+    //    public IEnumerator<IFormula> GetEnumerator()
+    //    {
+    //        return m_formulas.GetEnumerator();
+    //    }
+    //    IEnumerator IEnumerable.GetEnumerator()
+    //    {
+    //        return GetEnumerator();
+    //    }
+    //}
+
     public interface IFormulaCollectionBuilder
     {
         public ITerm Id { get; }
+
+        public bool IsBuilt { get; }
 
         public IFormulaCollectionBuilder About { get; }
         public ISchemaBuilder Schema { get; }
 
         public bool Add(IFormula formula);
-        
+
         public void SetMetadata(IReadOnlyFormulaCollection metadata);
         public void SetSchema(IReadOnlySchema schema);
 
-        public IReadOnlyFormulaCollection Build(bool isReadOnly = true); // and other parameters
+        public IReadOnlyFormulaCollection Build(bool isReadOnly = true); // perhaps other parameters
     }
 
     public interface ISchemaBuilder : IFormulaCollectionBuilder
