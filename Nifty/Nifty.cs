@@ -21,7 +21,7 @@ using System.Xml;
 
 namespace Nifty.Activities
 {
-    public interface IActivityGeneratorStore : IHasReadOnlyMetadata, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    public interface IActivityGeneratorStore : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable { }
     public interface IActivityGenerator : IHasReadOnlyMetadata
     {
         // public IAskQuery Preconditions { get; }
@@ -243,7 +243,7 @@ namespace Nifty.Extensibility
     // see also: https://github.com/merken/Prise
 
     // see also: https://stackoverflow.com/questions/835182/choosing-between-mef-and-maf-system-addin
-    // note: if MEF, see: System.Composition (https://www.nuget.org/packages/System.Composition/)
+    // see also: System.Composition (https://www.nuget.org/packages/System.Composition/)
 }
 
 namespace Nifty.Knowledge
@@ -254,9 +254,9 @@ namespace Nifty.Knowledge
         public bool IsGround { get; }
         public bool IsInferred { get; }
         public bool IsValid { get; }
-        public bool IsEmpty { get; }
         public bool IsGraph { get; }
         public bool IsEnumerable { get; }
+        //public bool IsEmpty { get; }
 
         public bool Contains(IFormula formula);
 
@@ -425,7 +425,7 @@ namespace Nifty.Knowledge
 
 namespace Nifty.Knowledge.Building
 {
-    // implementations can implement formula collection interfaces and formula collection builder interfaces, resembling something like:
+    // for efficiency, implementations could implement both formula collection interfaces and formula collection builder interfaces, resembling something like:
 
     //internal class FormulaCollectionImplementation : IFormulaCollection, IFormulaCollectionBuilder, IEnumerable<IFormula>
     //{
@@ -437,6 +437,7 @@ namespace Nifty.Knowledge.Building
     //        m_isGround = null;
 
     //        m_id = Factory.Box(this); // a rationale for the *Builder interfaces is that, with *Builder, developers can easily have the formula collection's id be Factory.Box(this) instead of Factory.Blank()
+    //                                  // Factory.Box(this) resembles Expression.Constant(this)
     //        m_formulas = new(0);
 
     //        m_metadata = null;
@@ -702,85 +703,17 @@ namespace Nifty.Knowledge.Querying
         // these methods build queries before they are concluded into one of four query types
         public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
         {
-            // something like:
-
-            // option 1
-            // --------
-            //if (query.GetComposition(out ITerm? qc)
-            //    && pattern.GetComposition(out ITerm? pc)
-            //    && query.GetSchema(out IReadOnlySchema? qs)
-            //    && query.GetMetadata(out IReadOnlyFormulaCollection? qm)
-            //    && qm.GetSchema(out IReadOnlySchema? qms)
-            //    && pattern.GetMetadata(out IReadOnlyFormulaCollection? pm))
-            //{
-            //    ITerm nid = Factory.Blank();
-            //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery) }, qms).Merge(qm).Merge(pm);
-            //    IQuery nq = Factory.Query(new IFormula[] { Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }, nid, nm, qs);
-
-            //    if (!nq.IsValid) throw new Exception();
-
-            //    return nq;
-            //}
-            //throw new Exception();
-
-            // option 2
-            // --------
-            // or, considering the possibility that the constructed queries are, except for constraints, expressed in the metadata space, something like:
-            //if (query.GetComposition(out ITerm? qc)
-            //    && pattern.GetComposition(out ITerm? pc)
-            //    && query.GetSchema(out IReadOnlySchema? qs)
-            //    && query.GetMetadata(out IReadOnlyFormulaCollection? qm)
-            //    && qm.GetSchema(out IReadOnlySchema? qms)
-            //    && pattern.GetMetadata(out IReadOnlyFormulaCollection? pm))
-            //{
-            //    ITerm nid = Factory.Blank();
-            //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery), Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }, qms);
-            //    IQuery nq = Factory.Query(Enumerable.Empty<IFormula>(), nid, nm, qs);
-
-            //    challenge: what is desired is to have nid = Factory.Box(nq) but nq is not created yet... could create an adapter for this purpose which interfaces as IBox, Factory.BoxAdapter(...) but that seems inelegant
-
-            //    if (!nq.IsValid) throw new Exception();
-
-            //    return nq;
-            //}
-            //throw new Exception();
-
-            // option 3
-            // --------
-            // are query builders more readable and useful?
-            // advantages of builder-based approaches include:
-            // 1. easier utilization of Box() instead of Blank() for Id
-            // 2. usage of methods like Add() and AddFormula() from foreach scopes
-            // 3. creating extension methods on builder interfaces
-            //
-            //if (query.GetComposition(out ITerm? qc) && pattern.GetComposition(out ITerm? pc))
-            //{
-            //    var builder = Factory.QueryBuilder();
-            //
-            //    builder.SetSchema(query.Schema);
-            //    builder.SetMetadataSchema(query.About.Schema); // what about setting higher-order parameters
-            //
-            //    builder.AddMetadata(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.WhereQuery));  // here, builder.Id can be a Box() instead of a Blank()
-            //    builder.AddMetadata(Factory.Formula(Keys.Querying.hasComposition, builder.Id, Factory.Formula(Keys.Querying.where, qc, pc)));  // here, builder.Id can be a Box() instead of a Blank()
-            //
-            //    var n = builder.Build();
-            //    if (!n.IsValid) throw new Exception();
-            //    return n;
-            //}
-
-            // option 4
-            // --------
             // redesigned formula and query builders with recursion, formula builders on ::About and ::Schema, for arbitrarily higher-order structure
 
-            //if(query.GetComposition(out ITerm? qc) && pattern.GetComposition(out ITerm? pc))
+            //if (query.GetComposition(out ITerm? qc) && pattern.GetComposition(out ITerm? pc))
             //{
             //    var builder = Factory.QueryBuilder();
 
             //    builder.SetSchema(query.Schema);
             //    builder.About.SetSchema(query.About.Schema);
 
-            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.WhereQuery));  // here, builder.Id can be a Box() instead of a Blank()
-            //    builder.About.Add(Factory.Formula(Keys.Querying.hasComposition, builder.Id, Factory.Formula(Keys.Querying.where, qc, pc)));  // here, builder.Id can be a Box() instead of a Blank()
+            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.WhereQuery));
+            //    builder.About.Add(Factory.Formula(Keys.Querying.hasComposition, builder.Id, Factory.Formula(Keys.Querying.where, qc, pc)));
 
             //    var n = builder.Build();
             //    if (!n.IsValid) throw new Exception();
@@ -956,7 +889,6 @@ namespace Nifty.Knowledge.Schema
 
     public interface IReadOnlySchema : IReadOnlyFormulaCollection
     {
-        //public Task<bool> Validate(IFormula formula);
         public Task<bool> Validate(IReadOnlyFormulaCollection formulas);
     }
     public interface ISchema : IReadOnlySchema, IFormulaCollection { }
