@@ -393,7 +393,7 @@ namespace Nifty.Knowledge
     public interface ISubstitute<T> : IHasVariables
     {
         public bool CanSubstitute(IReadOnlyDictionary<IVariable, ITerm> map);
-        public bool Substitute(IReadOnlyDictionary<IVariable, ITerm> map, out T? result);
+        public bool Substitute(IReadOnlyDictionary<IVariable, ITerm> map, [NotNullWhen(true)] out T? result);
     }
 
     public interface IHasReadOnlyIdentifier
@@ -429,8 +429,6 @@ namespace Nifty.Knowledge.Building
     {
         public ITerm Id { get; }
 
-        public bool IsEmpty { get; }
-
         public IFormulaCollectionBuilder About { get; }
         public ISchemaBuilder Schema { get; }
 
@@ -442,14 +440,14 @@ namespace Nifty.Knowledge.Building
         public IReadOnlyFormulaCollection Build(bool isReadOnly = true); // and other parameters
     }
 
-    internal interface IQueryBuilder : IFormulaCollectionBuilder
-    {
-        public new IQuery Build(bool isReadOnly = true);
-    }
-
     public interface ISchemaBuilder : IFormulaCollectionBuilder
     {
         public new IReadOnlySchema Build(bool isReadOnly = true);
+    }
+
+    internal interface IQueryBuilder : IFormulaCollectionBuilder
+    {
+        public new IQuery Build(bool isReadOnly = true);
     }
 }
 
@@ -1322,7 +1320,7 @@ namespace Nifty
         }
 
 
-        public static IReadOnlyFormulaCollection EmptyCollection
+        public static IReadOnlyFormulaCollection EmptyFormulaCollection
         {
             get
             {
@@ -1433,6 +1431,10 @@ namespace Nifty
             throw new NotImplementedException();
         }
         public static IFormulaCollectionBuilder KnowledgeGraphBuilder()
+        {
+            throw new NotImplementedException();
+        }
+        public static ISchemaBuilder SchemaBuilder()
         {
             throw new NotImplementedException();
         }
