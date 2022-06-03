@@ -831,7 +831,7 @@ namespace Nifty.Knowledge.Updating
         /* Other? */
     }
 
-    public interface IUpdate // : IReadOnlyFormulaCollection, IHasComposition ?
+    public interface IUpdate // : IReadOnlyFormulaCollection
     {
         public UpdateType UpdateType { get; }
 
