@@ -16,13 +16,13 @@ The architecture of the Nifty project will provide developers with means of conv
 
 The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) supports building dialogue systems and chatbots which utilize multiple channels including: Microsoft Teams, Direct Line, Web Chat, Skype, Email, Facebook, Slack, Kik, Telegram, Line, GroupMe, Twilio (SMS), Alexa Skills, Google Actions, Google Hangouts, WebEx, WhatsApp (Infobip), Zoom, RingCentral, and Cortana. Accordingly, the Nifty project is exploring use of the Bot Framework for accelerating adaptive instruction systems research and development.
 
-A technical point of interest is the interoperation, coordination, and synchronization of dialogue systems with knowledge about educational items, exercises, and activities. With this interoperability, coordination, and synchronization, learners could engage in meaningful, contextual dialogues with adaptive instructional systems about those items, exercises, and activities that they are consuming.
+A technical point of interest is the interoperation, coordination, and synchronization of educational dialogue systems with content and knowledge about educational items, exercises, and activities. With this interoperability, coordination, and synchronization, learners could engage in meaningful, contextual dialogues with adaptive instructional systems about those items, exercises, and activities that they are consuming.
 
 
 
 ## Knowledge Representation and Reasoning
 
-### Formula Collections
+### Collections of Formulas
 
 Nifty intends to deliver to developers the benefits of multiple approaches to knowledge representation and reasoning. Its knowledge representation combines the best of [Prolog](https://en.wikipedia.org/wiki/Prolog) (and [Scheme](https://en.wikipedia.org/wiki/Scheme_(programming_language))) with the best of [Semantic Web](https://en.wikipedia.org/wiki/Semantic_Web) technologies.
 
