@@ -1368,6 +1368,8 @@ namespace Nifty
 
             public static class Types
             {
+                public static readonly IUri Expression = Factory.Uri("urn:builtin:Expression");
+
                 public static readonly IUri ExistsExpression = Factory.Uri("urn:builtin:ExistsExpression");
                 public static readonly IUri NotExistsExpression = Factory.Uri("urn:builtin:NotExistsExpression");
                 public static readonly IUri FilterExpression = Factory.Uri("urn:builtin:FilterExpression");
@@ -1401,6 +1403,8 @@ namespace Nifty
 
             public static class Types
             {
+                public static readonly IUri Query = Factory.Uri("urn:builtin:Query");
+
                 public static readonly IUri WhereQuery = Factory.Uri("urn:builtin:WhereQuery");
                 public static readonly IUri GroupByQuery = Factory.Uri("urn:builtin:GroupByQuery");
                 public static readonly IUri OrderByQuery = Factory.Uri("urn:builtin:OrderByQuery");
