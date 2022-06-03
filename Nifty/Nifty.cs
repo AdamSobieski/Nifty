@@ -62,7 +62,7 @@ namespace Nifty.Activities
 
 namespace Nifty.Algorithms
 {
-    public interface IAlgorithm : IHasReadOnlyMetadata, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable
+    public interface IAlgorithm : IHasReadOnlyMetadata, ISessionInitializable, ISessionOptimizable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable
     {
         public IAsyncEnumerator<IActivityGenerator> GetAsyncEnumerator(ISession session, CancellationToken cancellationToken);
     }
@@ -151,6 +151,12 @@ namespace Nifty.Common
     {
         public T Suspend();
         public void Resume(T state);
+    }
+
+    public interface ITransaction : IDisposable
+    {
+        public void Commit();
+        public void Rollback();
     }
 
     public static class Disposable
@@ -384,7 +390,7 @@ namespace Nifty.Knowledge
         public ITerm this[int index] { get; }
     }
 
-    // public interface ILambdaFormula : IFormula { }
+    public interface ILambdaFormula : IFormula { }
 
     public interface IHasVariables
     {
@@ -1236,15 +1242,6 @@ namespace Nifty.Sessions
     }
 }
 
-namespace Nifty.Transactions
-{
-    public interface ITransaction : IDisposable
-    {
-        public void Commit();
-        public void Rollback();
-    }
-}
-
 namespace Nifty
 {
     public static partial class Keys
@@ -1373,11 +1370,21 @@ namespace Nifty
         {
             public static readonly IUri where = Factory.Uri("urn:builtin:where");
             public static readonly IUri groupBy = Factory.Uri("urn:builtin:groupBy");
+            public static readonly IUri orderBy = Factory.Uri("urn:builtin:orderBy");
+            public static readonly IUri distinct = Factory.Uri("urn:builtin:distinct");
+            public static readonly IUri reduced = Factory.Uri("urn:builtin:reduced");
+            public static readonly IUri offset = Factory.Uri("urn:builtin:offset");
+            public static readonly IUri limit = Factory.Uri("urn:builtin:limit");
 
             public static class Types
             {
                 public static readonly IUri WhereQuery = Factory.Uri("urn:builtin:WhereQuery");
                 public static readonly IUri GroupByQuery = Factory.Uri("urn:builtin:GroupByQuery");
+                public static readonly IUri OrderByQuery = Factory.Uri("urn:builtin:OrderByQuery");
+                public static readonly IUri DistinctQuery = Factory.Uri("urn:builtin:DistinctQuery");
+                public static readonly IUri ReducedQuery = Factory.Uri("urn:builtin:ReducedQuery");
+                public static readonly IUri OffsetQuery = Factory.Uri("urn:builtin:OffsetQuery");
+                public static readonly IUri LimitQuery = Factory.Uri("urn:builtin:LimitQuery");
             }
         }
 
@@ -1770,7 +1777,7 @@ namespace Nifty
         // ...
 
         // would using lambdas be benefitted by extending IFormula, e.g., ILambdaFormula : IFormula ?
-        public static IFormula Lambda(ITerm body, params IVariable[]? parameters)
+        public static ILambdaFormula Lambda(ITerm body, params IVariable[]? parameters)
         {
             throw new NotImplementedException();
         }
