@@ -8,7 +8,15 @@ More content is coming soon.
 
 ## Extensibility
 
-The architecture of the Nifty project will provide developers with means of conveniently exploring new theories and rapidly prototyping adaptive instructional systems. Nifty will utilize the Managed Extensibility Framework ([System.Composition](https://www.nuget.org/packages/System.Composition/)) to enable the development of interoperable components, addons, plugins, and extensions.
+The architecture of the Nifty project will provide developers with means of conveniently exploring new theories and rapidly prototyping adaptive instructional systems. Nifty is exploring use of the Managed Extensibility Framework ([System.Composition](https://www.nuget.org/packages/System.Composition/)) to enable the development of interoperable components, add-ons, plug-ins, and extensions.
+
+
+
+## Bot Framework
+
+The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) supports building dialogue systems and chatbots which utilize multiple channels including: Microsoft Teams, Direct Line, Web Chat, Skype, Email, Facebook, Slack, Kik, Telegram, Line, GroupMe, Twilio (SMS), Alexa Skills, Google Actions, Google Hangouts, WebEx, WhatsApp (Infobip), Zoom, RingCentral, and Cortana. Accordingly, the Nifty project is exploring use of the Bot Framework for accelerating adaptive instruction systems research and development.
+
+A technical point of interest is the interoperation, coordination, and synchronization of dialogue systems with knowledge about educational items, exercises, and activities. With this interoperability, coordination, and synchronization, learners could engage in meaningful, contextual dialogues with adaptive instructional systems about those items, exercises, and activities that they are consuming.
 
 
 

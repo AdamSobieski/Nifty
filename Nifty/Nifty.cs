@@ -244,12 +244,6 @@ namespace Nifty.Dialogue
 namespace Nifty.Extensibility
 {
     // the Nifty architecture will support developing add-ons, plugins, and extensions
-
-    // see also: https://github.com/weikio/PluginFramework
-    // see also: https://github.com/merken/Prise
-
-    // see also: https://stackoverflow.com/questions/835182/choosing-between-mef-and-maf-system-addin
-    // see also: System.Composition (https://www.nuget.org/packages/System.Composition/)
 }
 
 namespace Nifty.Knowledge
