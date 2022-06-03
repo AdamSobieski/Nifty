@@ -1394,6 +1394,11 @@ namespace Nifty
             public static readonly IUri offset = Factory.Uri("urn:builtin:offset");
             public static readonly IUri limit = Factory.Uri("urn:builtin:limit");
 
+            public static readonly IUri ask = Factory.Uri("urn:builtin:ask");
+            public static readonly IUri select = Factory.Uri("urn:builtin:select");
+            public static readonly IUri construct = Factory.Uri("urn:builtin:construct");
+            public static readonly IUri describe = Factory.Uri("urn:builtin:describe");
+
             public static class Types
             {
                 public static readonly IUri WhereQuery = Factory.Uri("urn:builtin:WhereQuery");
@@ -1403,6 +1408,11 @@ namespace Nifty
                 public static readonly IUri ReducedQuery = Factory.Uri("urn:builtin:ReducedQuery");
                 public static readonly IUri OffsetQuery = Factory.Uri("urn:builtin:OffsetQuery");
                 public static readonly IUri LimitQuery = Factory.Uri("urn:builtin:LimitQuery");
+
+                public static readonly IUri AskQuery = Factory.Uri("urn:builtin:AskQuery");
+                public static readonly IUri SelectQuery = Factory.Uri("urn:builtin:SelectQuery");
+                public static readonly IUri ConstructQuery = Factory.Uri("urn:builtin:ConstructQuery");
+                public static readonly IUri DescribeQuery = Factory.Uri("urn:builtin:DescribeQuery");
             }
         }
 
