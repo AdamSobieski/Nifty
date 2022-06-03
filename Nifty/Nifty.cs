@@ -430,189 +430,11 @@ namespace Nifty.Knowledge
 
 namespace Nifty.Knowledge.Building
 {
-    // for efficiency, implementations could implement both formula collection interfaces and formula collection builder interfaces, resembling something like:
-
-    //internal class FormulaCollectionImplementation : IFormulaCollection, IFormulaCollectionBuilder, IEnumerable<IFormula>
-    //{
-    //    public FormulaCollectionImplementation()
-    //    {
-    //        m_isBuilt = false;
-    //        m_isReadOnly = false;
-    //        m_isValid = null;
-    //        m_isGround = null;
-
-    //        m_id = Factory.Box(this); // a rationale for the *Builder interfaces is that, with *Builder, developers can easily have the formula collection's id be Factory.Box(this) instead of Factory.Blank()
-    //                                  // Factory.Box(this) resembles Expression.Constant(this)
-    //        m_formulas = new(0);
-
-    //        m_metadata = null;
-    //        m_schema = null;
-    //    }
-
-    //    ITerm m_id;
-    //    bool m_isBuilt;
-    //    bool m_isReadOnly;
-    //    bool? m_isValid;
-    //    bool? m_isGround;
-
-    //    HashSet<IFormula> m_formulas;
-    //    IReadOnlyFormulaCollection? m_metadata;
-    //    IReadOnlySchema? m_schema;
-
-    //    public ITerm Id
-    //    {
-    //        get
-    //        {
-    //            return m_id;
-    //        }
-    //    }
-
-    //    bool IFormulaCollectionBuilder.IsBuilt => m_isBuilt;
-
-    //    public bool IsReadOnly => m_isReadOnly;
-    //    public bool IsGround
-    //    {
-    //        get
-    //        {
-    //            bool? r;
-
-    //            if (m_isReadOnly)
-    //            {
-    //                if (m_isGround == null)
-    //                {
-    //                    m_isGround = m_formulas.All(f => f.IsGround);
-    //                }
-    //                r = m_isGround ?? throw new Exception();
-    //            }
-    //            else
-    //            {
-    //                r = m_formulas.All(f => f.IsGround);
-    //            }
-
-    //            return (bool)r;
-    //        }
-    //    }
-    //    public bool IsInferred => false;
-    //    public bool IsValid
-    //    {
-    //        get
-    //        {
-    //            bool? r;
-
-    //            if (m_isReadOnly)
-    //            {
-    //                if (m_isValid == null)
-    //                {
-    //                    m_isValid = m_schema?.Validate(this).Result;
-    //                }
-    //                r = m_isValid ?? throw new Exception();
-    //            }
-    //            else
-    //            {
-    //                r = m_schema?.Validate(this).Result ?? throw new Exception();
-    //            }
-    //            return (bool)r;
-    //        }
-    //    }
-    //    public bool IsEmpty => m_formulas.Count == 0;
-    //    public bool IsGraph => false;
-    //    public bool IsEnumerable => true;
-
-    //    IFormulaCollectionBuilder IFormulaCollectionBuilder.About
-    //    {
-    //        get
-    //        {
-    //            if (m_isBuilt) throw new InvalidOperationException();
-    //            if (m_metadata == null) m_metadata = new FormulaCollectionImplementation();
-    //            return m_metadata as IFormulaCollectionBuilder ?? throw new Exception();
-    //        }
-    //    }
-
-    //    ISchemaBuilder IFormulaCollectionBuilder.Schema
-    //    {
-    //        get
-    //        {
-    //            if (m_isBuilt) throw new InvalidOperationException();
-    //            if (m_schema == null) m_schema = new SchemaImplementation();
-    //            return m_schema as ISchemaBuilder ?? throw new Exception();
-    //        }
-    //    }
-
-    //    bool IFormulaCollectionBuilder.Add(IFormula formula)
-    //    {
-    //        if (m_isBuilt) throw new InvalidOperationException();
-    //        return m_formulas.Add(formula);
-    //    }
-    //    bool IFormulaCollection.Add(IFormula formula)
-    //    {
-    //        if (m_isReadOnly) throw new InvalidOperationException();
-    //        return m_formulas.Add(formula);
-    //    }
-
-    //    void IFormulaCollectionBuilder.SetMetadata(IReadOnlyFormulaCollection metadata)
-    //    {
-    //        if (m_isBuilt) throw new InvalidOperationException();
-    //        if (m_metadata != null) throw new InvalidOperationException();
-    //        m_metadata = metadata;
-    //    }
-    //    void IFormulaCollectionBuilder.SetSchema(IReadOnlySchema schema)
-    //    {
-    //        if (m_isBuilt) throw new InvalidOperationException();
-    //        if (m_schema != null) throw new InvalidOperationException();
-    //        m_schema = schema;
-    //    }
-
-    //    IReadOnlyFormulaCollection IFormulaCollectionBuilder.Build(bool isReadOnly)
-    //    {
-    //        if (m_isBuilt) throw new InvalidOperationException();
-
-    //        if (m_metadata is IFormulaCollectionBuilder mb && !mb.IsBuilt)
-    //        {
-    //            m_metadata = mb.Build(isReadOnly);
-    //        }
-    //        else if (m_metadata == null)
-    //        {
-    //            m_metadata = Factory.EmptyFormulaCollection;
-    //        }
-
-    //        if (m_schema is ISchemaBuilder sb && !sb.IsBuilt)
-    //        {
-    //            m_schema = sb.Build(isReadOnly);
-    //        }
-    //        else if (m_schema == null)
-    //        {
-    //            m_schema = Factory.EmptySchema;
-    //        }
-
-    //        m_isReadOnly = isReadOnly;
-    //        m_isBuilt = true;
-
-    //        return this;
-    //    }
-
-    //    public IEnumerator<IFormula> GetEnumerator()
-    //    {
-    //        return m_formulas.GetEnumerator();
-    //    }
-    //    IEnumerator IEnumerable.GetEnumerator()
-    //    {
-    //        return GetEnumerator();
-    //    }
-    //}
-
-    public interface IFormulaCollectionBuilder
+    public interface IFormulaCollectionBuilder : IFormulaCollection
     {
-        public ITerm Id { get; }
-
         public bool IsBuilt { get; }
 
-        public IFormulaCollectionBuilder About { get; }
-        public ISchemaBuilder Schema { get; }
-
-        public bool Add(IFormula formula);
-
-        //public void SetMetadata(IReadOnlyFormulaCollection metadata);
-        //public void SetSchema(IReadOnlySchema schema);
+        public new IReadOnlyFormulaCollection About { get; set; }
 
         public IReadOnlyFormulaCollection Build(bool isReadOnly = true); // perhaps other parameters
     }
@@ -631,9 +453,9 @@ namespace Nifty.Knowledge.Building
 namespace Nifty.Knowledge.Querying
 {
     // "Fluent N-ary SPARQL"
-    // version 0.2
+    // version 0.2.1
     // 
-    // the expressiveness for querying formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
+    // the expressiveness for querying n-ary formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
     // see also: https://www.w3.org/2001/sw/DataAccess/rq23/examples.html
     //
     // to do: https://www.w3.org/TR/sparql11-query/#subqueries
@@ -714,11 +536,14 @@ namespace Nifty.Knowledge.Querying
             //
             //if (query.GetComposition(out ITerm? qc) && pattern.GetComposition(out ITerm? pc))
             //{
-            //    var builder = Factory.QueryBuilder(query.Schema, query.About.Schema);
+            //    var builder = Factory.QueryBuilder(query.Schema);
+            //    var metadata = Factory.FormulaCollectionBuilder(query.About.Schema);
 
-            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.Query));
-            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.WhereQuery));
-            //    builder.About.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Querying.where, qc, pc)));
+            //    metadata.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.Query));
+            //    metadata.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.WhereQuery));
+            //    metadata.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Querying.where, qc, pc)));
+
+            //    builder.About = metadata;
 
             //    var result = builder.Build();
             //    if (!result.About.IsValid) throw new Exception();
@@ -791,15 +616,18 @@ namespace Nifty.Knowledge.Querying
             //
             //if (formulas.GetComposition(out ITerm? fc) && other.GetComposition(out ITerm? oc))
             //{
-            //    var builder = Factory.FormulaCollectionBuilder(); // ? there should be builtin schema to use here
-            //
-            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.Expression));
-            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.UnionExpression));
-            //    builder.About.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Composition.union, fc, oc)));
-            //
+            //    var builder = Factory.FormulaCollectionBuilder();
+            //    var metadata = Factory.FormulaCollectionBuilder(/* there should be builtin schema to use here */);
+
+            //    metadata.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.Expression));
+            //    metadata.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.UnionExpression));
+            //    metadata.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Composition.union, fc, oc)));
+
+            //    builder.About = metadata;
+
             //    var result = builder.Build();
             //    if (!result.About.IsValid) throw new Exception();
-            //
+
             //    return result;
             //}
             //throw new Exception();
@@ -830,18 +658,21 @@ namespace Nifty.Knowledge.Querying
             //
             //if (formulas.GetComposition(out ITerm? fc))
             //{
-            //    var builder = Factory.FormulaCollectionBuilder(); // ? there should be builtin schema to use here, perhaps resembling those utilized in bootstrapping Factory.Query()
-            //
+            //    var builder = Factory.FormulaCollectionBuilder();
+            //    var metadata = Factory.FormulaCollectionBuilder(/* there should be a builtin schema */);
+
             //    var qe = Factory.Formula(Keys.quote, expression);
-            //
-            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.Expression));
-            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.FilterExpression));
-            //    builder.About.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Composition.filter, fc, qe)));
-            //    builder.About.Add(Factory.Formula(Keys.Constraints.hasConstraint, builder.Id, qe));
-            //
+
+            //    metadata.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.Expression));
+            //    metadata.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.FilterExpression));
+            //    metadata.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Composition.filter, fc, qe)));
+            //    metadata.Add(Factory.Formula(Keys.Constraints.hasConstraint, builder.Id, qe));
+
+            //    builder.About = metadata;
+
             //    var result = builder.Build();
             //    if (!result.About.IsValid) throw new Exception();
-            //
+
             //    return result;
             //}
             //throw new Exception();
@@ -1678,19 +1509,19 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
-        public static IFormulaCollectionBuilder FormulaCollectionBuilder(IReadOnlySchema schema, IReadOnlySchema metadataSchema)
+        public static IFormulaCollectionBuilder FormulaCollectionBuilder(IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
-        public static IFormulaCollectionBuilder KnowledgeGraphBuilder(IReadOnlySchema schema, IReadOnlySchema metadataSchema)
+        public static IFormulaCollectionBuilder KnowledgeGraphBuilder(IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
-        public static ISchemaBuilder SchemaBuilder(IReadOnlySchema schema, IReadOnlySchema metadataSchema)
+        public static ISchemaBuilder SchemaBuilder(IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
-        internal static IQueryBuilder QueryBuilder(IReadOnlySchema schema, IReadOnlySchema metadataSchema)
+        internal static IQueryBuilder QueryBuilder(IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
