@@ -665,6 +665,7 @@ namespace Nifty.Knowledge.Querying
         // "Fluent N-ary SPARQL"
         //        
         // the expressiveness for querying formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
+        //
         // to do: https://www.w3.org/TR/sparql11-query/#subqueries
         //
         // example syntax:
@@ -703,22 +704,21 @@ namespace Nifty.Knowledge.Querying
         // these methods build queries before they are concluded into one of four query types
         public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
         {
-            // redesigned formula and query builders with recursion, formula builders on ::About and ::Schema, for arbitrarily higher-order structure
-
-            //if (query.GetComposition(out ITerm? qc) && pattern.GetComposition(out ITerm? pc))
-            //{
-            //    var builder = Factory.QueryBuilder();
-
-            //    builder.SetSchema(query.Schema);
-            //    builder.About.SetSchema(query.About.Schema);
-
-            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.WhereQuery));
-            //    builder.About.Add(Factory.Formula(Keys.Querying.hasComposition, builder.Id, Factory.Formula(Keys.Querying.where, qc, pc)));
-
-            //    var n = builder.Build();
-            //    if (!n.IsValid) throw new Exception();
-            //    return n;
-            //}
+            // something like:
+            //
+            // if (query.GetComposition(out ITerm? qc) && pattern.GetComposition(out ITerm? pc))
+            // {
+            //     var builder = Factory.QueryBuilder(query.Schema, query.About.Schema);
+            //
+            //     builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.WhereQuery));
+            //     builder.About.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Querying.where, qc, pc)));
+            //
+            //     var result = builder.Build();
+            //     if (!result.About.IsValid) throw new Exception();
+            //
+            //     return result;
+            // }
+            // throw new Exception();
 
             throw new NotImplementedException();
         }
@@ -777,6 +777,23 @@ namespace Nifty.Knowledge.Querying
         // these are operations pertaining to formula patterns utilized by the Where operator
         public static IReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
+            // this one should be moved as it could be utilized outside of querying as a basic OR operator
+            // something like:
+            //
+            //if (formulas.GetComposition(out ITerm? fc) && other.GetComposition(out ITerm? oc))
+            //{
+            //    var builder = Factory.FormulaCollectionBuilder(); // ? there should be builtin schema to use here
+            //
+            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.UnionExpression));
+            //    builder.About.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Composition.union, fc, oc)));
+            //
+            //    var result = builder.Build();
+            //    if (!result.About.IsValid) throw new Exception();
+            //
+            //    return result;
+            //}
+            //throw new Exception();
+
             throw new NotImplementedException();
         }
         public static IReadOnlyFormulaCollection Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
@@ -798,6 +815,26 @@ namespace Nifty.Knowledge.Querying
 
         public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
         {
+            // this one should be moved as it could be utilized outside of querying as a basic filtering/constraints operator
+            // something like:
+            //
+            //if (formulas.GetComposition(out ITerm? fc))
+            //{
+            //    var builder = Factory.FormulaCollectionBuilder(); // ? there should be builtin schema to use here, perhaps resembling those utilized in bootstrapping Factory.Query()
+            //
+            //    var qe = Factory.Formula(Keys.quote, expression);
+            //
+            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.FilterExpression));
+            //    builder.About.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Composition.filter, fc, qe)));
+            //    builder.About.Add(Factory.Formula(Keys.Constraints.hasConstraint, builder.Id, qe));
+            //
+            //    var result = builder.Build();
+            //    if (!result.About.IsValid) throw new Exception();
+            //
+            //    return result;
+            //}
+            //throw new Exception();
+
             throw new NotImplementedException();
         }
         public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
@@ -842,10 +879,25 @@ namespace Nifty.Knowledge.Querying
 
         internal static bool GetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? composition)
         {
-            throw new NotImplementedException();
+            if(formulas.About.IsEnumerable && formulas.About is IEnumerable<IFormula> fe)
+            {
+                var hasComposition = fe.Where(f => f.Predicate == Keys.Composition.hasComposition);
+                using (var enumerator = hasComposition.GetEnumerator())
+                {
+                    if (enumerator.MoveNext())
+                    {
+                        composition = enumerator.Current[1];
+                        return true;
+                    }
+                }
+            }
+
+            composition = formulas.Id;
+            return true;
         }
         internal static bool GetConstraints(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IEnumerable<IFormula>? constraints)
         {
+            // search for the predicate 'hasConstraint' in metadata and then unquote the quoted formula
             throw new NotImplementedException();
         }
     }
@@ -1197,103 +1249,131 @@ namespace Nifty
 {
     public static partial class Keys
     {
-        public static class Semantics
+        //public static class Semantics
+        //{
+        //    public static class Xsd
+        //    {
+        //        // https://docs.microsoft.com/en-us/dotnet/standard/data/xml/mapping-xml-data-types-to-clr-types
+
+        //        public static readonly IUri @string = Factory.Uri("http://www.w3.org/2001/XMLSchema#string");
+
+        //        public static readonly IUri @duration = Factory.Uri("http://www.w3.org/2001/XMLSchema#duration");
+        //        public static readonly IUri @dateTime = Factory.Uri("http://www.w3.org/2001/XMLSchema#dateTime");
+        //        public static readonly IUri @time = Factory.Uri("http://www.w3.org/2001/XMLSchema#time");
+        //        public static readonly IUri @date = Factory.Uri("http://www.w3.org/2001/XMLSchema#date");
+        //        //...
+        //        public static readonly IUri @anyURI = Factory.Uri("http://www.w3.org/2001/XMLSchema#anyURI");
+        //        public static readonly IUri @QName = Factory.Uri("http://www.w3.org/2001/XMLSchema#QName");
+
+        //        public static readonly IUri @boolean = Factory.Uri("http://www.w3.org/2001/XMLSchema#boolean");
+
+        //        public static readonly IUri @byte = Factory.Uri("http://www.w3.org/2001/XMLSchema#byte");
+        //        public static readonly IUri @unsignedByte = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedByte");
+        //        public static readonly IUri @short = Factory.Uri("http://www.w3.org/2001/XMLSchema#short");
+        //        public static readonly IUri @unsignedShort = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedShort");
+        //        public static readonly IUri @int = Factory.Uri("http://www.w3.org/2001/XMLSchema#int");
+        //        public static readonly IUri @unsignedInt = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedInt");
+        //        public static readonly IUri @long = Factory.Uri("http://www.w3.org/2001/XMLSchema#long");
+        //        public static readonly IUri @unsignedLong = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedLong");
+
+        //        public static readonly IUri @decimal = Factory.Uri("http://www.w3.org/2001/XMLSchema#decimal");
+
+        //        public static readonly IUri @float = Factory.Uri("http://www.w3.org/2001/XMLSchema#float");
+        //        public static readonly IUri @double = Factory.Uri("http://www.w3.org/2001/XMLSchema#double");
+        //    }
+        //    public static class Dc
+        //    {
+        //        public static readonly IUri title = Factory.Uri("http://purl.org/dc/terms/title");
+        //        public static readonly IUri description = Factory.Uri("http://purl.org/dc/terms/description");
+        //    }
+        //    public static class Swo
+        //    {
+        //        public static readonly IUri version = Factory.Uri("http://www.ebi.ac.uk/swo/SWO_0004000");
+        //    }
+        //    public static class Rdf
+        //    {
+        //        public static readonly IUri type = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+        //        public static readonly IUri subject = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#subject");
+        //        public static readonly IUri predicate = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate");
+        //        public static readonly IUri @object = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#object");
+
+        //        public static readonly IUri Statement = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement");
+        //    }
+        //    public static class Foaf
+        //    {
+        //        public static readonly IUri name = Factory.Uri("http://xmlns.com/foaf/0.1/name");
+        //    }
+        //    public static class Lom
+        //    {
+
+        //    }
+        //    public static class Eo
+        //    {
+        //        public static readonly IUri raisesEventType = Factory.Uri("http://www.event-ontology.org/raisesEventType");
+        //        public static readonly IUri Event = Factory.Uri("http://www.event-ontology.org/Event");
+        //    }
+        //}
+
+        //public static class Settings
+        //{
+        //    public static readonly ISetting<bool> ShouldPerformAnalytics = Factory.Setting("http://www.settings.org/analytics/ShouldPerformAnalytics", false);
+        //    public static readonly ISetting<bool> ShouldPerformConfigurationAnalytics = Factory.Setting("http://www.settings.org/analytics/ShouldPerformConfigurationAnalytics", false);
+        //}
+
+        //public static class Events
+        //{
+        //    //public static readonly IUriTerm All = Factory.Uri("http://www.w3.org/2002/07/owl#Thing");
+
+        //    public static readonly IUri InitializedSession = Factory.Uri("http://www.events.org/events/InitializedSession");
+        //    public static readonly IUri ObtainedGenerator = Factory.Uri("http://www.events.org/events/ObtainedGenerator");
+        //    public static readonly IUri GeneratingActivity = Factory.Uri("http://www.events.org/events/GeneratingActivity");
+        //    public static readonly IUri GeneratedActivity = Factory.Uri("http://www.events.org/events/GeneratedActivity");
+        //    public static readonly IUri ExecutingActivity = Factory.Uri("http://www.events.org/events/ExecutingActivity");
+        //    public static readonly IUri ExecutedActivity = Factory.Uri("http://www.events.org/events/ExecutedActivity");
+        //    public static readonly IUri DisposingSession = Factory.Uri("http://www.events.org/events/DisposingSession");
+
+        //    public static class Data
+        //    {
+        //        public static readonly IUri Algorithm = Factory.Uri("urn:eventdata:Algorithm");
+        //        public static readonly IUri Generator = Factory.Uri("urn:eventdata:Generator");
+        //        public static readonly IUri Activity = Factory.Uri("urn:eventdata:Activity");
+        //        public static readonly IUri User = Factory.Uri("urn:eventdata:User");
+        //        public static readonly IUri Result = Factory.Uri("urn:eventdata:Result");
+        //    }
+        //}
+
+        public static class Composition
         {
-            public static class Xsd
+            public static readonly IUri hasComposition = Factory.Uri("urn:builtin:hasComposition");
+
+            public static readonly IUri filter = Factory.Uri("urn:builtin:filter");
+            public static readonly IUri union = Factory.Uri("urn:builtin:union");
+
+            public static class Types
             {
-                // https://docs.microsoft.com/en-us/dotnet/standard/data/xml/mapping-xml-data-types-to-clr-types
-
-                public static readonly IUri @string = Factory.Uri("http://www.w3.org/2001/XMLSchema#string");
-
-                public static readonly IUri @duration = Factory.Uri("http://www.w3.org/2001/XMLSchema#duration");
-                public static readonly IUri @dateTime = Factory.Uri("http://www.w3.org/2001/XMLSchema#dateTime");
-                public static readonly IUri @time = Factory.Uri("http://www.w3.org/2001/XMLSchema#time");
-                public static readonly IUri @date = Factory.Uri("http://www.w3.org/2001/XMLSchema#date");
-                //...
-                public static readonly IUri @anyURI = Factory.Uri("http://www.w3.org/2001/XMLSchema#anyURI");
-                public static readonly IUri @QName = Factory.Uri("http://www.w3.org/2001/XMLSchema#QName");
-
-                public static readonly IUri @boolean = Factory.Uri("http://www.w3.org/2001/XMLSchema#boolean");
-
-                public static readonly IUri @byte = Factory.Uri("http://www.w3.org/2001/XMLSchema#byte");
-                public static readonly IUri @unsignedByte = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedByte");
-                public static readonly IUri @short = Factory.Uri("http://www.w3.org/2001/XMLSchema#short");
-                public static readonly IUri @unsignedShort = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedShort");
-                public static readonly IUri @int = Factory.Uri("http://www.w3.org/2001/XMLSchema#int");
-                public static readonly IUri @unsignedInt = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedInt");
-                public static readonly IUri @long = Factory.Uri("http://www.w3.org/2001/XMLSchema#long");
-                public static readonly IUri @unsignedLong = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedLong");
-
-                public static readonly IUri @decimal = Factory.Uri("http://www.w3.org/2001/XMLSchema#decimal");
-
-                public static readonly IUri @float = Factory.Uri("http://www.w3.org/2001/XMLSchema#float");
-                public static readonly IUri @double = Factory.Uri("http://www.w3.org/2001/XMLSchema#double");
-            }
-            public static class Dc
-            {
-                public static readonly IUri title = Factory.Uri("http://purl.org/dc/terms/title");
-                public static readonly IUri description = Factory.Uri("http://purl.org/dc/terms/description");
-            }
-            public static class Swo
-            {
-                public static readonly IUri version = Factory.Uri("http://www.ebi.ac.uk/swo/SWO_0004000");
-            }
-            public static class Rdf
-            {
-                public static readonly IUri type = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-                public static readonly IUri subject = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#subject");
-                public static readonly IUri predicate = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate");
-                public static readonly IUri @object = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#object");
-
-                public static readonly IUri Statement = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement");
-            }
-            public static class Foaf
-            {
-                public static readonly IUri name = Factory.Uri("http://xmlns.com/foaf/0.1/name");
-            }
-            public static class Lom
-            {
-
-            }
-            public static class Eo
-            {
-                public static readonly IUri raisesEventType = Factory.Uri("http://www.event-ontology.org/raisesEventType");
-                public static readonly IUri Event = Factory.Uri("http://www.event-ontology.org/Event");
+                public static readonly IUri FilterExpression = Factory.Uri("urn:builtin:FilterExpression");
+                public static readonly IUri UnionExpression = Factory.Uri("urn:builtin:UnionExpression");
             }
         }
 
-        public static class Settings
+        public static class Constraints
         {
-            public static readonly ISetting<bool> ShouldPerformAnalytics = Factory.Setting("http://www.settings.org/analytics/ShouldPerformAnalytics", false);
-            public static readonly ISetting<bool> ShouldPerformConfigurationAnalytics = Factory.Setting("http://www.settings.org/analytics/ShouldPerformConfigurationAnalytics", false);
-        }
-
-        public static class Events
-        {
-            //public static readonly IUriTerm All = Factory.Uri("http://www.w3.org/2002/07/owl#Thing");
-
-            public static readonly IUri InitializedSession = Factory.Uri("http://www.events.org/events/InitializedSession");
-            public static readonly IUri ObtainedGenerator = Factory.Uri("http://www.events.org/events/ObtainedGenerator");
-            public static readonly IUri GeneratingActivity = Factory.Uri("http://www.events.org/events/GeneratingActivity");
-            public static readonly IUri GeneratedActivity = Factory.Uri("http://www.events.org/events/GeneratedActivity");
-            public static readonly IUri ExecutingActivity = Factory.Uri("http://www.events.org/events/ExecutingActivity");
-            public static readonly IUri ExecutedActivity = Factory.Uri("http://www.events.org/events/ExecutedActivity");
-            public static readonly IUri DisposingSession = Factory.Uri("http://www.events.org/events/DisposingSession");
-
-            public static class Data
-            {
-                public static readonly IUri Algorithm = Factory.Uri("urn:eventdata:Algorithm");
-                public static readonly IUri Generator = Factory.Uri("urn:eventdata:Generator");
-                public static readonly IUri Activity = Factory.Uri("urn:eventdata:Activity");
-                public static readonly IUri User = Factory.Uri("urn:eventdata:User");
-                public static readonly IUri Result = Factory.Uri("urn:eventdata:Result");
-            }
+            public static readonly IUri hasConstraint = Factory.Uri("urn:builtin:hasConstraint");
         }
 
         public static class Querying
         {
+            public static readonly IUri where = Factory.Uri("urn:builtin:where");
 
+            public static class Types
+            {
+                public static readonly IUri WhereQuery = Factory.Uri("urn:builtin:WhereQuery");
+            }
         }
+
+        public static readonly IUri type = Factory.Uri("urn:builtin:type");
+
+        public static readonly IUri quote = Factory.Uri("urn:builtin:quote");
     }
 
     public static partial class Factory
@@ -1542,6 +1622,22 @@ namespace Nifty
             throw new NotImplementedException();
         }
         internal static IQueryBuilder QueryBuilder()
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormulaCollectionBuilder FormulaCollectionBuilder(IReadOnlySchema schema, IReadOnlySchema metadataSchema)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormulaCollectionBuilder KnowledgeGraphBuilder(IReadOnlySchema schema, IReadOnlySchema metadataSchema)
+        {
+            throw new NotImplementedException();
+        }
+        public static ISchemaBuilder SchemaBuilder(IReadOnlySchema schema, IReadOnlySchema metadataSchema)
+        {
+            throw new NotImplementedException();
+        }
+        internal static IQueryBuilder QueryBuilder(IReadOnlySchema schema, IReadOnlySchema metadataSchema)
         {
             throw new NotImplementedException();
         }
