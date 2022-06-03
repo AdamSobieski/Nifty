@@ -1,12 +1,12 @@
 ﻿using Nifty.Activities;
 using Nifty.Algorithms;
 using Nifty.Analytics;
-using Nifty.Channels;
 using Nifty.Collections;
 using Nifty.Common;
 using Nifty.Configuration;
 using Nifty.Dialogue;
 using Nifty.Knowledge;
+using Nifty.Knowledge.Building;
 using Nifty.Knowledge.Querying;
 using Nifty.Knowledge.Reasoning;
 using Nifty.Knowledge.Schema;
@@ -99,13 +99,6 @@ namespace Nifty.Automata
     // see also: http://learnlib.github.io/automatalib/maven-site/latest/apidocs/net/automatalib/automata/Automaton.html
 
     // to do: consider approaches, e.g., fluent, to defining and building automata
-}
-
-namespace Nifty.Channels
-{
-    public interface IChannel { }
-
-    public interface IChannelCollection { }
 }
 
 namespace Nifty.Collections
@@ -215,11 +208,6 @@ namespace Nifty.Common
     }
 }
 
-namespace Nifty.Concurrency
-{
-
-}
-
 namespace Nifty.Configuration
 {
     public interface ISetting<out T>
@@ -260,7 +248,7 @@ namespace Nifty.Extensibility
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : ISubstitute<IReadOnlyFormulaCollection> //, IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection> //, IEventSource, INotifyChanged
     {
         public bool IsReadOnly { get; }
         public bool IsGround { get; }
@@ -269,12 +257,6 @@ namespace Nifty.Knowledge
         public bool IsEmpty { get; }
         public bool IsGraph { get; }
         public bool IsEnumerable { get; }
-
-        public bool HasSchema { get; } // IHasReadOnlySchema
-        public bool HasIdentifier { get; } // IHasReadOnlyIdentifier
-        public bool HasMetadata { get; } // IHasReadOnlyMetadata
-        // public bool HasConstraints { get; } // IHasReadOnlyConstraints
-        //...
 
         public bool Contains(IFormula formula);
 
@@ -324,6 +306,7 @@ namespace Nifty.Knowledge
     }
 
     public interface IReadOnlyFormulaList : IReadOnlyFormulaCollection, IReadOnlyList<IFormula> { }
+
 
     public enum TermType
     {
@@ -415,7 +398,7 @@ namespace Nifty.Knowledge
 
     public interface IHasReadOnlyIdentifier
     {
-        public ITerm Identifier { get; }
+        public ITerm Id { get; }
     }
 
     public interface IHasReadOnlyMetadata : IHasReadOnlyIdentifier
@@ -427,21 +410,6 @@ namespace Nifty.Knowledge
         public new IFormulaCollection About { get; }
     }
 
-    //public interface IHasReadOnlyConstraints
-    //{
-    //    // constraints can be added to sets of formulas, typically those sets with variables, e.g., using Filter()
-    //    // and/or is this part of the metadata from IHasReadOnlyMetadata
-    //    // should all formula collections have this or should there be a property 'HasConstraints'?
-    //    // might these be formulas or metadata formulas, e.g., builtin:holds(identifier, constraint_1)
-    //    // public IReadOnlyFormulaCollection Constraints { get; }
-
-    //    public IReadOnlyFormulaCollection Constraints { get; }
-    //}
-    //public interface IHasConstraints : IHasReadOnlyConstraints
-    //{
-    //    public new IFormulaCollection Constraints { get; }
-    //}
-
     public interface ITermVisitor
     {
         public object Visit(IAny term);
@@ -452,14 +420,35 @@ namespace Nifty.Knowledge
         public object Visit(IFormula formula);
     }
 
-
-
     public interface IKnowledgebase : IFormulaCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
 }
 
-namespace Nifty.Knowledge.Probabilistic
+namespace Nifty.Knowledge.Building
 {
+    public interface IFormulaCollectionBuilder
+    {
+        public ITerm Id { get; }
 
+        public IFormulaCollectionBuilder About { get; }
+        public ISchemaBuilder Schema { get; }
+
+        public bool Add(IFormula data);
+        
+        public void SetMetadata(IReadOnlyFormulaCollection metadata);
+        public void SetSchema(IReadOnlySchema schema);
+
+        public IReadOnlyFormulaCollection Build(bool isReadOnly = true); // and other parameters
+    }
+
+    internal interface IQueryBuilder : IFormulaCollectionBuilder
+    {
+        public new IQuery Build(bool isReadOnly = true);
+    }
+
+    public interface ISchemaBuilder : IFormulaCollectionBuilder
+    {
+        public new IReadOnlySchema Build(bool isReadOnly = true);
+    }
 }
 
 namespace Nifty.Knowledge.Querying
@@ -497,7 +486,6 @@ namespace Nifty.Knowledge.Querying
     {
 
     }
-
 
 
     public static partial class Query
@@ -545,6 +533,8 @@ namespace Nifty.Knowledge.Querying
         {
             // something like:
 
+            // option 1
+            // --------
             //if (query.GetComposition(out ITerm? qc)
             //    && pattern.GetComposition(out ITerm? pc)
             //    && query.GetSchema(out IReadOnlySchema? qs)
@@ -562,8 +552,9 @@ namespace Nifty.Knowledge.Querying
             //}
             //throw new Exception();
 
+            // option 2
+            // --------
             // or, considering the possibility that the constructed queries are, except for constraints, expressed in the metadata space, something like:
-
             //if (query.GetComposition(out ITerm? qc)
             //    && pattern.GetComposition(out ITerm? pc)
             //    && query.GetSchema(out IReadOnlySchema? qs)
@@ -575,11 +566,55 @@ namespace Nifty.Knowledge.Querying
             //    IReadOnlyFormulaCollection nm = Factory.ReadOnlyFormulaCollection(new IFormula[] { Factory.Formula(Keys.type, nid, Keys.Querying.Types.WhereQuery), Factory.Formula(Keys.Querying.hasComposition, nid, Factory.Formula(Keys.Querying.where, qc, pc)) }, qms);
             //    IQuery nq = Factory.Query(Enumerable.Empty<IFormula>(), nid, nm, qs);
 
+            //    challenge: what is desired is to have nid = Factory.Box(nq) but nq is not created yet... could create an adapter for this purpose which interfaces as IBox, Factory.BoxAdapter(...) but that seems inelegant
+
             //    if (!nq.IsValid) throw new Exception();
 
             //    return nq;
             //}
             //throw new Exception();
+
+            // option 3
+            // --------
+            // are query builders more readable and useful?
+            // advantages of builder-based approaches include:
+            // 1. easier utilization of Box() instead of Blank() for Id
+            // 2. usage of methods like Add() and AddFormula() from foreach scopes
+            // 3. creating extension methods on builder interfaces
+            //
+            //if (query.GetComposition(out ITerm? qc) && pattern.GetComposition(out ITerm? pc))
+            //{
+            //    var builder = Factory.QueryBuilder();
+            //
+            //    builder.SetSchema(query.Schema);
+            //    builder.SetMetadataSchema(query.About.Schema); // what about setting higher-order parameters
+            //
+            //    builder.AddMetadata(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.WhereQuery));  // here, builder.Id can be a Box() instead of a Blank()
+            //    builder.AddMetadata(Factory.Formula(Keys.Querying.hasComposition, builder.Id, Factory.Formula(Keys.Querying.where, qc, pc)));  // here, builder.Id can be a Box() instead of a Blank()
+            //
+            //    var n = builder.Build();
+            //    if (!n.IsValid) throw new Exception();
+            //    return n;
+            //}
+
+            // option 4
+            // --------
+            // redesigned formula and query builders with recursion, formula builders on ::About and ::Schema, for arbitrarily higher-order structure
+
+            //if(query.GetComposition(out ITerm? qc) && pattern.GetComposition(out ITerm? pc))
+            //{
+            //    var builder = Factory.QueryBuilder();
+
+            //    builder.SetSchema(query.Schema);
+            //    builder.About.SetSchema(query.About.Schema);
+
+            //    builder.About.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.WhereQuery));  // here, builder.Id can be a Box() instead of a Blank()
+            //    builder.About.Add(Factory.Formula(Keys.Querying.hasComposition, builder.Id, Factory.Formula(Keys.Querying.where, qc, pc)));  // here, builder.Id can be a Box() instead of a Blank()
+
+            //    var n = builder.Build();
+            //    if (!n.IsValid) throw new Exception();
+            //    return n;
+            //}
 
             throw new NotImplementedException();
         }
@@ -701,65 +736,7 @@ namespace Nifty.Knowledge.Querying
             throw new ArgumentException("Argument is neither indexed nor enumerable.", nameof(formulas));
         }
 
-        internal static bool GetSchema(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlySchema? schema)
-        {
-            if (formulas.HasSchema && formulas is IHasReadOnlySchema hasSchema)
-            {
-                schema = hasSchema.Schema;
-                return true;
-            }
-            else
-            {
-                schema = Factory.EmptySchema;
-                return true;
-            }
-        }
-        internal static bool GetIdentifier(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? identifier)
-        {
-            if (formulas.HasIdentifier && formulas is IHasReadOnlyIdentifier hasIdentifier)
-            {
-                identifier = hasIdentifier.Identifier;
-                return true;
-            }
-            else
-            {
-                identifier = Factory.Box(formulas);
-                return true;
-            }
-        }
-        internal static bool GetMetadata(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? metadata)
-        {
-            if (formulas.HasMetadata && formulas is IHasReadOnlyMetadata hasMetadata)
-            {
-                metadata = hasMetadata.About;
-                return true;
-            }
-            else
-            {
-                metadata = Factory.EmptyCollection;
-                return true;
-            }
-        }
-        internal static bool GetMetadata(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? identifier, [NotNullWhen(true)] out IReadOnlyFormulaCollection? metadata)
-        {
-            if (formulas.HasMetadata && formulas is IHasReadOnlyMetadata hasMetadata)
-            {
-                identifier = hasMetadata.Identifier;
-                metadata = hasMetadata.About;
-                return true;
-            }
-            else
-            {
-                identifier = Factory.Box(formulas);
-                metadata = Factory.EmptyCollection;
-                return true;
-            }
-        }
         internal static bool GetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? composition)
-        {
-            throw new NotImplementedException();
-        }
-        internal static bool GetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? composition, [NotNullWhen(true)] out IEnumerable<IFormula>? rest)
         {
             throw new NotImplementedException();
         }
@@ -1046,8 +1023,6 @@ namespace Nifty.Sessions
         public ILog Log { get; }
 
         public IDialogueSystem DialogueSystem { get; }
-
-        public IChannelCollection UserInterface { get; }
 
         IDisposable IInitializable.Initialize()
         {
@@ -1361,84 +1336,101 @@ namespace Nifty
         }
 
 
-        public static IReadOnlySchema ReadOnlyFormulaCollectionSchemaWithSelfSchema(IEnumerable<IFormula> formulas)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlySchema ReadOnlyFormulaCollectionSchema(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlySchema ReadOnlyKnowledgeGraphSchemaWithSelfSchema(IEnumerable<IFormula> formulas)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlySchema ReadOnlyKnowledgeGraphSchema(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static ISchema FormulaCollectionSchema(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static ISchema KnowledgeGraphSchema(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
+        //public static IReadOnlySchema ReadOnlyFormulaCollectionSchemaWithSelfSchema(IEnumerable<IFormula> formulas)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IReadOnlySchema ReadOnlyFormulaCollectionSchema(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IReadOnlySchema ReadOnlyKnowledgeGraphSchemaWithSelfSchema(IEnumerable<IFormula> formulas)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IReadOnlySchema ReadOnlyKnowledgeGraphSchema(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static ISchema FormulaCollectionSchema(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static ISchema KnowledgeGraphSchema(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public static IReadOnlySchema ReadOnlyFormulaCollectionSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta)
+        //public static IReadOnlySchema ReadOnlyFormulaCollectionSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IReadOnlySchema ReadOnlyFormulaCollectionSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IReadOnlySchema ReadOnlyKnowledgeGraphSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IReadOnlySchema ReadOnlyKnowledgeGraphSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static ISchema FormulaCollectionSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static ISchema KnowledgeGraphSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+
+        // considering a builder model
+
+
+        public static IFormulaCollectionBuilder FormulaCollectionBuilder()
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlySchema ReadOnlyFormulaCollectionSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        public static IFormulaCollectionBuilder KnowledgeGraphBuilder()
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlySchema ReadOnlyKnowledgeGraphSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlySchema ReadOnlyKnowledgeGraphSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static ISchema FormulaCollectionSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static ISchema KnowledgeGraphSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
+        internal static IQueryBuilder QueryBuilder()
         {
             throw new NotImplementedException();
         }
