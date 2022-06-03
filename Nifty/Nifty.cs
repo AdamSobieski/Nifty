@@ -237,7 +237,8 @@ namespace Nifty.Dialogue
 
     public interface IDialogueSystem : ISessionInitializable, ISessionOptimizable, IMessageHandler, IEventHandler, IEventSource, ISessionDisposable
     {
-        public IDisposable SetCurrentActivity(IActivity activity);
+        public void EnterActivity(IActivity activity);
+        public void ExitActivity(IActivity activity);
     }
 }
 
