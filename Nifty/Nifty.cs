@@ -1346,12 +1346,20 @@ namespace Nifty
         {
             public static readonly IUri hasComposition = Factory.Uri("urn:builtin:hasComposition");
 
+            public static readonly IUri exists = Factory.Uri("urn:builtin:exists");
+            public static readonly IUri notExists = Factory.Uri("urn:builtin:notExists");
             public static readonly IUri filter = Factory.Uri("urn:builtin:filter");
+            public static readonly IUri optional = Factory.Uri("urn:builtin:optional");
+            public static readonly IUri minus = Factory.Uri("urn:builtin:minus");
             public static readonly IUri union = Factory.Uri("urn:builtin:union");
 
             public static class Types
             {
+                public static readonly IUri ExistsExpression = Factory.Uri("urn:builtin:ExistsExpression");
+                public static readonly IUri NotExistsExpression = Factory.Uri("urn:builtin:NotExistsExpression");
                 public static readonly IUri FilterExpression = Factory.Uri("urn:builtin:FilterExpression");
+                public static readonly IUri OptionalExpression = Factory.Uri("urn:builtin:OptionalExpression");
+                public static readonly IUri MinusExpression = Factory.Uri("urn:builtin:MinusExpression");
                 public static readonly IUri UnionExpression = Factory.Uri("urn:builtin:UnionExpression");
             }
         }
@@ -1364,15 +1372,16 @@ namespace Nifty
         public static class Querying
         {
             public static readonly IUri where = Factory.Uri("urn:builtin:where");
+            public static readonly IUri groupBy = Factory.Uri("urn:builtin:groupBy");
 
             public static class Types
             {
                 public static readonly IUri WhereQuery = Factory.Uri("urn:builtin:WhereQuery");
+                public static readonly IUri GroupByQuery = Factory.Uri("urn:builtin:GroupByQuery");
             }
         }
 
         public static readonly IUri type = Factory.Uri("urn:builtin:type");
-
         public static readonly IUri quote = Factory.Uri("urn:builtin:quote");
     }
 
@@ -1676,15 +1685,15 @@ namespace Nifty
     public static partial class Formula
     {
         // these could be extension methods
-        //public bool IsPredicate(this ITerm term, IReadOnlySchema schema)
+        //public static bool IsPredicate(this ITerm term, IReadOnlySchema schema)
         //{
         //    throw new NotImplementedException();
         //}
-        //public int HasArity(this ITerm term, IReadOnlySchema schema)
+        //public static int HasArity(this ITerm term, IReadOnlySchema schema)
         //{
         //    throw new NotImplementedException();
         //}
-        //public IEnumerable<ITerm> ClassesOfArgument(this ITerm term, int index, IReadOnlySchema schema)
+        //public static IEnumerable<ITerm> ClassesOfArgument(this ITerm term, int index, IReadOnlySchema schema)
         //{
         //    throw new NotImplementedException();
         //}
