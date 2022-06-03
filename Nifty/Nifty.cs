@@ -429,10 +429,12 @@ namespace Nifty.Knowledge.Building
     {
         public ITerm Id { get; }
 
+        public bool IsEmpty { get; }
+
         public IFormulaCollectionBuilder About { get; }
         public ISchemaBuilder Schema { get; }
 
-        public bool Add(IFormula data);
+        public bool Add(IFormula formula);
         
         public void SetMetadata(IReadOnlyFormulaCollection metadata);
         public void SetSchema(IReadOnlySchema schema);
@@ -1335,6 +1337,10 @@ namespace Nifty
             }
         }
 
+
+        // the downside of these factory methods is that cannot easily use the formula collection id, Box(this), in the formulas, so have to use Blank() instead
+        // considering expression trees and Constant(value)...
+        // however, if the factory methods are desired, can encapsulate use of the builders inside these factory methods
 
         //public static IReadOnlySchema ReadOnlyFormulaCollectionSchemaWithSelfSchema(IEnumerable<IFormula> formulas)
         //{
