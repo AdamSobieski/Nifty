@@ -74,7 +74,7 @@ namespace Nifty.Algorithms
 
 namespace Nifty.Analytics
 {
-    public interface IAnalytics : ISessionInitializable, IEventHandler, ISessionDisposable { }
+    public interface IAnalytics : ISessionInitializable, IMessageHandler, IEventHandler, ISessionDisposable { }
 
     public interface IProgressMonitor
     {
@@ -235,7 +235,7 @@ namespace Nifty.Dialogue
 {
     // see also: https://github.com/microsoft/botframework-sdk
 
-    public interface IDialogueSystem : ISessionInitializable, ISessionOptimizable, IEventHandler, IEventSource, ISessionDisposable
+    public interface IDialogueSystem : ISessionInitializable, ISessionOptimizable, IMessageHandler, IEventHandler, IEventSource, ISessionDisposable
     {
         public IDisposable SetCurrentActivity(IActivity activity);
     }
@@ -262,7 +262,6 @@ namespace Nifty.Knowledge
         public bool IsValid { get; }
         public bool IsGraph { get; }
         public bool IsEnumerable { get; }
-        //public bool IsEmpty { get; }
 
         public bool Contains(IFormula formula);
 
@@ -669,7 +668,8 @@ namespace Nifty.Knowledge.Querying
     public static partial class Query
     {
         // "Fluent N-ary SPARQL"
-        //        
+        // version 0.2
+        // 
         // the expressiveness for querying formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
         //
         // to do: https://www.w3.org/TR/sparql11-query/#subqueries
@@ -769,6 +769,8 @@ namespace Nifty.Knowledge.Querying
             throw new NotImplementedException();
         }
 
+
+        // might move some of these general-purpose extension methods, below, from static class Query to static class Composition
 
         public static IReadOnlyFormulaCollection Merge(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
@@ -885,7 +887,7 @@ namespace Nifty.Knowledge.Querying
 
         internal static bool GetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? composition)
         {
-            if(formulas.About.IsEnumerable && formulas.About is IEnumerable<IFormula> fe)
+            if (formulas.About.IsEnumerable && formulas.About is IEnumerable<IFormula> fe)
             {
                 var hasComposition = fe.Where(f => f.Predicate == Keys.Composition.hasComposition);
                 using (var enumerator = hasComposition.GetEnumerator())
@@ -1339,6 +1341,18 @@ namespace Nifty
         //    }
         //}
 
+        public static class Builtins
+        {
+            public static readonly IUri add = Factory.Uri("urn:builtin:add");
+            public static readonly IUri and = Factory.Uri("urn:builtin:and");
+            // ...
+
+            public static class Types
+            {
+
+            }
+        }
+
         public static class Composition
         {
             public static readonly IUri hasComposition = Factory.Uri("urn:builtin:hasComposition");
@@ -1349,6 +1363,8 @@ namespace Nifty
             public static readonly IUri optional = Factory.Uri("urn:builtin:optional");
             public static readonly IUri minus = Factory.Uri("urn:builtin:minus");
             public static readonly IUri union = Factory.Uri("urn:builtin:union");
+            public static readonly IUri bind = Factory.Uri("urn:builtin:bind");
+            public static readonly IUri values = Factory.Uri("urn:builtin:values");
 
             public static class Types
             {
@@ -1358,6 +1374,8 @@ namespace Nifty
                 public static readonly IUri OptionalExpression = Factory.Uri("urn:builtin:OptionalExpression");
                 public static readonly IUri MinusExpression = Factory.Uri("urn:builtin:MinusExpression");
                 public static readonly IUri UnionExpression = Factory.Uri("urn:builtin:UnionExpression");
+                public static readonly IUri BindExpression = Factory.Uri("urn:builtin:BindExpression");
+                public static readonly IUri ValuesExpression = Factory.Uri("urn:builtin:ValuesExpression");
             }
         }
 
@@ -1687,8 +1705,9 @@ namespace Nifty
         }
     }
 
-    // there might be other, possibly better, ways, e.g., allowing developers to provide formula collections which describe the terms to be combined into formulas
-    // in this case, these would be generators which bind to the most specific predicates depending on the types of the terms, e.g., integers or complex numbers.
+    // there might be other, possibly better, ways, to generate builtin formulas,
+    // e.g., allowing developers to provide formula collections with metadata which describes the terms to be combined into formulas
+    // in these cases, these methods would be generators which bind to the most specific predicates depending on the types of the terms, e.g., integers or complex numbers
     public static partial class Formula
     {
         // these could be extension methods
@@ -1707,11 +1726,11 @@ namespace Nifty
 
         public static IFormula Add(ITerm x, ITerm y)
         {
-            throw new NotImplementedException();
+            return Factory.Formula(Keys.Builtins.add, x, y);
         }
         public static IFormula And(ITerm x, ITerm y)
         {
-            throw new NotImplementedException();
+            return Factory.Formula(Keys.Builtins.and, x, y);
         }
         public static IFormula AndAlso(ITerm x, ITerm y)
         {
@@ -1776,12 +1795,9 @@ namespace Nifty
 
         // ...
 
-        // would using lambdas be benefitted by extending IFormula, e.g., ILambdaFormula : IFormula ?
         public static ILambdaFormula Lambda(ITerm body, params IVariable[]? parameters)
         {
             throw new NotImplementedException();
         }
     }
-
-    // "Fluent N-ary SPARQL" moved to Nifty.Knowledge.Querying
 }
