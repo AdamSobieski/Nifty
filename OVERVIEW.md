@@ -18,9 +18,9 @@ The architecture of the Nifty project will provide developers with means of conv
 
 The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) supports building dialogue systems and chatbots which utilize multiple channels including: Microsoft Teams, Direct Line, Web Chat, Skype, Email, Facebook, Slack, Kik, Telegram, Line, GroupMe, Twilio (SMS), Alexa Skills, Google Actions, Google Hangouts, WebEx, WhatsApp (Infobip), Zoom, RingCentral, and Cortana. Accordingly, the Nifty project is exploring use of the Bot Framework for accelerating adaptive instruction systems research and development.
 
-A technical point of interest is the interoperation, coordination, and synchronization of dialogue systems with content and knowledge about educational items, exercises, and activities. With this interoperability, coordination, and synchronization, learners could engage in meaningful, contextual dialogues with adaptive instructional systems about those items, exercises, and activities that they are consuming.
+Learners could use [conversational user interfaces](https://en.wikipedia.org/wiki/Conversational_user_interface) to engage with educational items, exercises, and activities. Learners could engage in meaningful, contextual dialogues with adaptive instructional systems about those educational items, exercises, and activities that they are consuming.
 
-Also on the topic of the interplay between educational items, exercises, and activities and dialogue systems, another technical point of interest is that of adaptive, dialogue-based user interfaces, where learners could interact with items, exercises, or activities dialogically. Learners could use [conversational user interfaces](https://en.wikipedia.org/wiki/Conversational_user_interface) to engage with items, exercises, and activities.
+
 
 ### Interactive Fiction
 
