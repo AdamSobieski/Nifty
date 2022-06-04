@@ -352,7 +352,7 @@ namespace Nifty.Knowledge
     {
         Any,
         Variable,
-        Constant,
+        Box,
         Blank,
         Uri,
         Formula
@@ -366,25 +366,29 @@ namespace Nifty.Knowledge
         public bool Matches(ITerm other);
         //public string? ToString(XmlNamespaceManager xmlns, bool quoting);
     }
+
     public interface IAny : ITerm { }
+
     public interface IVariable : ITerm
     {
         public string Name { get; }
     }
+
     public interface IConstant : ITerm
     {
         public object Value { get; }
     }
     public interface IBlank : IConstant
     {
-        // Uri Value { get; } ?
         public new string Value { get; }
     }
     public interface IUri : IConstant
     {
-        // Uri Value { get; } ?
+        // public new Uri Value { get; } ?
         public new string Value { get; }
     }
+    public interface IBox : IConstant { }
+
     public interface IFormula : ITerm, ISubstitute<IFormula>
     {
         public ITerm Predicate { get; }
@@ -392,7 +396,6 @@ namespace Nifty.Knowledge
         public int Count { get; }
         public ITerm this[int index] { get; }
     }
-
     public interface ILambdaFormula : IFormula { }
 
 
@@ -1307,68 +1310,116 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(bool value)
+        public static IBox Box(bool value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Box(sbyte value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Box(byte value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Box(short value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Box(ushort value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Box(int value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Box(uint value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Box(long value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Box(ulong value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Box(float value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Box(double value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Box(string value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Box(object value)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBox Literal(bool value)
         {
             // return Box(new Literal(value.ToString(), null, Keys.Semantics.Xsd.boolean.Uri));
             throw new NotImplementedException();
         }
-        public static IConstant Literal(sbyte value)
+        public static IBox Literal(sbyte value)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(byte value)
+        public static IBox Literal(byte value)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(short value)
+        public static IBox Literal(short value)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(ushort value)
+        public static IBox Literal(ushort value)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(int value)
+        public static IBox Literal(int value)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(uint value)
+        public static IBox Literal(uint value)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(long value)
+        public static IBox Literal(long value)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(ulong value)
+        public static IBox Literal(ulong value)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(float value)
+        public static IBox Literal(float value)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(double value)
+        public static IBox Literal(double value)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(string value)
+        public static IBox Literal(string value)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(string value, string language)
+        public static IBox Literal(string value, string language)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(string value, string language, IUri datatypeUri)
+        public static IBox Literal(string value, string language, IUri datatypeUri)
         {
             throw new NotImplementedException();
         }
-        public static IConstant Literal(string value, IUri datatypeUri)
-        {
-            throw new NotImplementedException();
-        }
-        public static IConstant Box(object value)
+        public static IBox Literal(string value, IUri datatypeUri)
         {
             throw new NotImplementedException();
         }
