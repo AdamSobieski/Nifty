@@ -34,11 +34,11 @@ Learners could engage in meaningful, contextual dialogues with adaptive instruct
 
 ## Workflow Engines
 
-A number of [workflow](https://en.wikipedia.org/wiki/Workflow) engines and related technologies are being considered for use in the Nifty architecture. It is envisioned that educational items, exercises, and activities can be processed (e.g., from [QTI](https://www.imsglobal.org/question/index.html)) into workflows.
+A number of [workflow](https://en.wikipedia.org/wiki/Workflow) engines and related technologies are being considered for use in the Nifty architecture. Educational items, exercises, and activities can be processed (e.g., from [QTI](https://www.imsglobal.org/question/index.html)) into workflows.
 
 The interoperation and [orchestration](https://en.wikipedia.org/wiki/Orchestration_(computing)) between workflow engines, e.g., those running extensible educational activities, and dialogue systems, e.g., those providing tutoring, are topics of technical interest.
 
-Another topic of technical interest is the storage of large collections of these items, exercises, and activities (the storage of large collections of workflows) and the querying and selection of them by adaptive instructional systems for presentation to learners.
+Another topic of technical interest is the storage of large collections of these educational items, exercises, and activities (the storage of large collections of workflows) and the querying and selection of them by adaptive instructional systems for presentation to learners.
 
 
 
