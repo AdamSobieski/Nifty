@@ -1,4 +1,5 @@
-﻿using Nifty.Activities;
+﻿using Microsoft.Bot.Builder;
+using Nifty.Activities;
 using Nifty.Algorithms;
 using Nifty.Analytics;
 using Nifty.Collections;
@@ -17,7 +18,6 @@ using Nifty.Messaging.Events;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
 using System.Diagnostics.CodeAnalysis;
-using System.Xml;
 
 namespace Nifty.Activities
 {
@@ -233,12 +233,59 @@ namespace Nifty.Configuration
 
 namespace Nifty.Dialogue
 {
-    // see also: https://github.com/microsoft/botframework-sdk
-
-    public interface IDialogueSystem : ISessionInitializable, ISessionOptimizable, IMessageHandler, IEventHandler, IEventSource, ISessionDisposable
+    public interface IDialogueSystem : IBot, ISessionInitializable, ISessionOptimizable, IMessageHandler, IMessageSource, IEventHandler, IEventSource, ISessionDisposable
     {
         public void EnterActivity(IActivity activity);
         public void ExitActivity(IActivity activity);
+    }
+
+    // something like:
+    public class DialogueSystemBase : ActivityHandler, IDialogueSystem
+    {
+        public void EnterActivity(IActivity activity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ExitActivity(IActivity activity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable Initialize(ISession session)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable Optimize(ISession session, IEnumerable<string> hints)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable Subscribe(IAskQuery query, IMessageHandler listener)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable Subscribe(IAskQuery query, IEventHandler listener)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Handle(IMessageSource source, IReadOnlyFormulaCollection message)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Handle(IEventSource source, IReadOnlyFormulaCollection @event, IReadOnlyFormulaCollection data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Dispose(ISession session)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
@@ -321,9 +368,9 @@ namespace Nifty.Knowledge
     {
         public TermType TermType { get; }
 
-        //public bool IsGround { get; }
-        //public object Visit(ITermVisitor visitor);
-        //public bool Matches(ITerm other);
+        public bool IsGround { get; }
+        public object Visit(ITermVisitor visitor);
+        public bool Matches(ITerm other);
         //public string? ToString(XmlNamespaceManager xmlns, bool quoting);
     }
     public interface IAny : ITerm { }
@@ -343,7 +390,7 @@ namespace Nifty.Knowledge
     {
         public new string Value { get; }
     }
-    public interface IFormula : ITerm
+    public interface IFormula : ITerm, ISubstitute<IFormula>
     {
         public ITerm Predicate { get; }
 
@@ -367,7 +414,7 @@ namespace Nifty.Knowledge
 
     public interface IHasReadOnlyIdentifier
     {
-        public ITerm Id { get; }
+        public IConstant Id { get; }
     }
 
     public interface IHasReadOnlyMetadata : IHasReadOnlyIdentifier
@@ -382,10 +429,10 @@ namespace Nifty.Knowledge
     public interface ITermVisitor
     {
         public object Visit(IAny term);
-        public object Visit(IUri term);
-        public object Visit(IBlank term);
         public object Visit(IVariable term);
         public object Visit(IConstant term);
+        public object Visit(IBlank term);
+        public object Visit(IUri term);
         public object Visit(IFormula formula);
     }
 

@@ -20,11 +20,9 @@ The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) sup
 
 Learners could use [conversational user interfaces](https://en.wikipedia.org/wiki/Conversational_user_interface) to interact with educational items, exercises, and activities. Learners could engage in meaningful, contextual dialogues with adaptive instructional systems about the educational items, exercises, and activities that they are consuming.
 
-
-
 ### Interactive Fiction
 
-Might some design principles and best practices from [interactive fiction](https://en.wikipedia.org/wiki/Interactive_fiction) be of use for developing advanced educational dialogue systems?
+Design principles and best practices from [interactive fiction](https://en.wikipedia.org/wiki/Interactive_fiction) could be of use for developing advanced educational dialogue systems.
 
 
 
