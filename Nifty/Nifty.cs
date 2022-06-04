@@ -386,6 +386,37 @@ namespace Nifty.Knowledge
 
     public interface ILambdaFormula : IFormula { }
 
+    /*
+    
+        or, perhaps a model resembling:
+
+        public interface ITerm
+        {
+            ...
+        }
+
+        public interface IVariable : ITerm
+        {
+	        public string Name { get; }
+        }
+        public interface IConstant : ITerm
+        {
+	        public object Value { get; }
+        }
+        public interface IUri : IConstant
+        {
+	        public new string Value { get; }
+        }
+        public interface IFormula : ITerm
+        {
+            public ITerm Predicate { get; }
+
+            public int Count { get; }
+            public ITerm this[int index] { get; }
+        }
+
+     */
+
     public interface IHasVariables
     {
         public IReadOnlyList<IVariable> Variables { get; }
