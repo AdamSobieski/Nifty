@@ -239,54 +239,8 @@ namespace Nifty.Dialogue
         public void ExitActivity(IActivity activity);
     }
 
-    // something like:
-    public class DialogueSystemBase : ActivityHandler, IDialogueSystem
-    {
-        public void EnterActivity(IActivity activity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ExitActivity(IActivity activity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDisposable Initialize(ISession session)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDisposable Optimize(ISession session, IEnumerable<string> hints)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDisposable Subscribe(IAskQuery query, IMessageHandler listener)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDisposable Subscribe(IAskQuery query, IEventHandler listener)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task Handle(IMessageSource source, IReadOnlyFormulaCollection message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task Handle(IEventSource source, IReadOnlyFormulaCollection @event, IReadOnlyFormulaCollection data)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Dispose(ISession session)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    // see also: https://docs.microsoft.com/en-us/azure/bot-service/bot-activity-handler-concept?view=azure-bot-service-4.0&tabs=csharp
+    // see also: https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-state?view=azure-bot-service-4.0
 }
 
 namespace Nifty.Extensibility
