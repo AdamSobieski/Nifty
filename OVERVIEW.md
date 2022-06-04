@@ -8,9 +8,9 @@ This document includes a preliminary technical overview of some of the component
 
 The Nifty project framework will be extensible, providing developers with means of conveniently exploring new theories and rapidly prototyping adaptive instructional systems. Nifty will enable the development of interoperable components, add-ons, plug-ins, and extensions.
 
-The framework will be configurable, enabling end-users, learners, educators, administrators, and schoolboard officials, to configure adaptive instructional systems.
+The framework will support configurability, enabling end-users, learners, educators, administrators, and schoolboard officials, to configure resultant adaptive instructional systems.
 
-The framework will be scalable, supporting solutions which serve a large number of learners simultaneously.
+The framework will be scalable, supporting the creation of solutions which serve a large number of learners simultaneously.
 
 
 

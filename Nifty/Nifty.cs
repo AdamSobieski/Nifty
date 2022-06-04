@@ -1,11 +1,13 @@
 ﻿using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Schema;
 using Nifty.Activities;
 using Nifty.Algorithms;
 using Nifty.Analytics;
 using Nifty.Collections;
 using Nifty.Common;
 using Nifty.Configuration;
-using Nifty.Dialogue;
+using Nifty.Dialog;
 using Nifty.Knowledge;
 using Nifty.Knowledge.Building;
 using Nifty.Knowledge.Querying;
@@ -21,7 +23,12 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Nifty.Activities
 {
-    public interface IActivityGeneratorStore : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable { }
+    // to do: consider using https://github.com/UiPath/CoreWF for Nifty.Activities
+
+    public interface IActivityGeneratorStore : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable
+    {
+        // will this utilize Nifty.Knowledge.Querying or will it have its own querying mechanism?
+    }
     public interface IActivityGenerator : IHasReadOnlyMetadata
     {
         // public IAskQuery Preconditions { get; }
@@ -231,16 +238,47 @@ namespace Nifty.Configuration
     }
 }
 
-namespace Nifty.Dialogue
+namespace Nifty.Dialog
 {
-    public interface IDialogueSystem : IBot, ISessionInitializable, ISessionOptimizable, IMessageHandler, IMessageSource, IEventHandler, IEventSource, ISessionDisposable
+    public interface IDialogSystem : IBot, ISessionInitializable, ISessionOptimizable, IMessageHandler, IMessageSource, IEventHandler, IEventSource, ISessionDisposable
     {
-        public void EnterActivity(IActivity activity);
-        public void ExitActivity(IActivity activity);
+        public void EnterActivity(Nifty.Activities.IActivity activity);
+        public void ExitActivity(Nifty.Activities.IActivity activity);
     }
 
     // see also: https://docs.microsoft.com/en-us/azure/bot-service/bot-activity-handler-concept?view=azure-bot-service-4.0&tabs=csharp
     // see also: https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-state?view=azure-bot-service-4.0
+    // see also: https://github.com/microsoft/BotBuilder-Samples/blob/main/samples/csharp_dotnetcore/19.custom-dialogs/Bots/DialogBot.cs
+    // see also: https://github.com/microsoft/BotBuilder-Samples/blob/main/samples/csharp_dotnetcore/45.state-management/Bots/StateManagementBot.cs
+
+    public class DialogBot<T> : ActivityHandler where T : Microsoft.Bot.Builder.Dialogs.Dialog
+    {
+        protected readonly BotState m_conversationState;
+        protected readonly Microsoft.Bot.Builder.Dialogs.Dialog m_dialog;
+        protected readonly BotState m_userState;
+
+        public DialogBot(ConversationState conversationState, UserState userState, T dialog)
+        {
+            m_conversationState = conversationState;
+            m_userState = userState;
+            m_dialog = dialog;
+        }
+
+        public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
+        {
+            await base.OnTurnAsync(turnContext, cancellationToken);
+
+            // Save any state changes that might have occurred during the turn.
+            await m_conversationState.SaveChangesAsync(turnContext, false, cancellationToken);
+            await m_userState.SaveChangesAsync(turnContext, false, cancellationToken);
+        }
+
+        protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        {
+            // Run the Dialog with the new message Activity.
+            await m_dialog.RunAsync(turnContext, m_conversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+        }
+    }
 }
 
 namespace Nifty.Extensibility
@@ -985,7 +1023,7 @@ namespace Nifty.Sessions
         public IAnalytics Analytics { get; }
         public ILog Log { get; }
 
-        public IDialogueSystem DialogueSystem { get; }
+        public IDialogSystem DialogueSystem { get; }
 
         IDisposable IInitializable.Initialize()
         {

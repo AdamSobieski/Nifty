@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Bot.Builder" Version="4.16.1" />
+    <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.16.1" />
     <PackageReference Include="System.Composition" Version="6.0.0" />
   </ItemGroup>
 
