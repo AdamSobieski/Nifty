@@ -2,13 +2,11 @@
 
 This document includes a preliminary technical overview of some of the components of the [Nifty](https://github.com/AdamSobieski/Nifty) project.
 
-More content is coming soon.
+The architecture will be *extensible*, providing developers with means of conveniently exploring new theories and rapidly prototyping adaptive instructional systems. Nifty is exploring use of the Managed Extensibility Framework to enable the development of interoperable components, add-ons, plug-ins, and extensions.
 
+The architecture will be *configurable*, enabling end-users, learners, educators, administrators, and schoolboard officials, to configure adaptive instructional systems.
 
-
-## Extensibility
-
-The architecture of the Nifty project will provide developers with means of conveniently exploring new theories and rapidly prototyping adaptive instructional systems. Nifty is exploring use of the Managed Extensibility Framework ([System.Composition](https://www.nuget.org/packages/System.Composition/)) to enable the development of interoperable components, add-ons, plug-ins, and extensions.
+The architecture will be *scalable*.
 
 
 
@@ -18,11 +16,15 @@ The architecture of the Nifty project will provide developers with means of conv
 
 The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) supports building dialogue systems and chatbots which utilize multiple channels including: Microsoft Teams, Direct Line, Web Chat, Skype, Email, Facebook, Slack, Kik, Telegram, Line, GroupMe, Twilio (SMS), Alexa Skills, Google Actions, Google Hangouts, WebEx, WhatsApp (Infobip), Zoom, RingCentral, and Cortana. Accordingly, the Nifty project is exploring use of the Bot Framework for accelerating adaptive instruction systems research and development.
 
-Learners could use [conversational user interfaces](https://en.wikipedia.org/wiki/Conversational_user_interface) to interact with educational items, exercises, and activities. Learners could engage in meaningful, contextual dialogues with adaptive instructional systems about the educational items, exercises, and activities that they are consuming.
-
 ### Interactive Fiction
 
 Design principles and best practices from [interactive fiction](https://en.wikipedia.org/wiki/Interactive_fiction) could be of use for developing advanced educational dialogue systems.
+
+### Educational Activities and Dialogue Systems
+
+Learners could use [conversational user interfaces](https://en.wikipedia.org/wiki/Conversational_user_interface) to interact with educational items, exercises, and activities.
+
+Learners could engage in meaningful, contextual dialogues with adaptive instructional systems about educational items, exercises, and activities.
 
 
 
@@ -168,4 +170,4 @@ The inspectable preconditions of actions are represented by Boolean queries for 
 
 ## Automata
 
-Coming soon.
+More content coming soon.

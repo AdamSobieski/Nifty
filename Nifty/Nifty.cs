@@ -316,7 +316,7 @@ namespace Nifty.Knowledge
         Constant,
         Blank,
         Uri,
-        Formula,
+        Formula
     }
     public interface ITerm : ISubstitute<ITerm>
     {
