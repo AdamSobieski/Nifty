@@ -23,7 +23,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Nifty.Activities
 {
-    // to do: consider using https://github.com/UiPath/CoreWF, https://netflix.github.io/conductor/, https://workflowengine.io/, https://elsa-workflows.github.io/elsa-core/, https://docs.microsoft.com/en-us/azure/logic-apps/, et al.
+    // to do: consider using https://github.com/UiPath/CoreWF, https://netflix.github.io/conductor/, https://workflowengine.io/, https://elsa-workflows.github.io/elsa-core/, https://docs.microsoft.com/en-us/azure/logic-apps/, et al (https://github.com/meirwah/awesome-workflow-engines).
 
     public interface IActivityGeneratorStore : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable
     {
