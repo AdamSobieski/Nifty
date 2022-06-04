@@ -1,16 +1,14 @@
 # Technical Overview
 
-This document includes a preliminary technical overview of some of the components of the [Nifty](https://github.com/AdamSobieski/Nifty) project. More content coming soon.
-
-
-
 ## Introduction
 
-The Nifty project framework will be extensible, providing developers with means of conveniently exploring new theories and rapidly prototyping adaptive instructional systems. Nifty will enable the development of interoperable components, add-ons, plug-ins, and extensions.
+The [Nifty](https://github.com/AdamSobieski/Nifty) project will be a framework for creating adaptive instructional systems. It is currently under development.
 
-The framework will support configurability, enabling end-users, learners, educators, administrators, and schoolboard officials, to configure resultant adaptive instructional systems.
+It will be extensible, providing developers with means of conveniently exploring new theories and rapidly prototyping adaptive instructional systems. Developers will be able to create interoperable components, add-ons, plug-ins, and extensions.
 
-The framework will be scalable, supporting the creation of solutions which serve a large number of learners simultaneously.
+It will support configurability, enabling end-users, learners, educators, administrators, and schoolboard officials, to configure resultant adaptive instructional systems.
+
+It will be scalable, supporting the creation of solutions which serve a large number of learners simultaneously.
 
 
 
@@ -18,13 +16,13 @@ The framework will be scalable, supporting the creation of solutions which serve
 
 ### Bot Framework
 
-The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) supports building dialogue systems and chatbots which utilize multiple channels including: Microsoft Teams, Direct Line, Web Chat, Skype, Email, Facebook, Slack, Kik, Telegram, Line, GroupMe, Twilio (SMS), Alexa Skills, Google Actions, Google Hangouts, WebEx, WhatsApp (Infobip), Zoom, RingCentral, and Cortana. Accordingly, the Nifty project is exploring use of the Bot Framework for accelerating adaptive instruction systems research and development.
+The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) supports building dialogue systems and chatbots which utilize multiple channels including: Microsoft Teams, Direct Line, Web Chat, Skype, Email, Facebook, Slack, Kik, Telegram, Line, GroupMe, Twilio (SMS), Alexa Skills, Google Actions, Google Hangouts, WebEx, WhatsApp (Infobip), Zoom, RingCentral, and Cortana. Accordingly, the Nifty project is exploring using the Bot Framework for accelerating adaptive instruction systems research and development.
 
 ### Interactive Fiction
 
-Design principles and best practices from [interactive fiction](https://en.wikipedia.org/wiki/Interactive_fiction) could be of use for developing advanced educational dialogue systems.
+Design principles and best practices from [interactive fiction](https://en.wikipedia.org/wiki/Interactive_fiction) could be of use for developing educational dialogue systems.
 
-### Educational Activities and Dialogue Systems
+### Educational Activities
 
 Learners could use [conversational user interfaces](https://en.wikipedia.org/wiki/Conversational_user_interface) to interact with educational items, exercises, and activities.
 
@@ -34,13 +32,13 @@ Learners could engage in meaningful, contextual dialogues with adaptive instruct
 
 ## Workflow Engines
 
-A number of [workflow](https://en.wikipedia.org/wiki/Workflow) engines and related technologies are being considered for use in the Nifty architecture.
+A number of [workflow](https://en.wikipedia.org/wiki/Workflow) engines and related technologies are being considered for use in the Nifty project.
 
-Educational items, exercises, and activities can be processed (e.g., from [QTI](https://www.imsglobal.org/question/index.html)) into workflows. For example, a simple workflow activity derived from a mathematics exercise might present a learner with a mathematics question, present them with multiple choices, process a timer, and await a response. Workflow-based approaches to representing and processing educational items, exercises, and activities are scalable, extensible, and capable of supporting more complex scenarios.
+Educational items, exercises, and activities can be processed (e.g., from [QTI](https://www.imsglobal.org/question/index.html)) into workflows. For example, a simple workflow activity derived from a mathematics exercise might present a learner with a mathematics question, present them with multiple choices, process a timer, and await a response. Workflow-based approaches to representing and processing educational items, exercises, and activities are extensible, scalable, and capable of supporting more complex scenarios, e.g., those scenarios involving interactive stories or educational games.
 
 The interoperation and [orchestration](https://en.wikipedia.org/wiki/Orchestration_(computing)) between workflow engines, e.g., those running educational activities, and dialogue systems, e.g., those providing tutoring, are topics of technical interest.
 
-Other topics of technical interest include the storage of large collections of these educational items, exercises, and activities (the storage of large collections of workflows) and the querying and selection of them by adaptive instructional systems for presentation to learners.
+Other topics of technical interest include the storage of large collections of these educational items, exercises, and activities – the storage of large collections of workflows – and the querying and selection of them by adaptive instructional systems for presentation to learners.
 
 
 
