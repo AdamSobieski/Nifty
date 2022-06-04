@@ -7,7 +7,7 @@ using Nifty.Analytics;
 using Nifty.Collections;
 using Nifty.Common;
 using Nifty.Configuration;
-using Nifty.Dialog;
+using Nifty.Dialogs;
 using Nifty.Knowledge;
 using Nifty.Knowledge.Building;
 using Nifty.Knowledge.Querying;
@@ -23,7 +23,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Nifty.Activities
 {
-    // to do: consider using https://github.com/UiPath/CoreWF for Nifty.Activities
+    // to do: consider using https://github.com/UiPath/CoreWF, https://netflix.github.io/conductor/, https://workflowengine.io/, https://elsa-workflows.github.io/elsa-core/, https://docs.microsoft.com/en-us/azure/logic-apps/, et al.
 
     public interface IActivityGeneratorStore : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable
     {
@@ -238,7 +238,7 @@ namespace Nifty.Configuration
     }
 }
 
-namespace Nifty.Dialog
+namespace Nifty.Dialogs
 {
     public interface IDialogSystem : IBot, ISessionInitializable, ISessionOptimizable, IMessageHandler, IMessageSource, IEventHandler, IEventSource, ISessionDisposable
     {
@@ -251,10 +251,10 @@ namespace Nifty.Dialog
     // see also: https://github.com/microsoft/BotBuilder-Samples/blob/main/samples/csharp_dotnetcore/19.custom-dialogs/Bots/DialogBot.cs
     // see also: https://github.com/microsoft/BotBuilder-Samples/blob/main/samples/csharp_dotnetcore/45.state-management/Bots/StateManagementBot.cs
 
-    public class DialogBot<T> : ActivityHandler where T : Microsoft.Bot.Builder.Dialogs.Dialog
+    public class DialogBot<T> : ActivityHandler where T : Dialog
     {
         protected readonly BotState m_conversationState;
-        protected readonly Microsoft.Bot.Builder.Dialogs.Dialog m_dialog;
+        protected readonly Dialog m_dialog;
         protected readonly BotState m_userState;
 
         public DialogBot(ConversationState conversationState, UserState userState, T dialog)
@@ -347,6 +347,7 @@ namespace Nifty.Knowledge
     public interface IReadOnlyFormulaList : IReadOnlyFormulaCollection, IReadOnlyList<IFormula> { }
 
 
+
     public enum TermType
     {
         Any,
@@ -376,10 +377,12 @@ namespace Nifty.Knowledge
     }
     public interface IBlank : IConstant
     {
+        // Uri Value { get; } ?
         public new string Value { get; }
     }
     public interface IUri : IConstant
     {
+        // Uri Value { get; } ?
         public new string Value { get; }
     }
     public interface IFormula : ITerm, ISubstitute<IFormula>
