@@ -281,7 +281,7 @@ namespace Nifty.Extensibility
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : Querying.IQueryable, IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection>
+    public interface IReadOnlyFormulaCollection : Querying.IQueryable, IHasVariables, IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection>
     {
         public bool IsReadOnly { get; }
         //public bool IsGround { get; }
@@ -324,11 +324,9 @@ namespace Nifty.Knowledge
         Uri,
         Formula
     }
-    public interface ITerm : ISubstitute<ITerm>
+    public interface ITerm
     {
         public TermType TermType { get; }
-
-        //public bool IsGround { get; }
         public object Visit(ITermVisitor visitor);
         public bool Matches(ITerm other);
         //public string? ToString(XmlNamespaceManager xmlns, bool quoting);
@@ -356,7 +354,7 @@ namespace Nifty.Knowledge
     }
     public interface IBox : IConstant { }
 
-    public interface IFormula : ITerm, ISubstitute<IFormula>
+    public interface IFormula : ITerm
     {
         public ITerm Predicate { get; }
 
@@ -415,7 +413,7 @@ namespace Nifty.Knowledge.Building
 
         public new IReadOnlyFormulaCollection About { get; set; }
 
-        public IReadOnlyFormulaCollection Build(bool isReadOnly = true); // perhaps other parameters
+        public IReadOnlyFormulaCollection Build(bool isReadOnly = true); // perhaps other parameters, e.g., bool isSelfSchema = false
     }
 
     public interface ISchemaBuilder : IFormulaCollectionBuilder
@@ -1585,7 +1583,7 @@ namespace Nifty
         public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
         {
             var builder = Factory.KnowledgeGraphBuilder(schema);
-            foreach(var formula in formulas)
+            foreach (var formula in formulas)
             {
                 builder.Add(formula);
             }
@@ -1601,46 +1599,6 @@ namespace Nifty
             return builder.Build(isReadOnly: false) as IFormulaCollection ?? throw new InvalidCastException();
         }
 
-        //public static IReadOnlySchema ReadOnlyFormulaCollectionSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static IReadOnlySchema ReadOnlyFormulaCollectionSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static IReadOnlySchema ReadOnlyKnowledgeGraphSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static IReadOnlySchema ReadOnlyKnowledgeGraphSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static ISchema FormulaCollectionSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static ISchema KnowledgeGraphSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
         public static IFormulaCollectionBuilder FormulaCollectionBuilder()
         {
