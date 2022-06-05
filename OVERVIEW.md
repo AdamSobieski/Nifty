@@ -70,10 +70,10 @@ In this approach, terms are URI-based, utilizing XML namespaces and, as n-ary en
 Formulas can be n-ary and can be triples.
 
 ```cs
-IFormula nary = Factory.Formula(...);
+IFormula nary = Term.Formula(...);
 ```
 ```cs
-IFormula triple = Factory.Triple(...);
+IFormula triple = Term.Triple(...);
 ```
 
 When creating collections of formulas, developers can specify whether they desire for them to be knowledge graphs.

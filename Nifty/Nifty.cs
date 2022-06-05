@@ -9,6 +9,7 @@ using Nifty.Analytics;
 using Nifty.Collections;
 using Nifty.Common;
 using Nifty.Dialogs;
+using Nifty.Extensibility;
 using Nifty.Knowledge;
 using Nifty.Knowledge.Building;
 using Nifty.Knowledge.Querying;
@@ -19,7 +20,11 @@ using Nifty.Messaging;
 using Nifty.Messaging.Events;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
+using System.Composition;
+using System.Composition.Hosting;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Runtime.Loader;
 
 namespace Nifty.Activities
 {
@@ -72,7 +77,7 @@ namespace Nifty.Activities
 
 namespace Nifty.Algorithms
 {
-    public interface IAlgorithm : IHasReadOnlyMetadata, ISessionInitializable, ISessionOptimizable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable
+    public interface IAlgorithm : IComponent, IMessageSource, IMessageHandler, IEventSource, IEventHandler
     {
         public IAsyncEnumerator<IActivityGenerator> GetAsyncEnumerator(ISession session, CancellationToken cancellationToken);
     }
@@ -147,11 +152,6 @@ namespace Nifty.Common
         public IDisposable Initialize();
     }
 
-    public interface IOptimizable
-    {
-        public IDisposable Optimize(IEnumerable<string> hints);
-    }
-
     public interface INotifyChanged
     {
         public event EventHandler? Changed;
@@ -173,13 +173,13 @@ namespace Nifty.Common
     {
         class CombinedDisposable : IDisposable
         {
-            public CombinedDisposable(IDisposable[] array)
+            public CombinedDisposable(IEnumerable<IDisposable> disposables)
             {
                 m_disposed = false;
-                m_array = array;
+                m_disposables = disposables;
             }
             bool m_disposed;
-            readonly IDisposable[] m_array;
+            readonly IEnumerable<IDisposable> m_disposables;
 
             public void Dispose()
             {
@@ -189,11 +189,11 @@ namespace Nifty.Common
 
                     List<Exception> errors = new List<Exception>();
 
-                    for (int index = 0; index < m_array.Length; index++)
+                    foreach(var disposable in m_disposables)
                     {
                         try
                         {
-                            m_array[index].Dispose();
+                            disposable.Dispose();
                         }
                         catch (Exception ex)
                         {
@@ -208,7 +208,7 @@ namespace Nifty.Common
                 }
             }
         }
-        static readonly CombinedDisposable s_empty = new CombinedDisposable(Array.Empty<IDisposable>());
+        static readonly CombinedDisposable s_empty = new CombinedDisposable(Enumerable.Empty<IDisposable>());
 
         public static IDisposable Empty
         {
@@ -221,12 +221,16 @@ namespace Nifty.Common
         {
             return new CombinedDisposable(scopes);
         }
+        public static IDisposable All(IEnumerable<IDisposable> scopes)
+        {
+            return new CombinedDisposable(scopes);
+        }
     }
 }
 
 namespace Nifty.Dialogs
 {
-    public interface IDialogSystem : IBot, ISessionInitializable, ISessionOptimizable, IMessageHandler, IMessageSource, IEventHandler, IEventSource, ISessionDisposable
+    public interface IDialogSystem : IBot, ISessionInitializable, IMessageHandler, IMessageSource, IEventHandler, IEventSource, ISessionDisposable
     {
         public void EnterActivity(Nifty.Activities.IActivity activity);
         public void ExitActivity(Nifty.Activities.IActivity activity);
@@ -269,7 +273,10 @@ namespace Nifty.Dialogs
 
 namespace Nifty.Extensibility
 {
+    // in theory, can use Nifty metadata for describing add-ons, plug-ins, and extensions...
+    public interface IComponent : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable { }
 
+    public class ComponentMetadata { }
 }
 
 namespace Nifty.Knowledge
@@ -396,7 +403,7 @@ namespace Nifty.Knowledge
 
 
 
-    public interface IKnowledgebase : IFormulaCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
+    public interface IKnowledgebase : IFormulaCollection, ISessionInitializable, IEventHandler, ISessionDisposable { }
 }
 
 namespace Nifty.Knowledge.Building
@@ -986,31 +993,35 @@ namespace Nifty.Sessions
     {
         public IDisposable Initialize(ISession session);
     }
-    public interface ISessionOptimizable
-    {
-        public IDisposable Optimize(ISession session, IEnumerable<string> hints);
-    }
     public interface ISessionDisposable
     {
         public void Dispose(ISession session);
     }
 
-    public interface ISession : IHasReadOnlyMetadata, IInitializable, IOptimizable, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IActivityGenerator>
+    public interface ISession : IHasReadOnlyMetadata, IInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IActivityGenerator>
     {
+        [ImportMany]
+        protected IEnumerable<Lazy<IComponent, ComponentMetadata>> Components { get; set; }
+
         public IConfiguration Configuration { get; }
+        public ILogger Log { get; }
+
+
+
+        public IDialogSystem DialogueSystem { get; }
         public IKnowledgebase Knowledgebase { get; }
         public IUserModel User { get; }
         public IActivityGeneratorStore Store { get; }
         public IAlgorithm Algorithm { get; }
         public IActivityScheduler Scheduler { get; }
         public IAnalytics Analytics { get; }
-        public ILogger Log { get; }
 
-        public IDialogSystem DialogueSystem { get; }
 
         IDisposable IInitializable.Initialize()
         {
-            var value = Disposable.All(
+            Compose();
+
+            var disposables = new List<IDisposable>(new IDisposable[] {
                 Analytics.Initialize(this),
                 Knowledgebase.Initialize(this),
                 User.Initialize(this),
@@ -1018,20 +1029,30 @@ namespace Nifty.Sessions
                 Algorithm.Initialize(this),
                 Scheduler.Initialize(this),
                 DialogueSystem.Initialize(this)
-            );
+            });
 
-            // DialogueSystem.Subscribe(Keys.Events.All, this);
+            foreach(var component in Components)
+            {
+                disposables.Add(component.Value.Initialize(this));
+            }
 
-            return value;
+            return Disposable.All(disposables);
         }
 
-        IDisposable IOptimizable.Optimize(IEnumerable<string> hints)
+        private void Compose()
         {
-            return Disposable.All(
-                Knowledgebase.Optimize(this, hints),
-                DialogueSystem.Optimize(this, hints),
-                Algorithm.Optimize(this, hints)
-            );
+            string location = Assembly.GetEntryAssembly()?.Location ?? throw new Exception();
+            string path = Path.GetDirectoryName(location) ?? throw new Exception();
+            path = Path.Combine(path, "Plugins");
+
+            var dlls = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories).Select(AssemblyLoadContext.Default.LoadFromAssemblyPath).ToList();
+
+            var configuration = new ContainerConfiguration().WithAssemblies(dlls);
+
+            using (var container = configuration.CreateContainer())
+            {
+                Components = container.GetExports<Lazy<IComponent, ComponentMetadata>>();
+            }
         }
 
         public Task SaveStateInBackground(CancellationToken cancellationToken);
@@ -1040,8 +1061,6 @@ namespace Nifty.Sessions
         {
             GC.SuppressFinalize(this);
 
-            // DialogueSystem.Unsubscribe(Keys.Events.All, this);
-
             Algorithm.Dispose(this);
             User.Dispose(this);
             Store.Dispose(this);
@@ -1049,6 +1068,11 @@ namespace Nifty.Sessions
             DialogueSystem.Dispose(this);
             Knowledgebase.Dispose(this);
             Analytics.Dispose(this);
+
+            foreach (var component in Components)
+            {
+                component.Value.Dispose(this);
+            }
 
             GC.ReRegisterForFinalize(this);
         }
@@ -1070,53 +1094,53 @@ namespace Nifty
         //    {
         //        // https://docs.microsoft.com/en-us/dotnet/standard/data/xml/mapping-xml-data-types-to-clr-types
 
-        //        public static readonly IUri @string = Factory.Uri("http://www.w3.org/2001/XMLSchema#string");
+        //        public static readonly IUri @string = Term.Uri("http://www.w3.org/2001/XMLSchema#string");
 
-        //        public static readonly IUri @duration = Factory.Uri("http://www.w3.org/2001/XMLSchema#duration");
-        //        public static readonly IUri @dateTime = Factory.Uri("http://www.w3.org/2001/XMLSchema#dateTime");
-        //        public static readonly IUri @time = Factory.Uri("http://www.w3.org/2001/XMLSchema#time");
-        //        public static readonly IUri @date = Factory.Uri("http://www.w3.org/2001/XMLSchema#date");
+        //        public static readonly IUri @duration = Term.Uri("http://www.w3.org/2001/XMLSchema#duration");
+        //        public static readonly IUri @dateTime = Term.Uri("http://www.w3.org/2001/XMLSchema#dateTime");
+        //        public static readonly IUri @time = Term.Uri("http://www.w3.org/2001/XMLSchema#time");
+        //        public static readonly IUri @date = Term.Uri("http://www.w3.org/2001/XMLSchema#date");
         //        //...
-        //        public static readonly IUri @anyURI = Factory.Uri("http://www.w3.org/2001/XMLSchema#anyURI");
-        //        public static readonly IUri @QName = Factory.Uri("http://www.w3.org/2001/XMLSchema#QName");
+        //        public static readonly IUri @anyURI = Term.Uri("http://www.w3.org/2001/XMLSchema#anyURI");
+        //        public static readonly IUri @QName = Term.Uri("http://www.w3.org/2001/XMLSchema#QName");
 
-        //        public static readonly IUri @boolean = Factory.Uri("http://www.w3.org/2001/XMLSchema#boolean");
+        //        public static readonly IUri @boolean = Term.Uri("http://www.w3.org/2001/XMLSchema#boolean");
 
-        //        public static readonly IUri @byte = Factory.Uri("http://www.w3.org/2001/XMLSchema#byte");
-        //        public static readonly IUri @unsignedByte = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedByte");
-        //        public static readonly IUri @short = Factory.Uri("http://www.w3.org/2001/XMLSchema#short");
-        //        public static readonly IUri @unsignedShort = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedShort");
-        //        public static readonly IUri @int = Factory.Uri("http://www.w3.org/2001/XMLSchema#int");
-        //        public static readonly IUri @unsignedInt = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedInt");
-        //        public static readonly IUri @long = Factory.Uri("http://www.w3.org/2001/XMLSchema#long");
-        //        public static readonly IUri @unsignedLong = Factory.Uri("http://www.w3.org/2001/XMLSchema#unsignedLong");
+        //        public static readonly IUri @byte = Term.Uri("http://www.w3.org/2001/XMLSchema#byte");
+        //        public static readonly IUri @unsignedByte = Term.Uri("http://www.w3.org/2001/XMLSchema#unsignedByte");
+        //        public static readonly IUri @short = Term.Uri("http://www.w3.org/2001/XMLSchema#short");
+        //        public static readonly IUri @unsignedShort = Term.Uri("http://www.w3.org/2001/XMLSchema#unsignedShort");
+        //        public static readonly IUri @int = Term.Uri("http://www.w3.org/2001/XMLSchema#int");
+        //        public static readonly IUri @unsignedInt = Term.Uri("http://www.w3.org/2001/XMLSchema#unsignedInt");
+        //        public static readonly IUri @long = Term.Uri("http://www.w3.org/2001/XMLSchema#long");
+        //        public static readonly IUri @unsignedLong = Term.Uri("http://www.w3.org/2001/XMLSchema#unsignedLong");
 
-        //        public static readonly IUri @decimal = Factory.Uri("http://www.w3.org/2001/XMLSchema#decimal");
+        //        public static readonly IUri @decimal = Term.Uri("http://www.w3.org/2001/XMLSchema#decimal");
 
-        //        public static readonly IUri @float = Factory.Uri("http://www.w3.org/2001/XMLSchema#float");
-        //        public static readonly IUri @double = Factory.Uri("http://www.w3.org/2001/XMLSchema#double");
+        //        public static readonly IUri @float = Term.Uri("http://www.w3.org/2001/XMLSchema#float");
+        //        public static readonly IUri @double = Term.Uri("http://www.w3.org/2001/XMLSchema#double");
         //    }
         //    public static class Dc
         //    {
-        //        public static readonly IUri title = Factory.Uri("http://purl.org/dc/terms/title");
-        //        public static readonly IUri description = Factory.Uri("http://purl.org/dc/terms/description");
+        //        public static readonly IUri title = Term.Uri("http://purl.org/dc/terms/title");
+        //        public static readonly IUri description = Term.Uri("http://purl.org/dc/terms/description");
         //    }
         //    public static class Swo
         //    {
-        //        public static readonly IUri version = Factory.Uri("http://www.ebi.ac.uk/swo/SWO_0004000");
+        //        public static readonly IUri version = Term.Uri("http://www.ebi.ac.uk/swo/SWO_0004000");
         //    }
         //    public static class Rdf
         //    {
-        //        public static readonly IUri type = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-        //        public static readonly IUri subject = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#subject");
-        //        public static readonly IUri predicate = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate");
-        //        public static readonly IUri @object = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#object");
+        //        public static readonly IUri type = Term.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+        //        public static readonly IUri subject = Term.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#subject");
+        //        public static readonly IUri predicate = Term.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate");
+        //        public static readonly IUri @object = Term.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#object");
 
-        //        public static readonly IUri Statement = Factory.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement");
+        //        public static readonly IUri Statement = Term.Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement");
         //    }
         //    public static class Foaf
         //    {
-        //        public static readonly IUri name = Factory.Uri("http://xmlns.com/foaf/0.1/name");
+        //        public static readonly IUri name = Term.Uri("http://xmlns.com/foaf/0.1/name");
         //    }
         //    public static class Lom
         //    {
@@ -1124,8 +1148,8 @@ namespace Nifty
         //    }
         //    public static class Eo
         //    {
-        //        public static readonly IUri raisesEventType = Factory.Uri("http://www.event-ontology.org/raisesEventType");
-        //        public static readonly IUri Event = Factory.Uri("http://www.event-ontology.org/Event");
+        //        public static readonly IUri raisesEventType = Term.Uri("http://www.event-ontology.org/raisesEventType");
+        //        public static readonly IUri Event = Term.Uri("http://www.event-ontology.org/Event");
         //    }
         //}
 
@@ -1137,30 +1161,30 @@ namespace Nifty
 
         //public static class Events
         //{
-        //    //public static readonly IUriTerm All = Factory.Uri("http://www.w3.org/2002/07/owl#Thing");
+        //    //public static readonly IUriTerm All = Term.Uri("http://www.w3.org/2002/07/owl#Thing");
 
-        //    public static readonly IUri InitializedSession = Factory.Uri("http://www.events.org/events/InitializedSession");
-        //    public static readonly IUri ObtainedGenerator = Factory.Uri("http://www.events.org/events/ObtainedGenerator");
-        //    public static readonly IUri GeneratingActivity = Factory.Uri("http://www.events.org/events/GeneratingActivity");
-        //    public static readonly IUri GeneratedActivity = Factory.Uri("http://www.events.org/events/GeneratedActivity");
-        //    public static readonly IUri ExecutingActivity = Factory.Uri("http://www.events.org/events/ExecutingActivity");
-        //    public static readonly IUri ExecutedActivity = Factory.Uri("http://www.events.org/events/ExecutedActivity");
-        //    public static readonly IUri DisposingSession = Factory.Uri("http://www.events.org/events/DisposingSession");
+        //    public static readonly IUri InitializedSession = Term.Uri("http://www.events.org/events/InitializedSession");
+        //    public static readonly IUri ObtainedGenerator = Term.Uri("http://www.events.org/events/ObtainedGenerator");
+        //    public static readonly IUri GeneratingActivity = Term.Uri("http://www.events.org/events/GeneratingActivity");
+        //    public static readonly IUri GeneratedActivity = Term.Uri("http://www.events.org/events/GeneratedActivity");
+        //    public static readonly IUri ExecutingActivity = Term.Uri("http://www.events.org/events/ExecutingActivity");
+        //    public static readonly IUri ExecutedActivity = Term.Uri("http://www.events.org/events/ExecutedActivity");
+        //    public static readonly IUri DisposingSession = Term.Uri("http://www.events.org/events/DisposingSession");
 
         //    public static class Data
         //    {
-        //        public static readonly IUri Algorithm = Factory.Uri("urn:eventdata:Algorithm");
-        //        public static readonly IUri Generator = Factory.Uri("urn:eventdata:Generator");
-        //        public static readonly IUri Activity = Factory.Uri("urn:eventdata:Activity");
-        //        public static readonly IUri User = Factory.Uri("urn:eventdata:User");
-        //        public static readonly IUri Result = Factory.Uri("urn:eventdata:Result");
+        //        public static readonly IUri Algorithm = Term.Uri("urn:eventdata:Algorithm");
+        //        public static readonly IUri Generator = Term.Uri("urn:eventdata:Generator");
+        //        public static readonly IUri Activity = Term.Uri("urn:eventdata:Activity");
+        //        public static readonly IUri User = Term.Uri("urn:eventdata:User");
+        //        public static readonly IUri Result = Term.Uri("urn:eventdata:Result");
         //    }
         //}
 
         public static class Builtins
         {
-            public static readonly IUri add = Factory.Uri("urn:builtin:add");
-            public static readonly IUri and = Factory.Uri("urn:builtin:and");
+            public static readonly IUri add = Term.Uri("urn:builtin:add");
+            public static readonly IUri and = Term.Uri("urn:builtin:and");
             // ...
 
             public static class Types
@@ -1171,76 +1195,76 @@ namespace Nifty
 
         public static class Composition
         {
-            public static readonly IUri hasComposition = Factory.Uri("urn:builtin:hasComposition");
+            public static readonly IUri hasComposition = Term.Uri("urn:builtin:hasComposition");
 
-            public static readonly IUri exists = Factory.Uri("urn:builtin:exists");
-            public static readonly IUri notExists = Factory.Uri("urn:builtin:notExists");
-            public static readonly IUri filter = Factory.Uri("urn:builtin:filter");
-            public static readonly IUri optional = Factory.Uri("urn:builtin:optional");
-            public static readonly IUri minus = Factory.Uri("urn:builtin:minus");
-            public static readonly IUri union = Factory.Uri("urn:builtin:union");
-            public static readonly IUri bind = Factory.Uri("urn:builtin:bind");
-            public static readonly IUri values = Factory.Uri("urn:builtin:values");
+            public static readonly IUri exists = Term.Uri("urn:builtin:exists");
+            public static readonly IUri notExists = Term.Uri("urn:builtin:notExists");
+            public static readonly IUri filter = Term.Uri("urn:builtin:filter");
+            public static readonly IUri optional = Term.Uri("urn:builtin:optional");
+            public static readonly IUri minus = Term.Uri("urn:builtin:minus");
+            public static readonly IUri union = Term.Uri("urn:builtin:union");
+            public static readonly IUri bind = Term.Uri("urn:builtin:bind");
+            public static readonly IUri values = Term.Uri("urn:builtin:values");
 
             public static class Types
             {
-                public static readonly IUri Expression = Factory.Uri("urn:builtin:Expression");
+                public static readonly IUri Expression = Term.Uri("urn:builtin:Expression");
 
-                public static readonly IUri ExistsExpression = Factory.Uri("urn:builtin:ExistsExpression");
-                public static readonly IUri NotExistsExpression = Factory.Uri("urn:builtin:NotExistsExpression");
-                public static readonly IUri FilterExpression = Factory.Uri("urn:builtin:FilterExpression");
-                public static readonly IUri OptionalExpression = Factory.Uri("urn:builtin:OptionalExpression");
-                public static readonly IUri MinusExpression = Factory.Uri("urn:builtin:MinusExpression");
-                public static readonly IUri UnionExpression = Factory.Uri("urn:builtin:UnionExpression");
-                public static readonly IUri BindExpression = Factory.Uri("urn:builtin:BindExpression");
-                public static readonly IUri ValuesExpression = Factory.Uri("urn:builtin:ValuesExpression");
+                public static readonly IUri ExistsExpression = Term.Uri("urn:builtin:ExistsExpression");
+                public static readonly IUri NotExistsExpression = Term.Uri("urn:builtin:NotExistsExpression");
+                public static readonly IUri FilterExpression = Term.Uri("urn:builtin:FilterExpression");
+                public static readonly IUri OptionalExpression = Term.Uri("urn:builtin:OptionalExpression");
+                public static readonly IUri MinusExpression = Term.Uri("urn:builtin:MinusExpression");
+                public static readonly IUri UnionExpression = Term.Uri("urn:builtin:UnionExpression");
+                public static readonly IUri BindExpression = Term.Uri("urn:builtin:BindExpression");
+                public static readonly IUri ValuesExpression = Term.Uri("urn:builtin:ValuesExpression");
             }
         }
 
         public static class Constraints
         {
-            public static readonly IUri hasConstraint = Factory.Uri("urn:builtin:hasConstraint");
+            public static readonly IUri hasConstraint = Term.Uri("urn:builtin:hasConstraint");
         }
 
         public static class Querying
         {
-            public static readonly IUri where = Factory.Uri("urn:builtin:where");
-            public static readonly IUri groupBy = Factory.Uri("urn:builtin:groupBy");
-            public static readonly IUri orderBy = Factory.Uri("urn:builtin:orderBy");
-            public static readonly IUri distinct = Factory.Uri("urn:builtin:distinct");
-            public static readonly IUri reduced = Factory.Uri("urn:builtin:reduced");
-            public static readonly IUri offset = Factory.Uri("urn:builtin:offset");
-            public static readonly IUri limit = Factory.Uri("urn:builtin:limit");
+            public static readonly IUri where = Term.Uri("urn:builtin:where");
+            public static readonly IUri groupBy = Term.Uri("urn:builtin:groupBy");
+            public static readonly IUri orderBy = Term.Uri("urn:builtin:orderBy");
+            public static readonly IUri distinct = Term.Uri("urn:builtin:distinct");
+            public static readonly IUri reduced = Term.Uri("urn:builtin:reduced");
+            public static readonly IUri offset = Term.Uri("urn:builtin:offset");
+            public static readonly IUri limit = Term.Uri("urn:builtin:limit");
 
-            public static readonly IUri ask = Factory.Uri("urn:builtin:ask");
-            public static readonly IUri select = Factory.Uri("urn:builtin:select");
-            public static readonly IUri construct = Factory.Uri("urn:builtin:construct");
-            public static readonly IUri describe = Factory.Uri("urn:builtin:describe");
+            public static readonly IUri ask = Term.Uri("urn:builtin:ask");
+            public static readonly IUri select = Term.Uri("urn:builtin:select");
+            public static readonly IUri construct = Term.Uri("urn:builtin:construct");
+            public static readonly IUri describe = Term.Uri("urn:builtin:describe");
 
             public static class Types
             {
-                public static readonly IUri Query = Factory.Uri("urn:builtin:Query");
+                public static readonly IUri Query = Term.Uri("urn:builtin:Query");
 
-                public static readonly IUri WhereQuery = Factory.Uri("urn:builtin:WhereQuery");
-                public static readonly IUri GroupByQuery = Factory.Uri("urn:builtin:GroupByQuery");
-                public static readonly IUri OrderByQuery = Factory.Uri("urn:builtin:OrderByQuery");
-                public static readonly IUri DistinctQuery = Factory.Uri("urn:builtin:DistinctQuery");
-                public static readonly IUri ReducedQuery = Factory.Uri("urn:builtin:ReducedQuery");
-                public static readonly IUri OffsetQuery = Factory.Uri("urn:builtin:OffsetQuery");
-                public static readonly IUri LimitQuery = Factory.Uri("urn:builtin:LimitQuery");
+                public static readonly IUri WhereQuery = Term.Uri("urn:builtin:WhereQuery");
+                public static readonly IUri GroupByQuery = Term.Uri("urn:builtin:GroupByQuery");
+                public static readonly IUri OrderByQuery = Term.Uri("urn:builtin:OrderByQuery");
+                public static readonly IUri DistinctQuery = Term.Uri("urn:builtin:DistinctQuery");
+                public static readonly IUri ReducedQuery = Term.Uri("urn:builtin:ReducedQuery");
+                public static readonly IUri OffsetQuery = Term.Uri("urn:builtin:OffsetQuery");
+                public static readonly IUri LimitQuery = Term.Uri("urn:builtin:LimitQuery");
 
-                public static readonly IUri AskQuery = Factory.Uri("urn:builtin:AskQuery");
-                public static readonly IUri SelectQuery = Factory.Uri("urn:builtin:SelectQuery");
-                public static readonly IUri ConstructQuery = Factory.Uri("urn:builtin:ConstructQuery");
-                public static readonly IUri DescribeQuery = Factory.Uri("urn:builtin:DescribeQuery");
+                public static readonly IUri AskQuery = Term.Uri("urn:builtin:AskQuery");
+                public static readonly IUri SelectQuery = Term.Uri("urn:builtin:SelectQuery");
+                public static readonly IUri ConstructQuery = Term.Uri("urn:builtin:ConstructQuery");
+                public static readonly IUri DescribeQuery = Term.Uri("urn:builtin:DescribeQuery");
             }
         }
 
-        public static readonly IUri type = Factory.Uri("urn:builtin:type");
-        public static readonly IUri quote = Factory.Uri("urn:builtin:quote");
+        public static readonly IUri type = Term.Uri("urn:builtin:type");
+        public static readonly IUri quote = Term.Uri("urn:builtin:quote");
     }
 
-    public static partial class Factory
+    public static partial class Term
     {
         public static IAny Any()
         {
@@ -1314,6 +1338,9 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
+
+
+
         public static IBox Literal(bool value)
         {
             // return Box(new Literal(value.ToString(), null, Keys.Semantics.Xsd.boolean.Uri));
@@ -1376,12 +1403,13 @@ namespace Nifty
             throw new NotImplementedException();
         }
 
+
+
         public static IFormula Formula(ITerm predicate, params ITerm[] arguments)
         {
             throw new NotImplementedException();
         }
-
-        public static IFormula TriplePSO(ITerm predicate, ITerm subject, ITerm @object)
+        public static IFormula Triple(ITerm predicate, ITerm subject, ITerm @object)
         {
             throw new NotImplementedException();
         }
@@ -1389,8 +1417,106 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
+    }
 
+    // there might be other, possibly better, ways, to generate builtin formulas,
+    // e.g., allowing developers to provide formula collections which describe the terms to be combined into formulas
+    // in these cases, these methods would be generators which bind to the most specific predicates depending on the types of the terms, e.g., integers or complex numbers
+    public static partial class Formula
+    {
+        // these could be extension methods
+        //public static bool IsPredicate(this ITerm term, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static int HasArity(this ITerm term, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IEnumerable<ITerm> ClassesOfArgument(this ITerm term, int index, IReadOnlySchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
+        public static IFormula Add(ITerm x, ITerm y)
+        {
+            return Term.Formula(Keys.Builtins.add, x, y);
+        }
+        public static IFormula And(ITerm x, ITerm y)
+        {
+            return Term.Formula(Keys.Builtins.and, x, y);
+        }
+        public static IFormula AndAlso(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Divide(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Equals(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula ExclusiveOr(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula GreaterThan(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula GreaterThanOrEqual(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula LessThan(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula LessThanOrEqual(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Multiply(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Negate(ITerm x)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Not(ITerm x)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula NotEquals(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Or(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula OrElse(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormula Subtract(ITerm x, ITerm y)
+        {
+            throw new NotImplementedException();
+        }
+
+        // ...
+
+        public static ILambdaFormula Lambda(ITerm body, params IVariable[]? parameters)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static partial class Factory
+    {
         public static IReadOnlyFormulaCollection EmptyFormulaCollection
         {
             get
@@ -1555,102 +1681,6 @@ namespace Nifty
             throw new NotImplementedException();
         }
         internal static IDescribeQuery DescribeQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema /* , ... */)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    // there might be other, possibly better, ways, to generate builtin formulas,
-    // e.g., allowing developers to provide formula collections which describe the terms to be combined into formulas
-    // in these cases, these methods would be generators which bind to the most specific predicates depending on the types of the terms, e.g., integers or complex numbers
-    public static partial class Formula
-    {
-        // these could be extension methods
-        //public static bool IsPredicate(this ITerm term, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static int HasArity(this ITerm term, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static IEnumerable<ITerm> ClassesOfArgument(this ITerm term, int index, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        public static IFormula Add(ITerm x, ITerm y)
-        {
-            return Factory.Formula(Keys.Builtins.add, x, y);
-        }
-        public static IFormula And(ITerm x, ITerm y)
-        {
-            return Factory.Formula(Keys.Builtins.and, x, y);
-        }
-        public static IFormula AndAlso(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula Divide(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula Equals(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula ExclusiveOr(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula GreaterThan(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula GreaterThanOrEqual(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula LessThan(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula LessThanOrEqual(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula Multiply(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula Negate(ITerm x)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula Not(ITerm x)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula NotEquals(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula Or(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula OrElse(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormula Subtract(ITerm x, ITerm y)
-        {
-            throw new NotImplementedException();
-        }
-
-        // ...
-
-        public static ILambdaFormula Lambda(ITerm body, params IVariable[]? parameters)
         {
             throw new NotImplementedException();
         }
