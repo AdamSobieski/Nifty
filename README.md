@@ -1,5 +1,5 @@
 # The Nifty Project
-The Nifty project is a framework for creating adaptive instructional systems. This project intends to simplify and accelerate the development of AIS software, e.g., intelligent tutoring systems and educational recommender systems.
+The [Nifty](https://github.com/AdamSobieski/Nifty) project will be a framework for creating adaptive instructional systems. The project intends to simplify and accelerate the development of AIS software, e.g., intelligent tutoring systems and educational recommender systems.
 
 ### Adaptive Instructional Systems
 ![AIS](Images/AIS.png)

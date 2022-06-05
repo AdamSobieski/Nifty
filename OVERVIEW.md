@@ -6,9 +6,9 @@ The [Nifty](https://github.com/AdamSobieski/Nifty) project will be a framework f
 
 It will be extensible, providing developers with means of conveniently exploring new theories and rapidly prototyping adaptive instructional systems. Developers will be able to create interoperable components, add-ons, plug-ins, and extensions.
 
-It will support configurability, enabling end-users, learners, educators, administrators, and schoolboard officials, to configure resultant adaptive instructional systems.
+It will support configurability, enabling end-users – learners, educators, administrators, and schoolboard officials – to configure resultant adaptive instructional systems.
 
-It will be scalable, supporting the creation of solutions which serve a large number of learners simultaneously.
+It will provide scalability, enabling the development of solutions which serve a large number of learners simultaneously.
 
 
 

@@ -281,7 +281,7 @@ namespace Nifty.Extensibility
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : Querying.IQueryable, IHasVariables, IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection>
+    public interface IReadOnlyFormulaCollection : Querying.IQueryable, IHasReadOnlyMetadata, IHasReadOnlySchema, IHasVariables, ISubstitute<IReadOnlyFormulaCollection>
     {
         public bool IsReadOnly { get; }
         //public bool IsGround { get; }
@@ -358,6 +358,9 @@ namespace Nifty.Knowledge
     {
         public ITerm Predicate { get; }
 
+        // or is this an extension method?
+        // public bool IsGround { get; }
+
         public int Count { get; }
         public ITerm this[int index] { get; }
     }
@@ -389,6 +392,8 @@ namespace Nifty.Knowledge
     {
         public new IFormulaCollection About { get; }
     }
+
+
 
     public interface ITermVisitor
     {
@@ -1278,6 +1283,10 @@ namespace Nifty
             throw new NotImplementedException();
         }
         public static IBlank Blank(string id)
+        {
+            throw new NotImplementedException();
+        }
+        public static IVariable Variable()
         {
             throw new NotImplementedException();
         }
