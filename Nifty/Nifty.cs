@@ -1008,6 +1008,13 @@ namespace Nifty.Sessions
         [ImportMany]
         protected IEnumerable<Lazy<IComponent, ComponentMetadata>> Components { get; set; }
 
+        protected IEnumerable<IComponent> GetComponents(IAskQuery query)
+        {
+            return Components.Select(n => n.Value).Where(n => n.About.Query(query));
+        }
+
+
+
         public IConfiguration Configuration { get; }
         public ILogger Log { get; }
 
