@@ -267,9 +267,14 @@ namespace Nifty.Dialogs
     }
 }
 
+namespace Nifty.Extensibility
+{
+
+}
+
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : Querying.IQueryable, IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection> //, IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : Querying.IQueryable, IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection>
     {
         public bool IsReadOnly { get; }
         public bool IsGround { get; }
@@ -290,7 +295,7 @@ namespace Nifty.Knowledge
         public IReadOnlyFormulaCollection Clone();
         public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
     }
-    public interface IFormulaCollection : Nifty.Knowledge.Querying.IObservableQueryable, IReadOnlyFormulaCollection
+    public interface IFormulaCollection : IObservableQueryable, IReadOnlyFormulaCollection
     {
         public bool Add(IFormula formula);
         public bool Add(IReadOnlyFormulaCollection formulas);
@@ -764,9 +769,6 @@ namespace Nifty.Knowledge.Reasoning
 
     }
 
-    // formula evaluation
-    // the default evaluator will evaluate the builtin predicates, resembling expression trees and lambda.
-    // in addition to reasoners, these are topics for extensiblity, extensible default formula schema and extensible evaluatable vocabulary
     public interface IFormulaEvaluator
     {
         public bool Evaluate(IFormula formula, [NotNullWhen(true)] out ITerm? evaluation);
@@ -775,9 +777,6 @@ namespace Nifty.Knowledge.Reasoning
 
 namespace Nifty.Knowledge.Schema
 {
-    // Schemas should be sufficiently expressive so as to validate those formalas representing queries.
-    // That is, n-ary formulas are constructed as developers make use of fluent interfaces to construct queries and these formulas should be able to be validated by schema.
-
     public interface IReadOnlySchema : IReadOnlyFormulaCollection
     {
         public Task<bool> Validate(IReadOnlyFormulaCollection formulas);
@@ -1562,7 +1561,7 @@ namespace Nifty
     }
 
     // there might be other, possibly better, ways, to generate builtin formulas,
-    // e.g., allowing developers to provide formula collections with metadata which describes the terms to be combined into formulas
+    // e.g., allowing developers to provide formula collections which describe the terms to be combined into formulas
     // in these cases, these methods would be generators which bind to the most specific predicates depending on the types of the terms, e.g., integers or complex numbers
     public static partial class Formula
     {
