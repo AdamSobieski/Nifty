@@ -189,7 +189,7 @@ namespace Nifty.Common
 
                     List<Exception> errors = new List<Exception>();
 
-                    foreach(var disposable in m_disposables)
+                    foreach (var disposable in m_disposables)
                     {
                         try
                         {
@@ -273,8 +273,8 @@ namespace Nifty.Dialogs
 
 namespace Nifty.Extensibility
 {
-    // in theory, can use Nifty metadata for describing add-ons, plug-ins, and extensions...
-    public interface IComponent : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable { }
+    // considering use of Nifty metadata for describing add-ons, plug-ins, and extensions...
+    public interface IComponent : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable /*, IMessageSource, IMessageHandler */ { }
 
     public class ComponentMetadata { }
 }
@@ -284,7 +284,7 @@ namespace Nifty.Knowledge
     public interface IReadOnlyFormulaCollection : Querying.IQueryable, IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection>
     {
         public bool IsReadOnly { get; }
-        public bool IsGround { get; }
+        //public bool IsGround { get; }
         public bool IsInferred { get; }
         public bool IsValid { get; }
         public bool IsGraph { get; }
@@ -328,7 +328,7 @@ namespace Nifty.Knowledge
     {
         public TermType TermType { get; }
 
-        public bool IsGround { get; }
+        //public bool IsGround { get; }
         public object Visit(ITermVisitor visitor);
         public bool Matches(ITerm other);
         //public string? ToString(XmlNamespaceManager xmlns, bool quoting);
@@ -369,6 +369,7 @@ namespace Nifty.Knowledge
 
     public interface IHasVariables
     {
+        public bool IsGround { get; }
         public IEnumerable<IVariable> Variables { get; }
     }
     public interface ISubstitute<T> : IHasVariables
@@ -1031,7 +1032,7 @@ namespace Nifty.Sessions
                 DialogueSystem.Initialize(this)
             });
 
-            foreach(var component in Components)
+            foreach (var component in Components)
             {
                 disposables.Add(component.Value.Initialize(this));
             }
@@ -1286,6 +1287,9 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
+
+
+
         public static IBox Box(bool value)
         {
             throw new NotImplementedException();
@@ -1532,7 +1536,6 @@ namespace Nifty
             }
         }
 
-
         // the downside of these factory methods is that cannot easily use the formula collection id, Box(this), in the formulas, so have to use Blank() instead
         // considering expression trees and Constant(value)...
         // however, if the factory methods are desired, can encapsulate use of the builders inside these factory methods
@@ -1561,22 +1564,42 @@ namespace Nifty
         //{
         //    throw new NotImplementedException();
         //}
-        //public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        {
+            var builder = Factory.FormulaCollectionBuilder(schema);
+            foreach (var formula in formulas)
+            {
+                builder.Add(formula);
+            }
+            return builder.Build(isReadOnly: true);
+        }
+        public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        {
+            var builder = Factory.FormulaCollectionBuilder(schema);
+            foreach (var formula in formulas)
+            {
+                builder.Add(formula);
+            }
+            return builder.Build(isReadOnly: false) as IFormulaCollection ?? throw new InvalidCastException();
+        }
+        public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        {
+            var builder = Factory.KnowledgeGraphBuilder(schema);
+            foreach(var formula in formulas)
+            {
+                builder.Add(formula);
+            }
+            return builder.Build(isReadOnly: true);
+        }
+        public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        {
+            var builder = Factory.KnowledgeGraphBuilder(schema);
+            foreach (var formula in formulas)
+            {
+                builder.Add(formula);
+            }
+            return builder.Build(isReadOnly: false) as IFormulaCollection ?? throw new InvalidCastException();
+        }
 
         //public static IReadOnlySchema ReadOnlyFormulaCollectionSchemaWithSelfSchema(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta)
         //{
@@ -1618,10 +1641,6 @@ namespace Nifty
         //{
         //    throw new NotImplementedException();
         //}
-
-
-        // considering a builder model
-
 
         public static IFormulaCollectionBuilder FormulaCollectionBuilder()
         {

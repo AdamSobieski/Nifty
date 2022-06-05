@@ -16,7 +16,7 @@ It will be scalable, supporting the creation of solutions which serve a large nu
 
 ### Bot Framework
 
-The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) supports building dialogue systems and chatbots which utilize multiple channels including: Microsoft Teams, Direct Line, Web Chat, Skype, Email, Facebook, Slack, Kik, Telegram, Line, GroupMe, Twilio (SMS), Alexa Skills, Google Actions, Google Hangouts, WebEx, WhatsApp (Infobip), Zoom, RingCentral, and Cortana. Accordingly, the Nifty project is exploring using the Bot Framework for accelerating adaptive instruction systems research and development.
+The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) supports building large-scale dialogue systems and chatbots which can utilize multiple channels including: Microsoft Teams, Direct Line, Web Chat, Skype, Email, Facebook, Slack, Kik, Telegram, Line, GroupMe, Twilio (SMS), Alexa Skills, Google Actions, Google Hangouts, WebEx, WhatsApp (Infobip), Zoom, RingCentral, and Cortana. Accordingly, the Nifty project is exploring using the Bot Framework for accelerating adaptive instruction systems research and development.
 
 ### Interactive Fiction
 
