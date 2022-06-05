@@ -1,12 +1,13 @@
 ﻿using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Nifty.Activities;
 using Nifty.Algorithms;
 using Nifty.Analytics;
 using Nifty.Collections;
 using Nifty.Common;
-using Nifty.Configuration;
 using Nifty.Dialogs;
 using Nifty.Knowledge;
 using Nifty.Knowledge.Building;
@@ -14,7 +15,6 @@ using Nifty.Knowledge.Querying;
 using Nifty.Knowledge.Reasoning;
 using Nifty.Knowledge.Schema;
 using Nifty.Knowledge.Updating;
-using Nifty.Logging;
 using Nifty.Messaging;
 using Nifty.Messaging.Events;
 using Nifty.Modelling.Users;
@@ -28,6 +28,9 @@ namespace Nifty.Activities
     public interface IActivityGeneratorStore : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable
     {
         // will this utilize Nifty.Knowledge.Querying or will it have its own querying mechanism?
+        // could do something like:
+        // public IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> Query(ISelectQuery query);
+        // public IActivityGenerator Retrieve(IUri resource);
     }
     public interface IActivityGenerator : IHasReadOnlyMetadata
     {
@@ -221,23 +224,6 @@ namespace Nifty.Common
     }
 }
 
-namespace Nifty.Configuration
-{
-    public interface ISetting<out T>
-    {
-        public IUri Term { get; }
-        public T DefaultValue { get; }
-    }
-
-    public interface IConfiguration : ISessionInitializable, ISessionOptimizable, ISessionDisposable, INotifyChanged
-    {
-        public bool About(IUri setting, [NotNullWhen(true)] out IReadOnlyFormulaCollection? description);
-        public bool About(IUri setting, [NotNullWhen(true)] out IReadOnlyFormulaCollection? description, string language);
-        public bool TryGetSetting(IUri setting, [NotNullWhen(true)] out IConvertible? value);
-        public bool TryGetSetting(IUri setting, [NotNullWhen(true)] out IConvertible? value, string language);
-    }
-}
-
 namespace Nifty.Dialogs
 {
     public interface IDialogSystem : IBot, ISessionInitializable, ISessionOptimizable, IMessageHandler, IMessageSource, IEventHandler, IEventSource, ISessionDisposable
@@ -281,14 +267,9 @@ namespace Nifty.Dialogs
     }
 }
 
-namespace Nifty.Extensibility
-{
-    // the Nifty architecture will support developing add-ons, plugins, and extensions
-}
-
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection> //, IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : IReadOnlyQueryable, IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection> //, IEventSource, INotifyChanged
     {
         public bool IsReadOnly { get; }
         public bool IsGround { get; }
@@ -301,47 +282,21 @@ namespace Nifty.Knowledge
 
         public IEnumerable<IDerivation> Derivations(IFormula formula);
 
-        public IEnumerable<IFormula> Find(IFormula formula);
-        public IDisposable Find(IFormula formula, IObserver<IFormula> observer);
-
-        public int Count();
-        public int Count(IFormula formula);
-        public int Count(ISelectQuery query);
-        public int Count(IConstructQuery query);
-
         public IUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
 
-        public bool Query(IAskQuery query);
-        public IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> Query(ISelectQuery query);
-        public IEnumerable<IReadOnlyFormulaCollection> Query(IConstructQuery query);
-        public IReadOnlyFormulaCollection Query(IDescribeQuery query);
-
-        // public IDisposable Query(IAskQuery query, IObserver<bool> observer);
-        public IDisposable Query(ISelectQuery query, IObserver<IReadOnlyDictionary<IVariable, ITerm>> observer);
-        public IDisposable Query(IConstructQuery query, IObserver<IReadOnlyFormulaCollection> observer);
-        //public IDisposable Query(IDescribeQuery query, IObserver<IReadOnlyFormulaCollection> observer);
+        public IEnumerable<IFormula> Find(IFormula formula);
+        public IDisposable Find(IFormula formula, IObserver<IFormula> observer);
 
         public IReadOnlyFormulaCollection Clone();
         public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
     }
-    public interface IFormulaCollection : IReadOnlyFormulaCollection
+    public interface IFormulaCollection : Nifty.Knowledge.Querying.IQueryable, IReadOnlyFormulaCollection
     {
         public bool Add(IFormula formula);
         public bool Add(IReadOnlyFormulaCollection formulas);
 
         public bool Remove(IFormula formula);
         public bool Remove(IReadOnlyFormulaCollection formulas);
-
-        // to do: support advanced querying where observers can receive query results and subsequent notifications as query results change due to formulas being removed from and added to formula collections
-
-        // public IDisposable Query(IAskQuery query, IObserver<Change<bool>> observer);
-        // public IDisposable Query(ISelectQuery query, IObserver<Change<IReadOnlyDictionary<IVariableTerm, ITerm>>> observer);
-        // public IDisposable Query(IConstructQuery query, IObserver<Change<IReadOnlyFormulaCollection>> observer);
-        // public IDisposable Query(IDescribeQuery query, IObserver<Change<IReadOnlyFormulaCollection>> observer);
-
-        // see also: "incremental tabling"
-
-        // could also use components from Nifty.Knowledge.Updating
     }
 
     public interface IReadOnlyFormulaList : IReadOnlyFormulaCollection, IReadOnlyList<IFormula> { }
@@ -402,7 +357,7 @@ namespace Nifty.Knowledge
 
     public interface IHasVariables
     {
-        public IReadOnlyList<IVariable> Variables { get; }
+        public IEnumerable<IVariable> Variables { get; }
     }
     public interface ISubstitute<T> : IHasVariables
     {
@@ -433,6 +388,8 @@ namespace Nifty.Knowledge
         public object Visit(IUri term);
         public object Visit(IFormula formula);
     }
+
+
 
     public interface IKnowledgebase : IFormulaCollection, ISessionInitializable, ISessionOptimizable, IEventHandler, ISessionDisposable { }
 }
@@ -515,6 +472,36 @@ namespace Nifty.Knowledge.Querying
     {
 
     }
+
+
+
+    public interface IReadOnlyQueryable
+    {
+        public bool Query(IAskQuery query);
+        public IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> Query(ISelectQuery query);
+        public IEnumerable<IReadOnlyFormulaCollection> Query(IConstructQuery query);
+        public IReadOnlyFormulaCollection Query(IDescribeQuery query);
+
+        // public IDisposable Query(IAskQuery query, IObserver<bool> observer);
+        public IDisposable Query(ISelectQuery query, IObserver<IReadOnlyDictionary<IVariable, ITerm>> observer);
+        public IDisposable Query(IConstructQuery query, IObserver<IReadOnlyFormulaCollection> observer);
+        //public IDisposable Query(IDescribeQuery query, IObserver<IReadOnlyFormulaCollection> observer);
+    }
+
+    public interface IQueryable : IReadOnlyQueryable
+    {
+        // to do: support advanced querying where observers can receive query results and subsequent notifications as query results change due to formulas being removed from and added to formula collections
+
+        // public IDisposable Query(IAskQuery query, IObserver<Change<bool>> observer);
+        // public IDisposable Query(ISelectQuery query, IObserver<Change<IReadOnlyDictionary<IVariableTerm, ITerm>>> observer);
+        // public IDisposable Query(IConstructQuery query, IObserver<Change<IReadOnlyFormulaCollection>> observer);
+        // public IDisposable Query(IDescribeQuery query, IObserver<Change<IReadOnlyFormulaCollection>> observer);
+
+        // see also: "incremental tabling"
+
+        // could also use components from Nifty.Knowledge.Updating
+    }
+
 
 
     public static class Query
@@ -879,15 +866,6 @@ namespace Nifty.Knowledge.Updating
     }
 }
 
-namespace Nifty.Logging
-{
-    // see also: https://developer.mozilla.org/en-US/docs/Web/API/console
-    public interface ILog : ISessionInitializable, IMessageHandler, IEventHandler, ISessionDisposable
-    {
-        public void WriteLine(string format, params object?[]? args);
-    }
-}
-
 namespace Nifty.MachineLearning
 {
 
@@ -1027,15 +1005,13 @@ namespace Nifty.Sessions
         public IAlgorithm Algorithm { get; }
         public IActivityScheduler Scheduler { get; }
         public IAnalytics Analytics { get; }
-        public ILog Log { get; }
+        public ILogger Log { get; }
 
         public IDialogSystem DialogueSystem { get; }
 
         IDisposable IInitializable.Initialize()
         {
             var value = Disposable.All(
-                Log.Initialize(this),
-                Configuration.Initialize(this),
                 Analytics.Initialize(this),
                 Knowledgebase.Initialize(this),
                 User.Initialize(this),
@@ -1053,7 +1029,6 @@ namespace Nifty.Sessions
         IDisposable IOptimizable.Optimize(IEnumerable<string> hints)
         {
             return Disposable.All(
-                Configuration.Optimize(this, hints),
                 Knowledgebase.Optimize(this, hints),
                 DialogueSystem.Optimize(this, hints),
                 Algorithm.Optimize(this, hints)
@@ -1074,9 +1049,7 @@ namespace Nifty.Sessions
             Scheduler.Dispose(this);
             DialogueSystem.Dispose(this);
             Knowledgebase.Dispose(this);
-            Configuration.Dispose(this);
             Analytics.Dispose(this);
-            Log.Dispose(this);
 
             GC.ReRegisterForFinalize(this);
         }
@@ -1270,26 +1243,6 @@ namespace Nifty
 
     public static partial class Factory
     {
-        internal sealed class SettingImpl<T> : ISetting<T>
-        {
-            public SettingImpl(IUri term, T defaultValue)
-            {
-                m_term = term;
-                m_defaultValue = defaultValue;
-            }
-
-            private readonly IUri m_term;
-            private readonly T m_defaultValue;
-
-            public IUri Term => m_term;
-
-            public T DefaultValue => m_defaultValue;
-        }
-        public static ISetting<T> Setting<T>(string uri, T defaultValue)
-        {
-            return new SettingImpl<T>(Uri(uri), defaultValue);
-        }
-
         public static IAny Any()
         {
             throw new NotImplementedException();
