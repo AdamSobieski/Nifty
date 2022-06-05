@@ -269,7 +269,7 @@ namespace Nifty.Dialogs
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : IReadOnlyQueryable, IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection> //, IEventSource, INotifyChanged
+    public interface IReadOnlyFormulaCollection : Querying.IQueryable, IHasReadOnlyMetadata, IHasReadOnlySchema, ISubstitute<IReadOnlyFormulaCollection> //, IEventSource, INotifyChanged
     {
         public bool IsReadOnly { get; }
         public bool IsGround { get; }
@@ -290,7 +290,7 @@ namespace Nifty.Knowledge
         public IReadOnlyFormulaCollection Clone();
         public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
     }
-    public interface IFormulaCollection : Nifty.Knowledge.Querying.IQueryable, IReadOnlyFormulaCollection
+    public interface IFormulaCollection : Nifty.Knowledge.Querying.IObservableQueryable, IReadOnlyFormulaCollection
     {
         public bool Add(IFormula formula);
         public bool Add(IReadOnlyFormulaCollection formulas);
@@ -475,7 +475,7 @@ namespace Nifty.Knowledge.Querying
 
 
 
-    public interface IReadOnlyQueryable
+    public interface IQueryable
     {
         public bool Query(IAskQuery query);
         public IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> Query(ISelectQuery query);
@@ -488,7 +488,7 @@ namespace Nifty.Knowledge.Querying
         //public IDisposable Query(IDescribeQuery query, IObserver<IReadOnlyFormulaCollection> observer);
     }
 
-    public interface IQueryable : IReadOnlyQueryable
+    public interface IObservableQueryable : IQueryable
     {
         // to do: support advanced querying where observers can receive query results and subsequent notifications as query results change due to formulas being removed from and added to formula collections
 
