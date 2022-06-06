@@ -999,7 +999,7 @@ namespace Nifty.Planning.Actions
         public IEnumerable<IVariable> GetVariables();
         public IReadOnlyFormulaCollection GetConstraints();
         public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator);
-        public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator, [NotNullWhen(true)] out IReadOnlyFormulaCollection? result);
+        public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator, [NotNullWhen(true)] out IAction? result);
     }
 }
 
