@@ -282,10 +282,10 @@ namespace Nifty.Extensibility
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : Querying.IQueryable, IHasReadOnlyMetadata, IHasReadOnlySchema, IHasVariables, ISubstitute<IReadOnlyFormulaCollection>
+    public interface IReadOnlyFormulaCollection : Querying.IQueryable, IHasReadOnlyMetadata, IHasReadOnlySchema
     {
         public bool IsReadOnly { get; }
-        //public bool IsGround { get; }
+        public bool IsGround { get; }
         public bool IsInferred { get; }
         public bool IsValid { get; }
         public bool IsGraph { get; }
@@ -299,6 +299,10 @@ namespace Nifty.Knowledge
 
         public IEnumerable<IFormula> Find(IFormula formula);
         public IDisposable Find(IFormula formula, IObserver<IFormula> observer);
+
+        public IEnumerable<IVariable> GetVariables();
+        public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map);
+        public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, [NotNullWhen(true)] out IReadOnlyFormulaCollection? result);
 
         public IReadOnlyFormulaCollection Clone();
         public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
@@ -368,17 +372,6 @@ namespace Nifty.Knowledge
     public interface ILambdaFormula : IFormula { }
 
 
-
-    public interface IHasVariables
-    {
-        public bool IsGround { get; }
-        public IEnumerable<IVariable> Variables { get; }
-    }
-    public interface ISubstitute<T> : IHasVariables
-    {
-        public bool CanSubstitute(IReadOnlyDictionary<IVariable, ITerm> map);
-        public bool Substitute(IReadOnlyDictionary<IVariable, ITerm> map, [NotNullWhen(true)] out T? result);
-    }
 
     public interface IHasReadOnlyIdentifier
     {
@@ -968,7 +961,12 @@ namespace Nifty.Planning.Actions
         public IUpdate Effects { get; }
     }
 
-    public interface IActionGenerator : ISubstitute<IAction> { }
+    public interface IActionGenerator
+    {
+        public IEnumerable<IVariable> GetVariables();
+        public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map);
+        public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, [NotNullWhen(true)] out IAction? result);
+    }
 }
 
 namespace Nifty.Planning.Constraints
