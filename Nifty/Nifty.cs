@@ -903,7 +903,7 @@ namespace Nifty.MachineLearning.ReinforcementLearning
 
 namespace Nifty.Messaging
 {
-    public interface IMessageSource
+    public interface IMessageSource : IHasReadOnlyMetadata
     {
         public IDisposable Subscribe(IAskQuery query, IMessageHandler listener);
     }
@@ -916,7 +916,7 @@ namespace Nifty.Messaging
 
 namespace Nifty.Messaging.Events
 {
-    public interface IEventSource
+    public interface IEventSource : IHasReadOnlyMetadata
     {
         public IDisposable Subscribe(IAskQuery query, IEventHandler listener);
     }
