@@ -18,6 +18,8 @@ using Nifty.Knowledge.Schema;
 using Nifty.Knowledge.Updating;
 using Nifty.Messaging;
 using Nifty.Messaging.Events;
+using Nifty.Modelling.Domains;
+using Nifty.Modelling.Pedagogical;
 using Nifty.Modelling.Users;
 using Nifty.Sessions;
 using System.Composition;
@@ -152,11 +154,6 @@ namespace Nifty.Common
         public IDisposable Initialize();
     }
 
-    public interface INotifyChanged
-    {
-        public event EventHandler? Changed;
-    }
-
     public interface IResumable<T>
     {
         public T Suspend();
@@ -275,7 +272,7 @@ namespace Nifty.Extensibility
 {
     // considering use of Nifty metadata for describing add-ons, plug-ins, and extensions
     // during system initialization, a "component connecting algorithm" should be able to utilize components' metadata to automatically interconnect components, connecting message sources and message handlers
-    public interface IComponent : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable, IMessageSource, IMessageHandler, IEventSource, IEventHandler { }
+    public interface IComponent : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable { }
 
     public class ComponentMetadata { }
 }
@@ -928,12 +925,41 @@ namespace Nifty.Messaging.Events
 
 namespace Nifty.Modelling.Domains
 {
-    public interface IDomainModel : IHasReadOnlyMetadata, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    // https://aisconsortium.com/wp-content/uploads/Design-Recommendations-for-ITS_Volume-1-Learner-Modeling.pdf p.39
+
+    /// <summary>
+    /// The domain model contains the set of skills, knowledge, and strategies of the topic being tutored.
+    /// It normally contains the ideal expert knowledge and may also contain the bugs, mal-rules, and misconceptions that students periodically exhibit.
+    /// It is a representation of all the possible student states in the domain.
+    /// While these states are typically tied to content, general psychological states (e.g., boredom, persistence) may also be included, since such states are relevant for a full understanding of possible pedagogy within the domain.
+    /// </summary>
+    public interface IDomainModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable { }
+}
+
+namespace Nifty.Modelling.Pedagogical
+{
+    // https://aisconsortium.com/wp-content/uploads/Design-Recommendations-for-ITS_Volume-1-Learner-Modeling.pdf p.39
+
+    /// <summary>
+    /// The pedagogical model takes the domain and student models as input and selects tutoring strategies, steps, and actions on what the tutor should do next in the exchange with the student to move the student state to more optimal states in the domain.
+    /// In mixed-initiative systems, the students may also initiate actions, ask questions, or request help, but the ITS always needs to be ready to decide “what to do next” at any point and this is determined by a tutoring model that captures the researchers’ pedagogical theories.
+    /// Sometimes what to do next implies waiting for the student to respond.
+    /// </summary>
+    public interface IPedagogicalModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable { }
 }
 
 namespace Nifty.Modelling.Users
 {
-    public interface IUserModel : IHasReadOnlyMetadata, ISessionInitializable, IEventHandler, ISessionDisposable, INotifyChanged { }
+    // https://aisconsortium.com/wp-content/uploads/Design-Recommendations-for-ITS_Volume-1-Learner-Modeling.pdf p.39
+
+    /// <summary>
+    /// The student model consists of the cognitive, affective, motivational, and other psychological states that are inferred from performance data during the course of learning.
+    /// Typically, these states are summary information about the student that will subsequently be used for pedagogical decision making.
+    /// The student model is often viewed as a subset of the domain model, which changes over the course of tutoring.
+    /// For example, “knowledge tracing” tracks the student’s progress from problem to problem and builds a profile of strengths and weaknesses relative to the domain model.
+    /// Since ITS domain models may track general psychological states, student models may also represent these general states of the student.
+    /// </summary>
+    public interface IUserModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable { }
 }
 
 namespace Nifty.NaturalLanguage.Evaluation
@@ -1021,6 +1047,8 @@ namespace Nifty.Sessions
         public IDialogSystem DialogueSystem { get; }
         public IKnowledgebase Knowledgebase { get; }
         public IUserModel User { get; }
+        public IDomainModel Domain { get; }
+        public IPedagogicalModel Pedagogical { get; }
         public IActivityGeneratorStore Store { get; }
         public IAlgorithm Algorithm { get; }
         public IActivityScheduler Scheduler { get; }
@@ -1034,7 +1062,9 @@ namespace Nifty.Sessions
             var disposables = new List<IDisposable>(new IDisposable[] {
                 Analytics.Initialize(this),
                 Knowledgebase.Initialize(this),
+                Domain.Initialize(this),
                 User.Initialize(this),
+                Pedagogical.Initialize(this),
                 Store.Initialize(this),
                 Algorithm.Initialize(this),
                 Scheduler.Initialize(this),
@@ -1072,7 +1102,9 @@ namespace Nifty.Sessions
             GC.SuppressFinalize(this);
 
             Algorithm.Dispose(this);
+            Pedagogical.Dispose(this);
             User.Dispose(this);
+            Domain.Dispose(this);
             Store.Dispose(this);
             Scheduler.Dispose(this);
             DialogueSystem.Dispose(this);
