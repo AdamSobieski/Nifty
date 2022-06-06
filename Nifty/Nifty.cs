@@ -298,8 +298,9 @@ namespace Nifty.Knowledge
         public IDisposable Find(IFormula formula, IObserver<IFormula> observer);
 
         public IEnumerable<IVariable> GetVariables();
-        public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map);
-        public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, [NotNullWhen(true)] out IReadOnlyFormulaCollection? result);
+        public IReadOnlyFormulaCollection GetConstraints(); // to do: decide whether constraints on a formula collection's variables are stored in its metadata and/or whether they are in their own sub-collection with its own schema and metadata
+        public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator);
+        public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator, [NotNullWhen(true)] out IReadOnlyFormulaCollection? result);
 
         public IReadOnlyFormulaCollection Clone();
         public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
@@ -654,7 +655,7 @@ namespace Nifty.Knowledge.Querying
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula expression)
+        public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula filter)
         {
             // this one should be moved as it could be utilized outside of querying as a basic filtering/constraints operator
             // something like:
@@ -680,6 +681,10 @@ namespace Nifty.Knowledge.Querying
             //}
             //throw new Exception();
 
+            throw new NotImplementedException();
+        }
+        public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection filter)
+        {
             throw new NotImplementedException();
         }
         public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
@@ -736,10 +741,12 @@ namespace Nifty.Knowledge.Querying
             composition = formulas.Id;
             return true;
         }
-        internal static bool GetConstraints(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IEnumerable<IFormula>? constraints)
+        internal static bool GetConstraints(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? constraints)
         {
-            // search for the predicate 'hasConstraint' in metadata and then unquote the quoted formula
-            throw new NotImplementedException();
+            // a simple approach would be to search for the predicate 'hasConstraint' in metadata and then unquote the quoted formulas
+            constraints = formulas.GetConstraints();
+            return true;
+            // throw new NotImplementedException();
         }
     }
 
@@ -990,8 +997,9 @@ namespace Nifty.Planning.Actions
     public interface IActionGenerator
     {
         public IEnumerable<IVariable> GetVariables();
-        public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map);
-        public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, [NotNullWhen(true)] out IAction? result);
+        public IReadOnlyFormulaCollection GetConstraints();
+        public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator);
+        public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator, [NotNullWhen(true)] out IReadOnlyFormulaCollection? result);
     }
 }
 
