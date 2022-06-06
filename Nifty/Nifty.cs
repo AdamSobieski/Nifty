@@ -288,14 +288,9 @@ namespace Nifty.Knowledge
         public bool IsGraph { get; }
         public bool IsEnumerable { get; }
 
-        public bool Contains(IFormula formula);
-
         public IEnumerable<IDerivation> Derivations(IFormula formula);
 
         public IUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
-
-        public IEnumerable<IFormula> Find(IFormula formula);
-        public IDisposable Find(IFormula formula, IObserver<IFormula> observer);
 
         public IEnumerable<IVariable> GetVariables();
         public IReadOnlyFormulaCollection GetConstraints(); // to do: decide whether constraints on a formula collection's variables are stored in its metadata and/or whether they are in their own sub-collection with its own schema and metadata
@@ -320,7 +315,6 @@ namespace Nifty.Knowledge
 
     public enum TermType
     {
-        Any,
         Variable,
         Box,
         Blank,
@@ -335,7 +329,6 @@ namespace Nifty.Knowledge
         //public string? ToString(XmlNamespaceManager xmlns, bool quoting);
     }
 
-    public interface IAny : ITerm { }
 
     public interface IVariable : ITerm
     {
@@ -389,9 +382,8 @@ namespace Nifty.Knowledge
 
     public interface ITermVisitor
     {
-        public object Visit(IAny term);
         public object Visit(IVariable term);
-        public object Visit(IConstant term);
+        public object Visit(IBox term);
         public object Visit(IBlank term);
         public object Visit(IUri term);
         public object Visit(IFormula formula);
@@ -747,6 +739,17 @@ namespace Nifty.Knowledge.Querying
             constraints = formulas.GetConstraints();
             return true;
             // throw new NotImplementedException();
+        }
+
+        //...
+
+        public static bool Contains(this IQueryable queryable, IFormula formula)
+        {
+            throw new NotImplementedException();
+        }
+        public static IEnumerable<IFormula> Find(this IQueryable queryable, IFormula formula)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -1316,10 +1319,6 @@ namespace Nifty
 
     public static partial class Term
     {
-        public static IAny Any()
-        {
-            throw new NotImplementedException();
-        }
         public static IUri Uri(string uri)
         {
             throw new NotImplementedException();
