@@ -289,7 +289,7 @@ namespace Nifty.Knowledge
         public bool IsEnumerable { get; }
 
         public IEnumerable<IDerivation> Derivations(IFormula formula);
-        //public IEnumerable<IDerivation> Derivations(IReadOnlyFormulaCollection formula);
+        //public IEnumerable<IDerivation> Derivations(IReadOnlyFormulaCollection formulas);
 
         public IUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
 
