@@ -36,6 +36,8 @@ A goal of the Nifty project is to enable the construction of intelligent tutorin
 
 As mentioned above, the Bot Framework supports a number of [video-calling](https://en.wikipedia.org/wiki/Videotelephony) communication channels and, via interoperation with video-calling [screencasting](https://en.wikipedia.org/wiki/Screencast) and/or [remote desktop software](https://en.wikipedia.org/wiki/Remote_desktop_software), intelligent tutoring systems could be developed which can observe learners' performances of items, exercises, and activities pertaining to software use.
 
+Technical topics, in these regards, include attaching user-input events, application commands, and other application events in auxiliary tracks which can be streamed to and be processed by intelligent tutoring systems. Without these data in auxiliary tracks, intelligent tutoring systems would have to utilize computer vision algorithms to process screencast videos to detect precise user interactions with software applications.
+
 
 
 ## Workflow Engines
