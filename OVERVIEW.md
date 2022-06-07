@@ -12,6 +12,28 @@ It will provide scalability, enabling the development of solutions which serve a
 
 
 
+## Use Cases
+
+### Mathematics Education
+
+The Nifty project will support the development of intelligent tutoring systems for mathematics education.
+
+### Character Education and Social and Emotional Learning
+
+The Nifty project will support the exploration of uses of interactive storytelling, e.g., story-based items, [digital gamebooks](https://en.wikipedia.org/wiki/Gamebook), [interactive films](https://en.wikipedia.org/wiki/Interactive_film), and [serious games](https://en.wikipedia.org/wiki/Serious_game), as items, exercises, and activities for character education and social and emotional learning.
+
+### Software Training
+
+#### Video-calling, Screencasting, and Remote Desktop Software
+
+The Nifty project intends to enable the construction of next-generation intelligent tutoring systems which can train end-users in the use of software applications, e.g., Office, IDE, 3D modelling, and CAD/CAE software applications.
+
+The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) supports a number of [video-calling](https://en.wikipedia.org/wiki/Videotelephony) communication channels and, via interoperation with video-calling [screencasting](https://en.wikipedia.org/wiki/Screencast) and/or [remote desktop software](https://en.wikipedia.org/wiki/Remote_desktop_software), intelligent tutoring systems could be developed which can observe learners' performances of items, exercises, and activities pertaining to software use.
+
+Technical topics, in these regards, include attaching user-input events, application commands, and other application events in ancillary tracks which can be streamed to and be processed by intelligent tutoring systems. Without these data in ancillary tracks, intelligent tutoring systems would have to utilize computer vision algorithms to process video to detect precise user interactions with software applications.
+
+
+
 ## Dialogue Systems
 
 ### Bot Framework
@@ -30,28 +52,6 @@ Learners could engage in meaningful, contextual dialogues with adaptive instruct
 
 
 
-## Intelligent Tutoring Systems
-
-### Mathematics Education
-
-The Nifty project will support the development of intelligent tutoring systems for mathematics education.
-
-### Character Education and Social and Emotional Learning
-
-The Nifty project will support the exploration of uses of interactive storytelling, e.g., story-based items, [digital gamebooks](https://en.wikipedia.org/wiki/Gamebook), [interactive films](https://en.wikipedia.org/wiki/Interactive_film), and [serious games](https://en.wikipedia.org/wiki/Serious_game), as items, exercises, and activities for character education and social and emotional learning.
-
-### Software Training
-
-#### Video-calling, Screencasting, and Remote Desktop Software
-
-A goal of the Nifty project is to enable the construction of next-generation intelligent tutoring systems which can train end-users in the use of software applications, e.g., Office, IDE, 3D modelling, and CAD/CAE software applications.
-
-As mentioned above, the Bot Framework supports a number of [video-calling](https://en.wikipedia.org/wiki/Videotelephony) communication channels and, via interoperation with video-calling [screencasting](https://en.wikipedia.org/wiki/Screencast) and/or [remote desktop software](https://en.wikipedia.org/wiki/Remote_desktop_software), intelligent tutoring systems could be developed which can observe learners' performances of items, exercises, and activities pertaining to software use.
-
-Technical topics, in these regards, include attaching user-input events, application commands, and other application events in ancillary tracks which can be streamed to and be processed by intelligent tutoring systems. Without these data in ancillary tracks, intelligent tutoring systems would have to utilize computer vision algorithms to process video to detect precise user interactions with software applications.
-
-
-
 ## Workflow Systems
 
 A number of [workflow](https://en.wikipedia.org/wiki/Workflow) systems and related technologies are being considered for use in the Nifty project.
@@ -64,7 +64,7 @@ Other technical possibilities include that educational items, exercises, and act
 
 
 
-## The Storage, Querying and Selection of Educational Items, Exercises and Activities
+## Storing, Querying and Selecting Educational Items, Exercises and Activities
 
 Topics of technical interest include the storage of large collections of educational items, exercises, and activities and the querying and selection of them by adaptive instructional systems for presentation to learners.
 
