@@ -32,7 +32,7 @@ Learners could engage in meaningful, contextual dialogues with adaptive instruct
 
 ## Video-calling, Screencasting, and Remote Desktop Software
 
-A goal of the Nifty project is to enable the construction of intelligent tutoring systems which can train end-users in the use of software, e.g., Office software, IDE's, and CAD/CAE software.
+A goal of the Nifty project is to enable the construction of intelligent tutoring systems which can train end-users in the use of software, e.g., Office software, IDE's, 3D modelling, and CAD/CAE software.
 
 As mentioned above, the Bot Framework supports a number of [video-calling](https://en.wikipedia.org/wiki/Videotelephony) communication channels and, via interoperation with video-calling [screencasting](https://en.wikipedia.org/wiki/Screencast) and/or [remote desktop software](https://en.wikipedia.org/wiki/Remote_desktop_software), intelligent tutoring systems could be developed which can observe learners' performances of items, exercises, and activities pertaining to software use.
 
