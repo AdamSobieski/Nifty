@@ -30,19 +30,21 @@ Learners could engage in meaningful, contextual dialogues with adaptive instruct
 
 
 
-## Video-calling, Screencasting, and Remote Desktop Software
+## Intelligent Tutoring Systems for Software Training
 
-A goal of the Nifty project is to enable the construction of intelligent tutoring systems which can train end-users in the use of software, e.g., Office software, IDE's, 3D modelling, and CAD/CAE software.
+### Video-calling, Screencasting, and Remote Desktop Software
+
+A goal of the Nifty project is to enable the construction of next-generation intelligent tutoring systems which can train end-users in the use of software applications, e.g., Office, IDE, 3D modelling, and CAD/CAE software applications.
 
 As mentioned above, the Bot Framework supports a number of [video-calling](https://en.wikipedia.org/wiki/Videotelephony) communication channels and, via interoperation with video-calling [screencasting](https://en.wikipedia.org/wiki/Screencast) and/or [remote desktop software](https://en.wikipedia.org/wiki/Remote_desktop_software), intelligent tutoring systems could be developed which can observe learners' performances of items, exercises, and activities pertaining to software use.
 
-Technical topics, in these regards, include attaching user-input events, application commands, and other application events in auxiliary tracks which can be streamed to and be processed by intelligent tutoring systems. Without these data in auxiliary tracks, intelligent tutoring systems would have to utilize computer vision algorithms to process screencast videos to detect precise user interactions with software applications.
+Technical topics, in these regards, include attaching user-input events, application commands, and other application events in ancillary tracks which can be streamed to and be processed by intelligent tutoring systems. Without these data in ancillary tracks, intelligent tutoring systems would have to utilize computer vision algorithms to process video to detect precise user interactions with software applications.
 
 
 
-## Workflow Engines
+## Workflow Systems
 
-A number of [workflow](https://en.wikipedia.org/wiki/Workflow) engines and related technologies are being considered for use in the Nifty project.
+A number of [workflow](https://en.wikipedia.org/wiki/Workflow) systems and related technologies are being considered for use in the Nifty project.
 
 Educational items, exercises, and activities can be processed (e.g., from [QTI](https://www.imsglobal.org/question/index.html)) into workflows. For example, a simple workflow activity derived from a mathematics exercise might present a learner with a mathematics question, present them with multiple choices, process a timer, and await a response. Workflow-based approaches to representing and processing educational items, exercises, and activities are also capable of supporting more complex scenarios, e.g., CAD/CAE exercises, interactive stories, and educational games.
 

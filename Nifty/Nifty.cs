@@ -79,7 +79,7 @@ namespace Nifty.Activities
 
 namespace Nifty.Algorithms
 {
-    public interface IAlgorithm : IComponent, IMessageSource, IMessageHandler, IEventSource, IEventHandler
+    public interface IAlgorithm : IComponent
     {
         public IAsyncEnumerator<IActivityGenerator> GetAsyncEnumerator(ISession session, CancellationToken cancellationToken);
     }
@@ -1065,6 +1065,7 @@ namespace Nifty.Sessions
         public IAlgorithm Algorithm { get; }
         public IActivityScheduler Scheduler { get; }
         public IAnalytics Analytics { get; }
+
 
 
         IDisposable IInitializable.Initialize()
