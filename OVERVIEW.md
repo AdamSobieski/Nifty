@@ -30,9 +30,19 @@ Learners could engage in meaningful, contextual dialogues with adaptive instruct
 
 
 
-## Intelligent Tutoring Systems for Software Training
+## Intelligent Tutoring Systems
 
-### Video-calling, Screencasting, and Remote Desktop Software
+### Mathematics Education
+
+The Nifty project will support the development of intelligent tutoring systems for mathematics education.
+
+### Character Education and Social and Emotional Learning
+
+The Nifty project will support the exploration of uses of interactive storytelling, e.g., story-based items, [digital gamebooks](https://en.wikipedia.org/wiki/Gamebook), [interactive films](https://en.wikipedia.org/wiki/Interactive_film), and [serious games](https://en.wikipedia.org/wiki/Serious_game), as items, exercises, and activities for character education and social and emotional learning.
+
+### Software Training
+
+#### Video-calling, Screencasting, and Remote Desktop Software
 
 A goal of the Nifty project is to enable the construction of next-generation intelligent tutoring systems which can train end-users in the use of software applications, e.g., Office, IDE, 3D modelling, and CAD/CAE software applications.
 
@@ -54,7 +64,7 @@ Other technical possibilities include that educational items, exercises, and act
 
 
 
-## Storing, Querying and Selecting Educational Items, Exercises and Activities
+## The Storage, Querying and Selection of Educational Items, Exercises and Activities
 
 Topics of technical interest include the storage of large collections of educational items, exercises, and activities and the querying and selection of them by adaptive instructional systems for presentation to learners.
 
