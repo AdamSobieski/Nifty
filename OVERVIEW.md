@@ -50,7 +50,13 @@ Educational items, exercises, and activities can be processed (e.g., from [QTI](
 
 The interoperation and [orchestration](https://en.wikipedia.org/wiki/Orchestration_(computing)) between workflows and dialogue systems are topics of technical interest.
 
-Other topics of technical interest include the storage of large collections of these educational items, exercises, and activities and the querying and selection of them by adaptive instructional systems for presentation to learners.
+Other technical possiblities include that educational items, exercises, and activities could each be their own .NET assembly and loaded and unloaded by intelligent tutoring systems at runtime.
+
+
+
+## Storing, Querying and Selecting Educational Items, Exercises and Activities
+
+Topics of technical interest include the storage of large collections of educational items, exercises, and activities and the querying and selection of them by adaptive instructional systems for presentation to learners.
 
 
 
