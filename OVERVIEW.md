@@ -50,7 +50,7 @@ Educational items, exercises, and activities can be processed (e.g., from [QTI](
 
 The interoperation and [orchestration](https://en.wikipedia.org/wiki/Orchestration_(computing)) between workflows and dialogue systems are topics of technical interest.
 
-Other technical possiblities include that educational items, exercises, and activities could each be their own .NET assembly and loaded and unloaded by intelligent tutoring systems at runtime.
+Other technical possibilities include that educational items, exercises, and activities could each be their own .NET assembly and loaded and unloaded by intelligent tutoring systems at runtime.
 
 
 
