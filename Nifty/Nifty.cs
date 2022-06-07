@@ -310,8 +310,6 @@ namespace Nifty.Knowledge
         public bool Remove(IReadOnlyFormulaCollection formulas);
     }
 
-    public interface IReadOnlyFormulaList : IReadOnlyFormulaCollection, IReadOnlyList<IFormula> { }
-
 
 
     public enum TermType
@@ -755,6 +753,14 @@ namespace Nifty.Knowledge.Querying
     }
 
     public static class Composition
+    {
+
+    }
+}
+
+namespace Nifty.Knowledge.Querying.Planning
+{
+    public interface IQueryPlanner
     {
 
     }
@@ -1692,28 +1698,6 @@ namespace Nifty
 
 
         public static IQuery Query()
-        {
-            throw new NotImplementedException();
-        }
-
-
-        internal static IQuery Query(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        internal static IAskQuery AskQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        internal static IConstructQuery ConstructQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema /* , ... */)
-        {
-            throw new NotImplementedException();
-        }
-        internal static ISelectQuery SelectQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema /* , ... */)
-        {
-            throw new NotImplementedException();
-        }
-        internal static IDescribeQuery DescribeQuery(IEnumerable<IFormula> formulas, ITerm identifier, IReadOnlyFormulaCollection meta, IReadOnlySchema schema /* , ... */)
         {
             throw new NotImplementedException();
         }
