@@ -20,13 +20,13 @@ The Nifty project will support the development of intelligent tutoring systems f
 
 ### Character Education and Social and Emotional Learning
 
-The Nifty project will support the exploration of uses of interactive storytelling, e.g., story-based items, [digital gamebooks](https://en.wikipedia.org/wiki/Gamebook), [interactive films](https://en.wikipedia.org/wiki/Interactive_film), and [serious games](https://en.wikipedia.org/wiki/Serious_game), as items, exercises, and activities for character education and social and emotional learning.
+The Nifty project will support the exploration of uses of interactive stories, e.g., story-based items, [digital gamebooks](https://en.wikipedia.org/wiki/Gamebook), [interactive films](https://en.wikipedia.org/wiki/Interactive_film), and [serious games](https://en.wikipedia.org/wiki/Serious_game), as items, exercises, and activities for character education and social and emotional learning.
 
 ### Software Training
 
-#### Video-calling, Screencasting, and Remote Desktop Software
-
 The Nifty project intends to enable the construction of next-generation intelligent tutoring systems which can train end-users in the use of software applications, e.g., Office, IDE, 3D modelling, and CAD/CAE software applications.
+
+#### Video-calling, Screencasting, and Remote Desktop Software
 
 The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) supports a number of [video-calling](https://en.wikipedia.org/wiki/Videotelephony) communication channels and, via interoperation with video-calling [screencasting](https://en.wikipedia.org/wiki/Screencast) and/or [remote desktop software](https://en.wikipedia.org/wiki/Remote_desktop_software), intelligent tutoring systems could be developed which can observe learners' performances of items, exercises, and activities pertaining to software use.
 
