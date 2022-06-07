@@ -22,7 +22,7 @@ The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) sup
 
 Design principles and best practices from [interactive fiction](https://en.wikipedia.org/wiki/Interactive_fiction) could be of use for developing educational dialogue systems.
 
-### Educational Activities
+### Educational Items, Exercises and Activities
 
 Learners could use [conversational user interfaces](https://en.wikipedia.org/wiki/Conversational_user_interface) to interact with educational items, exercises, and activities.
 
