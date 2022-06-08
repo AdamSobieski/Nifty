@@ -270,7 +270,7 @@ namespace Nifty.Dialogs
 namespace Nifty.Extensibility
 {
     // considering use of Nifty metadata for describing add-ons, plug-ins, and extensions
-    // during system initialization, a "component connecting algorithm" should be able to utilize components' metadata to automatically interconnect components, connecting message sources and message handlers
+    // a "component connecting algorithm" should be able to utilize components' metadata to automatically interconnect components, connecting message sources and message handlers
     public interface IComponent : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable { }
 
     public class ComponentMetadata { }

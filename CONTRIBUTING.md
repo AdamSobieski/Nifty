@@ -2,9 +2,11 @@
 
 Thank you for your interest in contributing. You may email me at [adamsobieski@hotmail.com](mailto:adamsobieski@hotmail.com) for more information.
 
-# Current Tasks
+# Roadmap
 
-Here is a list of tasks which are presently being developed:
+## Near-term
+
+Here is a list of tasks that are presently being worked on:
 
 1. Knowledge representation and reasoning. `Nifty.Knowledge.IReadOnlyFormulaCollection`. It is important to get these models and interfaces right (`Nifty.Knowledge.*`) as they will be utilized throughout the framework.
 2. Fluent n-ary SPARQL, querying, query planning, and query optimization. `Nifty.Knowledge.Querying.*` and `Nifty.Knowledge.Querying.Planning.*`. Developers will have "just works" access to the fluent querying of formula collections, e.g., objects' metadata and/or local or remote knowledgebases.
