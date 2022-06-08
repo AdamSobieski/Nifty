@@ -213,9 +213,3 @@ public interface IAction : IHasReadOnlyMetadata
 ```
 
 The inspectable preconditions of actions are represented by Boolean queries for collections of formulas, e.g., those formulas describing a state of a modelled world. The inspectable effects of actions are represented by updates for collections of formulas. By extending `IHasReadOnlyMetadata`, actions can have metadata.
-
-
-
-## Automata
-
-More content coming soon.
