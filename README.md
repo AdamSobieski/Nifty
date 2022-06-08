@@ -24,3 +24,6 @@ The [Nifty](https://github.com/AdamSobieski/Nifty) project will be a framework f
 
 ### Technical Overview
 A preliminary technical overview of the project is available [here](OVERVIEW.md).
+
+### Contributing
+Some notes for potential contributors are available [here](CONTRIBUTING.md).

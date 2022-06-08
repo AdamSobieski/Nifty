@@ -90,7 +90,7 @@ namespace Nifty.Algorithms
 
 namespace Nifty.Analytics
 {
-    public interface IAnalytics : ISessionInitializable, IMessageHandler, IEventHandler, ISessionDisposable { }
+    public interface IAnalytics : IComponent { }
 
     public interface IProgressMonitor
     {
@@ -906,11 +906,10 @@ namespace Nifty.MachineLearning.ReinforcementLearning
         public TAction Current { get; }
     }
 
-    public interface IEnvironment<in TAction, TObservation, TReward>
+    public interface IEnvironment<in TAction, TObservation, TReward> : IDisposable
     {
-        public void OnCompleted();
-        public void OnError(Exception error);
-        public (TObservation observation, TReward reward, bool done) OnNext(TAction action);
+        public (TObservation Observation, TReward Reward, bool Done, IDictionary<string, object> Info) Reset(int seed = 0, bool return_info = false, IDictionary<string, object>? options = null);
+        public (TObservation Observation, TReward Reward, bool Done, IDictionary<string, object> Info) Step(TAction action);
     }
 }
 
@@ -951,6 +950,8 @@ namespace Nifty.Modelling.Domains
     /// </summary>
     public interface IDomainModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable
     {
+        // see also: https://docs.microsoft.com/en-us/dotnet/api/microsoft.bot.builder.istorage?view=botbuilder-dotnet-stable
+        // see also: https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-custom-storage?view=azure-bot-service-4.0
         public IStorage Storage { get; }
     }
 }
