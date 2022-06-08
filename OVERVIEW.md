@@ -160,13 +160,19 @@ foreach(var result in formulas.Query(selectQuery))
 }
 ```
 
+#### Planning and Optimization
+
+Nifty will deliver n-ary SPARQL query planning and optimization.
+
 #### Dynamic and Reactive Queries
 
-Nifty will deliver both pull- and push-based querying (`IEnumerable`- and `IObservable`-based) and intends to explore the powerful feature of enabling push-based queries which deliver notifications as sets of query results change for mutable collections for formula.
+Nifty will deliver both pull- and push-based querying (`IEnumerable`- and `IObservable`-based).
+
+Nifty intends to explore the powerful feature of enabling push-based queries which deliver notifications as sets of query results change for mutable formula collections.
 
 ### Updating
 
-Nifty provides both immutable (read-only) and mutable collections of formulas. Both can be updated; when applying an update to an immutable collection of formulas, a new collection of formulas is created (which could be an overlay); when updating a mutable collection of formulas, the update can occur in place.
+Nifty provides both immutable (read-only) and mutable collections of formulas. Both can be updated; when applying an update to an immutable collection of formulas, a new collection of formulas is created (which could be an overlay); when updating a mutable collection of formulas, updates can occur in place.
 
 ```cs
 public interface IUpdate
