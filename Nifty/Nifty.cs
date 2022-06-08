@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Nifty.Activities;
 using Nifty.Algorithms;
 using Nifty.Analytics;
-using Nifty.Collections;
 using Nifty.Common;
 using Nifty.Dialogs;
 using Nifty.Extensibility;
@@ -950,7 +949,10 @@ namespace Nifty.Modelling.Domains
     /// It is a representation of all the possible student states in the domain.
     /// While these states are typically tied to content, general psychological states (e.g., boredom, persistence) may also be included, since such states are relevant for a full understanding of possible pedagogy within the domain.
     /// </summary>
-    public interface IDomainModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable { }
+    public interface IDomainModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable
+    {
+        public IStorage Storage { get; }
+    }
 }
 
 namespace Nifty.Modelling.Pedagogical
@@ -962,7 +964,10 @@ namespace Nifty.Modelling.Pedagogical
     /// In mixed-initiative systems, the students may also initiate actions, ask questions, or request help, but the ITS always needs to be ready to decide “what to do next” at any point and this is determined by a tutoring model that captures the researchers’ pedagogical theories.
     /// Sometimes what to do next implies waiting for the student to respond.
     /// </summary>
-    public interface IPedagogicalModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable { }
+    public interface IPedagogicalModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable
+    {
+        public IStorage Storage { get; }
+    }
 }
 
 namespace Nifty.Modelling.Users
@@ -976,22 +981,10 @@ namespace Nifty.Modelling.Users
     /// For example, “knowledge tracing” tracks the student’s progress from problem to problem and builds a profile of strengths and weaknesses relative to the domain model.
     /// Since ITS domain models may track general psychological states, student models may also represent these general states of the student.
     /// </summary>
-    public interface IUserModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable { }
-}
-
-namespace Nifty.NaturalLanguage.Evaluation
-{
-
-}
-
-namespace Nifty.NaturalLanguage.Generation
-{
-
-}
-
-namespace Nifty.NaturalLanguage.Processing
-{
-    public interface IOnlineNaturalLanguageParser : IObserver<IOrderedDictionary<string, float>>, IObservable<IOrderedDictionary<IUpdate, float>> { }
+    public interface IUserModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable
+    {
+        public IStorage Storage { get; }
+    }
 }
 
 namespace Nifty.Planning.Actions

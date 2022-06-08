@@ -16,7 +16,7 @@ It will provide scalability, enabling the development of solutions which serve a
 
 ### Mathematics Education
 
-The Nifty project will support the development of intelligent tutoring systems for mathematics education.
+The Nifty project will support the development of [intelligent tutoring systems](https://en.wikipedia.org/wiki/Intelligent_tutoring_system) for mathematics education.
 
 ### Character Education and Social and Emotional Learning
 
