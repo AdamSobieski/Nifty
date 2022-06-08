@@ -18,7 +18,7 @@ Here is a list of tasks that are presently being worked on:
 ## Near-term Questions
 
 1. Should the Nifty project utilize an existing message queueing service technology for `Nifty.Messaging` and `Nifty.Messaging.Events`? If so, which one? There are, for instance, [Azure messaging services](https://azure.microsoft.com/en-us/solutions/messaging-services/#products), [ActiveMQ](https://activemq.apache.org/components/nms/), and [other solutions](https://en.wikipedia.org/wiki/Message_queuing_service) to consider.
-  1. Could also create a new message queueing service component, utilizing existing protocols, which supports "semantics-enhanced message filtering", using n-ary SPARQL queries on messages, e.g., on their metadata.
+   - Could also create a new message queueing service technology, utilizing existing protocols, which supports "semantics-enhanced message filtering", using n-ary SPARQL queries on messages, e.g., on messages' metadata.
 
 # Have a Question, Comment, Idea or Discussion Topic?
 
