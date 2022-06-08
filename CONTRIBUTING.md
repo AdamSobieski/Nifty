@@ -17,7 +17,7 @@ Here is a list of tasks that are presently being worked on:
 
 ## Near-term Questions
 
-1.Should the Nifty project utilize a message queueing service technology for `Nifty.Messaging` and `Nifty.Messaging.Events`? If so, which one? There are [Azure messaging services](https://azure.microsoft.com/en-us/solutions/messaging-services/#products), [ActiveMQ](https://activemq.apache.org/components/nms/), and [other solutions](https://en.wikipedia.org/wiki/Message_queuing_service) to consider.
+1. Should the Nifty project utilize a message queueing service technology for `Nifty.Messaging` and `Nifty.Messaging.Events`? If so, which one? There are [Azure messaging services](https://azure.microsoft.com/en-us/solutions/messaging-services/#products), [ActiveMQ](https://activemq.apache.org/components/nms/), and [other solutions](https://en.wikipedia.org/wiki/Message_queuing_service) to consider.
 
 # Have a Question, Comment, Idea or Discussion Topic?
 
