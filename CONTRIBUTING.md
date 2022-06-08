@@ -4,7 +4,7 @@ Thank you for your interest in contributing. You may email me at [adamsobieski@h
 
 # Roadmap
 
-## Near-term
+## Near-term Tasks
 
 Here is a list of tasks that are presently being worked on:
 
@@ -14,6 +14,10 @@ Here is a list of tasks that are presently being worked on:
 4. Exploring learner, domain, and pedagogical models and modules and in the context of interoperation with the Microsoft Bot Framework.
 5. Implementing a rough-draft dialog system of an intelligent tutoring system in the Microsoft Bot Framework style.
 6. Your ideas for contributions and tasks are welcomed.
+
+## Near-term Questions
+
+1.Should the Nifty project utilize a message queueing service technology for `Nifty.Messaging` and `Nifty.Messaging.Events`? If so, which one? There are [Azure messaging services](https://azure.microsoft.com/en-us/solutions/messaging-services/#products), [ActiveMQ](https://activemq.apache.org/components/nms/), and [other solutions](https://en.wikipedia.org/wiki/Message_queuing_service) to consider.
 
 # Have a Question, Comment, Idea or Discussion Topic?
 
