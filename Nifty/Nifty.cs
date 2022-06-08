@@ -922,7 +922,7 @@ namespace Nifty.Messaging
 
     public interface IMessageHandler
     {
-        public Task Handle(IMessageSource source, IReadOnlyFormulaCollection message);
+        public Task Handle(IMessageSource source, IHasReadOnlyMetadata message);
     }
 }
 
@@ -934,7 +934,7 @@ namespace Nifty.Messaging.Events
     }
     public interface IEventHandler
     {
-        public Task Handle(IEventSource source, IReadOnlyFormulaCollection @event, IReadOnlyFormulaCollection data);
+        public Task Handle(IEventSource source, IHasReadOnlyMetadata @event, IReadOnlyFormulaCollection data);
     }
 }
 
