@@ -12,3 +12,7 @@ Here are a list of topics and subtopics being presently developed:
 4. Exploring learner, domain, and pedagogical models and modules and in the context of interoperation with the Microsoft Bot Framework.
 5. Implementing a rough-draft dialog system of an intelligent tutoring system in the Microsoft Bot Framework style.
 6. Your ideas for contributions are welcomed.
+
+# Have a Question, Comment, Idea or Discussion Topic?
+
+Please feel free to make use of the [discussion area](https://github.com/AdamSobieski/Nifty/discussions)!
