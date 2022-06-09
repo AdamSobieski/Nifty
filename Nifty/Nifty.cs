@@ -29,7 +29,7 @@ using System.Runtime.Loader;
 
 namespace Nifty.Activities
 {
-    // as .NET can dynamically load and unload assemblies, considering that educational items, exercises, and activities can be implemented as components in digitally-signed .NET assemblies
+    // as .NET can dynamically load and unload assemblies, educational items, exercises, and activities can be implemented as components in digitally-signed .NET assemblies
     // this implies that algorithms for interconnecting components based on their metadata should be devised for, beyond system initialization and shutdown scenarios, loading and unloading components at runtime
 
     public interface IItem : IComponent
@@ -37,6 +37,8 @@ namespace Nifty.Activities
         // use cases:
         // 1. mathematics exercises
         // 2. interactive stories (story-based items, digital gamebooks, interactive films, serious games, etc.)
+        //    a. will explore creating and providing to IItem abstracted rendering or streaming contexts so that items can produce imagery and video over video-calling channels, e.g., Skype, Zoom, WebRTC, et al.
+        //       i. see also: https://github.com/3DStreamingToolkit/3DStreamingToolkit , https://3dstreamingtoolkit.github.io/docs-3dstk/
         // 3. software training exercises
         // 4. other
     }
@@ -195,6 +197,7 @@ namespace Nifty.Dialogs
 {
     public interface IDialogSystem : IBot, ISessionInitializable, IMessageHandler, IMessageSource, IEventHandler, IEventSource, ISessionDisposable
     {
+        // to do: explore more granular interfaces between dialog systems and items, exercises, and activities
         public void EnterScope(IHasReadOnlyMetadata scope);
         public void ExitScope(IHasReadOnlyMetadata scope);
     }
