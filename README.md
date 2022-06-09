@@ -5,7 +5,7 @@ The [Nifty](https://github.com/AdamSobieski/Nifty) project will be a framework f
 ![AIS](Images/AIS.png)
 
 ### Related Projects
-[GIFT](https://gifttutoring.org/), [Bot Framework](https://github.com/microsoft/botframework-sdk), [TweetyProject](https://github.com/TweetyProjectTeam/TweetyProject), [Infer.NET](https://github.com/dotnet/infer), [LearnLib](https://github.com/learnlib/learnlib), [AutomataLib](https://github.com/learnlib/automatalib), [Jena](https://jena.apache.org/), [TinCan.NET](https://github.com/RusticiSoftware/TinCan.NET), [OpenXes.Net](https://bitbucket.org/sabien/openxes.net/), [Reactive](https://github.com/dotnet/reactive), [ReactiveUI](https://github.com/reactiveui/ReactiveUI), [DynamicData](https://github.com/reactivemarbles/DynamicData)
+[GIFT](https://gifttutoring.org/), [Bot Framework](https://github.com/microsoft/botframework-sdk)
 
 ### Related Standards
 [RDF](https://www.w3.org/RDF/), [OWL](https://www.w3.org/OWL/), [SPARQL](https://www.w3.org/TR/sparql11-query/), [SPIN](https://spinrdf.org/), [xAPI](https://github.com/adlnet/xAPI-Spec), [XES](https://xes-standard.org/), [QTI](https://www.imsglobal.org/question/index.html), [LOM](https://en.wikipedia.org/wiki/Learning_object_metadata)
