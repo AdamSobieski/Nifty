@@ -52,21 +52,13 @@ Learners could engage in meaningful, contextual dialogues with adaptive instruct
 
 
 
-## Workflow Systems
+## Educational Items, Exercises and Activities
 
-A number of [workflow](https://en.wikipedia.org/wiki/Workflow) systems and related technologies are being considered for use in the Nifty project.
+Educational items, exercises, and activities can each be stored in their own .NET assembly and loaded and unloaded by adaptive instructional systems at runtime. In this way, per the use cases, educational items, exercises, or activities could be mathematics exercises, interactive stories, software training exercises, and more.
 
-Educational items, exercises, and activities can be processed (e.g., from [QTI](https://www.imsglobal.org/question/index.html)) into workflows. For example, a simple workflow activity derived from a mathematics exercise might present a learner with a mathematics question, present them with multiple choices, process a timer, and await a response. Workflow-based approaches to representing and processing educational items, exercises, and activities are also capable of supporting more complex scenarios, e.g., CAD/CAE exercises, interactive stories, and educational games.
+Educational items, exercises, and activities can be "compiled" from other formats, e.g., QTI, into components in .NET assemblies.
 
-The interoperation and [orchestration](https://en.wikipedia.org/wiki/Orchestration_(computing)) between workflows and dialogue systems are topics of technical interest.
-
-Other technical possibilities include that educational items, exercises, and activities could each be their own .NET assembly and loaded and unloaded by intelligent tutoring systems at runtime.
-
-
-
-## Storing, Querying and Selecting Educational Items, Exercises and Activities
-
-Topics of technical interest include the storage of large collections of educational items, exercises, and activities and the querying and selection of them by adaptive instructional systems for presentation to learners.
+Topics of technical interest include the querying and selection of educational items, exercises, and activities by adaptive instructional systems.
 
 
 

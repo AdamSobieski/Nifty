@@ -29,50 +29,21 @@ using System.Runtime.Loader;
 
 namespace Nifty.Activities
 {
-    // to do: consider using https://github.com/UiPath/CoreWF, https://netflix.github.io/conductor/, https://workflowengine.io/, https://elsa-workflows.github.io/elsa-core/, https://docs.microsoft.com/en-us/azure/logic-apps/, et al (https://github.com/meirwah/awesome-workflow-engines).
+    // as .NET can dynamically load and unload assemblies, considering that educational items, exercises, and activities can be implemented as components in digitally-signed .NET assemblies
+    // this implies that algorithms for interconnecting components based on their metadata should be devised for, beyond system initialization and shutdown scenarios, loading and unloading components at runtime
 
-    public interface IActivityGeneratorStore : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable
+    public interface IItem : IComponent
     {
-        // will this utilize Nifty.Knowledge.Querying or will it have its own querying mechanism?
-        // could do something like:
-        // public IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> Query(ISelectQuery query);
-        // public IActivityGenerator Retrieve(IUri resource);
+        // use cases:
+        // 1. mathematics exercises
+        // 2. interactive stories (story-based items, digital gamebooks, interactive films, serious games, etc.)
+        // 3. software training exercises
+        // 4. other
     }
-    public interface IActivityGenerator : IHasReadOnlyMetadata
+
+    public interface IItemStore : Nifty.Knowledge.Querying.IQueryable, ISessionInitializable, ISessionDisposable
     {
-        // public IAskQuery Preconditions { get; }
-        // public IUpdate   Effects { get; }
-
-        public Task<IActivity> Generate(ISession session, CancellationToken cancellationToken);
-    }
-    public interface IActivity : IHasReadOnlyMetadata, ISessionInitializable, ISessionDisposable, IDisposable
-    {
-        //public IActivityGenerator Generator { get; }
-
-        //public IActivity Parent { get; }
-        //public IReadOnlyList<IActivity> Children { get; }
-
-        // public IAskQuery Preconditions { get; }
-        // public IUpdate   Effects { get; }
-
-        public Task<IActivityExecutionResult> Execute(ISession session, IActivityExecutionContext context, CancellationToken cancellationToken);
-    }
-    public interface IActivityExecutionContext : IInitializable, IDisposable
-    {
-        public bool GetArgument<T>(string name, [NotNullWhen(true)] out T? value);
-        public void SetArgument<T>(string name, T value);
-
-        public bool GetVariable<T>(string name, [NotNullWhen(true)] out T? value);
-        public void SetVariable<T>(string name, T value);
-    }
-    public interface IActivityExecutionResult { }
-
-    public interface IActivityScheduler : ISessionInitializable, ISessionDisposable
-    {
-        public Task<IActivityExecutionResult> Schedule(ISession session, IActivity activity, IActivityExecutionContext context, CancellationToken cancellationToken)
-        {
-            return Task.Run(() => activity.Execute(session, context, cancellationToken));
-        }
+        public Assembly Retrieve(IUri uri);
     }
 }
 
@@ -80,11 +51,7 @@ namespace Nifty.Algorithms
 {
     public interface IAlgorithm : IComponent
     {
-        public IAsyncEnumerator<IActivityGenerator> GetAsyncEnumerator(ISession session, CancellationToken cancellationToken);
-    }
-    public interface IPaginatedAlgorithm : IAlgorithm
-    {
-        public IAsyncEnumerator<IReadOnlyList<IActivityGenerator>> GetAsyncEnumerator(ISession session, int count, CancellationToken cancellationToken);
+        public IAsyncEnumerator<IItem> GetAsyncEnumerator(ISession session, CancellationToken cancellationToken);
     }
 }
 
@@ -228,8 +195,8 @@ namespace Nifty.Dialogs
 {
     public interface IDialogSystem : IBot, ISessionInitializable, IMessageHandler, IMessageSource, IEventHandler, IEventSource, ISessionDisposable
     {
-        public void EnterActivity(Nifty.Activities.IActivity activity);
-        public void ExitActivity(Nifty.Activities.IActivity activity);
+        public void EnterScope(IHasReadOnlyMetadata scope);
+        public void ExitScope(IHasReadOnlyMetadata scope);
     }
 
     // see also: https://docs.microsoft.com/en-us/azure/bot-service/bot-activity-handler-concept?view=azure-bot-service-4.0&tabs=csharp
@@ -1039,7 +1006,7 @@ namespace Nifty.Sessions
         public void Dispose(ISession session);
     }
 
-    public interface ISession : IHasReadOnlyMetadata, IInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IActivityGenerator>
+    public interface ISession : IHasReadOnlyMetadata, IInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IItem>
     {
         [ImportMany]
         protected IEnumerable<Lazy<IComponent, ComponentMetadata>> Components { get; set; }
@@ -1061,9 +1028,8 @@ namespace Nifty.Sessions
         public IUserModel User { get; }
         public IDomainModel Domain { get; }
         public IPedagogicalModel Pedagogical { get; }
-        public IActivityGeneratorStore Store { get; }
+        public IItemStore Store { get; }
         public IAlgorithm Algorithm { get; }
-        public IActivityScheduler Scheduler { get; }
         public IAnalytics Analytics { get; }
 
 
@@ -1080,7 +1046,6 @@ namespace Nifty.Sessions
                 Pedagogical.Initialize(this),
                 Store.Initialize(this),
                 Algorithm.Initialize(this),
-                Scheduler.Initialize(this),
                 DialogueSystem.Initialize(this)
             });
 
@@ -1119,7 +1084,6 @@ namespace Nifty.Sessions
             User.Dispose(this);
             Domain.Dispose(this);
             Store.Dispose(this);
-            Scheduler.Dispose(this);
             DialogueSystem.Dispose(this);
             Knowledgebase.Dispose(this);
             Analytics.Dispose(this);
@@ -1132,7 +1096,7 @@ namespace Nifty.Sessions
             GC.ReRegisterForFinalize(this);
         }
 
-        IAsyncEnumerator<IActivityGenerator> IAsyncEnumerable<IActivityGenerator>.GetAsyncEnumerator(CancellationToken cancellationToken)
+        IAsyncEnumerator<IItem> IAsyncEnumerable<IItem>.GetAsyncEnumerator(CancellationToken cancellationToken)
         {
             return Algorithm.GetAsyncEnumerator(this, cancellationToken);
         }
