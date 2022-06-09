@@ -40,12 +40,6 @@ Technical topics, in these regards, include attaching user-input events, applica
 
 The [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk) supports building large-scale dialogue systems and chatbots which can utilize multiple channels including: Microsoft Teams, Direct Line, Web Chat, Skype, Email, Facebook, Slack, Kik, Telegram, Line, GroupMe, Twilio (SMS), Alexa Skills, Google Actions, Google Hangouts, WebEx, WhatsApp (Infobip), Zoom, RingCentral, and Cortana. Accordingly, the Nifty project is exploring using the Bot Framework for accelerating adaptive instruction systems research and development.
 
-### Interactive Fiction
-
-Design principles and best practices from [interactive fiction](https://en.wikipedia.org/wiki/Interactive_fiction) could be of use for developing educational dialogue systems.
-
-### Educational Items, Exercises and Activities
-
 Learners could use [conversational user interfaces](https://en.wikipedia.org/wiki/Conversational_user_interface) to interact with educational items, exercises, and activities.
 
 Learners could engage in meaningful, contextual dialogues with adaptive instructional systems about educational items, exercises, and activities.
@@ -58,7 +52,9 @@ Educational items, exercises, and activities can each be stored in their own .NE
 
 Educational items, exercises, and activities can be "compiled" from other formats, e.g., QTI, into components in .NET assemblies.
 
-Topics of technical interest include the querying and selection of educational items, exercises, and activities by adaptive instructional systems.
+Topics of technical interest include educational items, exercises, and activities being able to render and display imagery, video, and 3D graphics across video-calling channels, e.g., Skype, Zoom, and WebRTC.
+
+Topics of technical interest include the querying and selecting of educational items, exercises, and activities by adaptive instructional systems.
 
 
 
