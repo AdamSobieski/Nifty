@@ -12,10 +12,11 @@ Here is a list of tasks that are presently being worked on:
 2. Fluent n-ary SPARQL, querying, query planning, and query optimization. `Nifty.Knowledge.Querying.*` and `Nifty.Knowledge.Querying.Planning.*`. Developers will have "just works" access to the fluent querying of formula collections, e.g., objects' metadata and/or local or remote knowledgebases.
 3. Extensibility. `Nifty.Extensibility.*` and exploring the `System.Composition` extensibility framework. Add-ons, plug-ins, extensions, and other dynamically-loaded components will utilize Nifty's knowledge representation and reasoning to provide metadata describing their functionalities and to be interconnected in terms of messages and events.
 4. Messaging and events. Should the Nifty project utilize an existing message queueing service technology for `Nifty.Messaging` and `Nifty.Messaging.Events`? If so, which one? There are, for instance, [Azure messaging services](https://azure.microsoft.com/en-us/solutions/messaging-services/#products), [ActiveMQ](https://activemq.apache.org/components/nms/), and [other solutions](https://en.wikipedia.org/wiki/Message_queuing_service) to consider.
-   - Could also create a new message queueing service technology, utilizing existing protocols, which supports "semantics-enhanced message filtering", using n-ary SPARQL queries on messages, e.g., on messages' metadata.
-5. Exploring learner, domain, and pedagogical models and modules and in the context of interoperation with the Microsoft Bot Framework.
-6. Implementing a rough-draft dialog system of an intelligent tutoring system in the Microsoft Bot Framework style.
-7. Your ideas for contributions and tasks are welcomed.
+   - Could also create a new message queueing service technology, utilizing existing protocols, which supports "semantics-enhanced message filtering", using n-ary SPARQL queries on messages or their metadata.
+5. Workflow. Determine the role that workflow will play, if any, in the Nifty project with regard to the modelling and processing of educational items, exercises, and activities. Alternatively, items, exercises, and activities could be components in .NET assemblies which are dynamically-loaded and unloaded at runtime, per extensibility. In either case, items, exercises, and activities in existing formats, e.g., QTI, can be "compiled" for use by Nifty.
+6. Implementing learner, domain, pedagogical, and other models and modules.
+7. Implementing a rough-draft dialog system of an intelligent tutoring system in the Microsoft Bot Framework style.
+8. Your ideas for contributions and tasks are welcomed.
 
 # Have a Question, Comment, Idea or Discussion Topic?
 
