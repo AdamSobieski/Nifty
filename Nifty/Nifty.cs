@@ -37,8 +37,9 @@ namespace Nifty.Activities
         // use cases:
         // 1. mathematics exercises
         // 2. interactive stories (story-based items, digital gamebooks, interactive films, serious games, etc.)
-        //    a. will explore creating and providing to IItem abstracted rendering or streaming contexts so that items can produce imagery and video over video-calling channels, e.g., Skype, Zoom, WebRTC, et al.
+        //    a. will explore creating and providing to IItem abstracted rendering or streaming contexts so that items can generate imagery, video, and 3D graphics over video-calling channels, e.g., Skype, Zoom, WebRTC, et al.
         //       i. see also: https://github.com/3DStreamingToolkit/3DStreamingToolkit , https://3dstreamingtoolkit.github.io/docs-3dstk/
+        //       ii. see also: https://docs.unity3d.com/Packages/com.unity.webrtc@2.4/manual/index.html
         // 3. software training exercises
         // 4. other
     }
