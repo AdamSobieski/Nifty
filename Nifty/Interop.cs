@@ -1,4 +1,9 @@
-﻿namespace Nifty.Interop.ExperienceApi
+﻿namespace Nifty.Interop.Azure
+{
+    // see also: https://github.com/microsoft/OpenEduAnalytics
+}
+
+namespace Nifty.Interop.ExperienceApi
 {
     // https://github.com/adlnet/xAPI-Spec
     // https://registry.tincanapi.com/#home/verbs
