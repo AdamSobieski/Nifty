@@ -1100,6 +1100,7 @@ namespace Nifty.Sessions
                 component.Value.Dispose(this);
             }
 
+            CompositionHost?.Dispose();
             CompositionHost = null;
 
             GC.ReRegisterForFinalize(this);
