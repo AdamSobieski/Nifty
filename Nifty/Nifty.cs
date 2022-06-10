@@ -1014,6 +1014,8 @@ namespace Nifty.Sessions
 
     public interface ISession : IHasReadOnlyMetadata, IInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IItem>
     {
+        protected CompositionHost? CompositionHost { get; set; }
+
         [ImportMany]
         protected IEnumerable<Lazy<IComponent, ComponentMetadata>> Components { get; set; }
 
@@ -1069,14 +1071,13 @@ namespace Nifty.Sessions
             string path = Path.GetDirectoryName(location) ?? throw new Exception();
             path = Path.Combine(path, "Plugins");
 
-            var dlls = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories).Select(AssemblyLoadContext.Default.LoadFromAssemblyPath).ToList();
+            var dlls = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories).Select(AssemblyLoadContext.Default.LoadFromAssemblyPath);
 
             var configuration = new ContainerConfiguration().WithAssemblies(dlls);
 
-            using (var container = configuration.CreateContainer())
-            {
-                Components = container.GetExports<Lazy<IComponent, ComponentMetadata>>();
-            }
+            CompositionHost = configuration.CreateContainer();
+            
+            Components = CompositionHost.GetExports<Lazy<IComponent, ComponentMetadata>>();
         }
 
         public Task SaveStateInBackground(CancellationToken cancellationToken);
@@ -1098,6 +1099,8 @@ namespace Nifty.Sessions
             {
                 component.Value.Dispose(this);
             }
+
+            CompositionHost = null;
 
             GC.ReRegisterForFinalize(this);
         }
