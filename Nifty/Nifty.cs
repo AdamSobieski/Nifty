@@ -43,7 +43,7 @@ namespace Nifty.Activities
         // 3. software training exercises
         // 4. other
         //
-        // considering using: Silk.NET which includes OpenGL, OpenCL, OpenAL, OpenXR, GLFW, SDL, Vulkan, Assimp, and DirectX
+        // considering using: Silk.NET which includes OpenGL, OpenCL, OpenAL, OpenXR, GLFW, SDL, Vulkan, Assimp, and DirectX (https://github.com/dotnet/Silk.NET)
         //
         // ideally, server-side applications, after initialization, can provide graphics-related interfaces, pointers, and data to dynamically-loaded IItem's
         // so that the IItem's can render content, text, imagery, video, and 3D graphics, in a manner independent of the video-calling channel, e.g., Skype, Zoom, WebRTC
@@ -53,7 +53,7 @@ namespace Nifty.Activities
         // 1. rendering exercise-related content, e.g., interactive 3D mathematics visualizations and diagrams
         // 2. routing/relaying existing video stream resources through video-call channels
         //    a. then presenting interactions or menus in the WebRTC content or in accompanying Web content
-        // 3. rendering interactive educational content (see also: https://www.youtube.com/watch?v=wJyUtbn0O5Y)
+        // 3. rendering interactive educational 3D content (see also: https://www.youtube.com/watch?v=wJyUtbn0O5Y , https://www.youtube.com/watch?v=39HTpUG1MwQ) where users could gesture to move the camera around, to select objects, etc.
         // 4. rendering educational game content (see also: https://en.wikipedia.org/wiki/Cloud_gaming)
         // 5. multimodal dialog systems (see also: https://www.youtube.com/watch?v=FyKYBei9D08)
     }
