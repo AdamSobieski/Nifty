@@ -37,11 +37,25 @@ namespace Nifty.Activities
         // use cases:
         // 1. mathematics exercises
         // 2. interactive stories (story-based items, digital gamebooks, interactive films, serious games, etc.)
-        //    a. will explore creating and providing to IItem abstracted rendering or streaming contexts so that items can generate imagery, video, and 3D graphics over video-calling channels, e.g., Skype, Zoom, WebRTC, et al.
+        //    a. will explore creating and providing to IItem abstracted rendering or streaming contexts so that items can generate text, imagery, video, and 3D graphics over video-calling channels, e.g., Skype, Zoom, WebRTC, et al.
         //       i. see also: https://github.com/3DStreamingToolkit/3DStreamingToolkit , https://3dstreamingtoolkit.github.io/docs-3dstk/
         //       ii. see also: https://docs.unity3d.com/Packages/com.unity.webrtc@2.4/manual/index.html
         // 3. software training exercises
         // 4. other
+        //
+        // considering using: Silk.NET which includes OpenGL, OpenCL, OpenAL, OpenXR, GLFW, SDL, Vulkan, Assimp, and DirectX
+        //
+        // ideally, server-side applications, after initialization, can provide graphics-related interfaces, pointers, and data to dynamically-loaded IItem's
+        // so that the IItem's can render content, text, imagery, video, and 3D graphics, in a manner independent of the video-calling channel, e.g., Skype, Zoom, WebRTC
+        // otherwise, it would only be WebRTC (which the Bot Framework doesn't yet support? see also: https://github.com/microsoft/botframework-sdk/issues/6516)
+        //
+        // with graphics and video-calling channels, possibilities include:
+        // 1. rendering exercise-related content, e.g., interactive 3D mathematics visualizations and diagrams
+        // 2. routing/relaying existing video stream resources through video-call channels
+        //    a. then presenting interactions or menus in the WebRTC content or in accompanying Web content
+        // 3. rendering interactive educational content (see also: https://www.youtube.com/watch?v=B_zD3NxSsD8)
+        // 4. rendering educational game content (see also: https://en.wikipedia.org/wiki/Cloud_gaming)
+        // 5. multimodal dialog systems (see also: https://www.youtube.com/watch?v=FyKYBei9D08)
     }
 
     public interface IItemStore : Nifty.Knowledge.Querying.IQueryable, ISessionInitializable, ISessionDisposable
@@ -81,18 +95,6 @@ namespace Nifty.Analytics
 }
 
 namespace Nifty.Automata
-{
-    // see also: http://learnlib.github.io/automatalib/maven-site/latest/apidocs/net/automatalib/automata/Automaton.html
-
-    // to do: consider approaches, e.g., fluent, to defining and building automata
-}
-
-namespace Nifty.Collections
-{
-    public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IList<KeyValuePair<TKey, TValue>> { }
-}
-
-namespace Nifty.Collections.Graphs
 {
 
 }

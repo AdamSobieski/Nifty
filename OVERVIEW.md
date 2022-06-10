@@ -52,7 +52,7 @@ Educational items, exercises, and activities can each be stored in their own .NE
 
 Educational items, exercises, and activities can be "compiled" from other formats, e.g., QTI, into components in .NET assemblies.
 
-Topics of technical interest include educational items, exercises, and activities being able to render and display imagery, video, and 3D graphics across video-calling channels, e.g., Skype, Zoom, and WebRTC.
+Topics of technical interest include educational items, exercises, and activities being able to render and display text, imagery, video, and 3D graphics across video-calling channels, e.g., Skype, Zoom, and WebRTC, and to be able to process related input video streams.
 
 Topics of technical interest include the querying and selecting of educational items, exercises, and activities by adaptive instructional systems.
 
