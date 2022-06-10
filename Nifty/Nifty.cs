@@ -53,7 +53,7 @@ namespace Nifty.Activities
         // 1. rendering exercise-related content, e.g., interactive 3D mathematics visualizations and diagrams
         // 2. routing/relaying existing video stream resources through video-call channels
         //    a. then presenting interactions or menus in the WebRTC content or in accompanying Web content
-        // 3. rendering interactive educational 3D content (see also: https://www.youtube.com/watch?v=wJyUtbn0O5Y , https://www.youtube.com/watch?v=39HTpUG1MwQ) where users could gesture to move the camera around, to select objects, etc.
+        // 3. rendering interactive educational 3D content (see also: https://www.youtube.com/watch?v=wJyUtbn0O5Y , https://www.youtube.com/watch?v=39HTpUG1MwQ) where users could gesture to pan, rotate, and zoom cameras, select objects, etc.
         // 4. rendering educational game content (see also: https://en.wikipedia.org/wiki/Cloud_gaming)
         // 5. multimodal dialog systems (see also: https://www.youtube.com/watch?v=FyKYBei9D08)
     }
