@@ -60,7 +60,8 @@ namespace Nifty.Activities
 
     public interface IItemStore : Nifty.Knowledge.Querying.IQueryable, ISessionInitializable, ISessionDisposable
     {
-        public Assembly Retrieve(IUri uri);
+        // the stream is a .NET assembly which contains an IItem
+        public Stream Retrieve(IUri uri);
     }
 }
 
