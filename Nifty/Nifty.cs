@@ -2,6 +2,7 @@
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Nifty.Activities;
 using Nifty.Algorithms;
@@ -243,6 +244,11 @@ namespace Nifty.Dialogs
 
 namespace Nifty.Extensibility
 {
+    public interface IHostBuildingComponent
+    {
+        public IHostBuilder Build(IHostBuilder builder);
+    }
+
     // considering use of Nifty metadata for describing add-ons, plug-ins, and extensions
     // a "component connecting algorithm" should be able to utilize components' metadata to automatically interconnect components, connecting message sources and message handlers
     public interface IComponent : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable { }
@@ -1026,6 +1032,8 @@ namespace Nifty.Sessions
         }
 
 
+
+        public IServiceProvider Services { get; }
 
         public IConfiguration Configuration { get; }
         public ILogger Log { get; }
