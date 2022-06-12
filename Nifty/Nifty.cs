@@ -114,7 +114,7 @@ namespace Nifty.Common
 
 namespace Nifty.Dialogs
 {
-    public interface IDialogSystem : IBot, ISessionInitializable, IMessageHandler, IMessageSource, IEventHandler, IEventSource, ISessionDisposable
+    public interface IDialogSystem : IBot, IServiceProviderInitializable, IMessageHandler, IMessageSource, IEventHandler, IEventSource, IServiceProviderDisposable
     {
         // to do: explore more granular interfaces between dialog systems and items, exercises, and activities
         public void EnterScope(IHasReadOnlyMetadata scope);
@@ -165,7 +165,7 @@ namespace Nifty.Extensibility
 
     // considering use of Nifty metadata for describing add-ons, plug-ins, and extensions
     // a "component connecting algorithm" should be able to utilize components' metadata to automatically interconnect components, connecting message sources and message handlers
-    public interface IMessagingComponent : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable { }
+    public interface IMessagingComponent : IHasReadOnlyMetadata, IServiceProviderInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, IServiceProviderDisposable { }
 
     public class ComponentMetadata { }
 }
@@ -201,7 +201,7 @@ namespace Nifty.Extensibility.Activities
         // 5. multimodal dialog systems (see also: https://www.youtube.com/watch?v=FyKYBei9D08)
     }
 
-    public interface IItemStore : Nifty.Knowledge.Querying.IQueryable, ISessionInitializable, ISessionDisposable
+    public interface IItemStore : Nifty.Knowledge.Querying.IQueryable, IServiceProviderInitializable, IServiceProviderDisposable
     {
         // the stream is a .NET assembly which contains an IItem
         public Stream Retrieve(IUri uri);
@@ -219,11 +219,11 @@ namespace Nifty.Extensibility.Algorithms
 
 namespace Nifty.Hosting
 {
-    public interface ISessionInitializable
+    public interface IServiceProviderInitializable
     {
         public IDisposable Initialize(IServiceProvider services);
     }
-    public interface ISessionDisposable
+    public interface IServiceProviderDisposable
     {
         public void Dispose(IServiceProvider services);
     }
@@ -440,7 +440,7 @@ namespace Nifty.Knowledge
 
 
 
-    public interface IKnowledgebase : IFormulaCollection, ISessionInitializable, IEventHandler, ISessionDisposable { }
+    public interface IKnowledgebase : IFormulaCollection, IServiceProviderInitializable, IEventHandler, IServiceProviderDisposable { }
 }
 
 namespace Nifty.Knowledge.Building
@@ -999,7 +999,7 @@ namespace Nifty.Modelling.Domains
     /// It is a representation of all the possible student states in the domain.
     /// While these states are typically tied to content, general psychological states (e.g., boredom, persistence) may also be included, since such states are relevant for a full understanding of possible pedagogy within the domain.
     /// </summary>
-    public interface IDomainModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable
+    public interface IDomainModel : IHasReadOnlyMetadata, IServiceProviderInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, IServiceProviderDisposable
     {
         // see also: https://docs.microsoft.com/en-us/dotnet/api/microsoft.bot.builder.istorage?view=botbuilder-dotnet-stable
         // see also: https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-custom-storage?view=azure-bot-service-4.0
@@ -1016,7 +1016,7 @@ namespace Nifty.Modelling.Pedagogical
     /// In mixed-initiative systems, the students may also initiate actions, ask questions, or request help, but the ITS always needs to be ready to decide “what to do next” at any point and this is determined by a tutoring model that captures the researchers’ pedagogical theories.
     /// Sometimes what to do next implies waiting for the student to respond.
     /// </summary>
-    public interface IPedagogicalModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable
+    public interface IPedagogicalModel : IHasReadOnlyMetadata, IServiceProviderInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, IServiceProviderDisposable
     {
         public IStorage Storage { get; }
     }
@@ -1033,7 +1033,7 @@ namespace Nifty.Modelling.Users
     /// For example, “knowledge tracing” tracks the student’s progress from problem to problem and builds a profile of strengths and weaknesses relative to the domain model.
     /// Since ITS domain models may track general psychological states, student models may also represent these general states of the student.
     /// </summary>
-    public interface IUserModel : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable
+    public interface IUserModel : IHasReadOnlyMetadata, IServiceProviderInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, IServiceProviderDisposable
     {
         public IStorage Storage { get; }
     }
