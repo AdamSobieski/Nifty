@@ -249,11 +249,11 @@ namespace Nifty.Hosting
         protected CompositionHost? CompositionHost { get; set; }
 
         [ImportMany]
-        protected IEnumerable<Lazy<IMessagingComponent, ComponentMetadata>> Components { get; set; }
+        protected IEnumerable<Lazy<IMessagingComponent, ComponentMetadata>> MessagingComponents { get; set; }
 
-        protected IEnumerable<IMessagingComponent> GetComponents(IAskQuery query)
+        protected IEnumerable<IMessagingComponent> GetMessagingComponents(IAskQuery query)
         {
-            return Components.Select(n => n.Value).Where(n => n.About.Query(query));
+            return MessagingComponents.Select(n => n.Value).Where(n => n.About.Query(query));
         }
 
 
@@ -288,7 +288,7 @@ namespace Nifty.Hosting
                 DialogueSystem.Initialize(this.Services)
             });
 
-            foreach (var component in Components)
+            foreach (var component in MessagingComponents)
             {
                 disposables.Add(component.Value.Initialize(this.Services));
             }
@@ -308,7 +308,7 @@ namespace Nifty.Hosting
 
             CompositionHost = configuration.CreateContainer();
 
-            Components = CompositionHost.GetExports<Lazy<IMessagingComponent, ComponentMetadata>>();
+            MessagingComponents = CompositionHost.GetExports<Lazy<IMessagingComponent, ComponentMetadata>>();
         }
 
         public Task SaveStateInBackground(CancellationToken cancellationToken);
@@ -325,7 +325,7 @@ namespace Nifty.Hosting
             DialogueSystem.Dispose(this.Services);
             Knowledgebase.Dispose(this.Services);
 
-            foreach (var component in Components)
+            foreach (var component in MessagingComponents)
             {
                 component.Value.Dispose(this.Services);
             }
