@@ -205,6 +205,7 @@ namespace Nifty.Extensibility.Activities
     {
         // the stream is a .NET assembly which contains an IItem
         public Stream Retrieve(IUri uri);
+        public Stream Retrieve(AssemblyName uri);
     }
 }
 
