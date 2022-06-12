@@ -27,11 +27,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Nifty.Automata
-{
-
-}
-
 namespace Nifty.Common
 {
     public struct Literal
@@ -56,18 +51,6 @@ namespace Nifty.Common
     public interface IInitializable
     {
         public IDisposable Initialize();
-    }
-
-    public interface IResumable<T>
-    {
-        public T Suspend();
-        public void Resume(T state);
-    }
-
-    public interface ITransaction : IDisposable
-    {
-        public void Commit();
-        public void Rollback();
     }
 
     public static class Disposable
