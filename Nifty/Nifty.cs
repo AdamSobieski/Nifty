@@ -229,7 +229,7 @@ namespace Nifty.Extensibility.Algorithms
 {
     public interface IAlgorithm : IMessagingComponent
     {
-        public IAsyncEnumerator<IItem> GetAsyncEnumerator(ISession session, CancellationToken cancellationToken);
+        public IAsyncEnumerator<IItem> GetAsyncEnumerator(IServiceProvider services, CancellationToken cancellationToken);
     }
 }
 
@@ -338,7 +338,7 @@ namespace Nifty.Hosting
 
         IAsyncEnumerator<IItem> IAsyncEnumerable<IItem>.GetAsyncEnumerator(CancellationToken cancellationToken)
         {
-            return Algorithm.GetAsyncEnumerator(this, cancellationToken);
+            return Algorithm.GetAsyncEnumerator(this.Services, cancellationToken);
         }
     }
 }
