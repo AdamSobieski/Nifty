@@ -242,6 +242,7 @@ namespace Nifty.Hosting
 
 
 
+        public IHost Host { get; }
         public IServiceProvider Services { get; }
         public IConfiguration Configuration { get; }
         public ILogger Log { get; }
