@@ -4,12 +4,12 @@ using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Nifty.Activities;
-using Nifty.Algorithms;
-using Nifty.Analytics;
 using Nifty.Common;
 using Nifty.Dialogs;
 using Nifty.Extensibility;
+using Nifty.Extensibility.Activities;
+using Nifty.Extensibility.Algorithms;
+using Nifty.Hosting;
 using Nifty.Knowledge;
 using Nifty.Knowledge.Building;
 using Nifty.Knowledge.Querying;
@@ -21,80 +21,11 @@ using Nifty.Messaging.Events;
 using Nifty.Modelling.Domains;
 using Nifty.Modelling.Pedagogical;
 using Nifty.Modelling.Users;
-using Nifty.Sessions;
 using System.Composition;
 using System.Composition.Hosting;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Loader;
-
-namespace Nifty.Activities
-{
-    // as .NET can dynamically load and unload assemblies, educational items, exercises, and activities can be implemented as components in digitally-signed .NET assemblies
-    // this implies that algorithms for interconnecting components based on their metadata should be devised for, beyond system initialization and shutdown scenarios, loading and unloading components at runtime
-
-    public interface IItem : IComponent
-    {
-        // use cases:
-        // 1. mathematics exercises
-        // 2. interactive stories (story-based items, digital gamebooks, interactive films, serious games, etc.)
-        //    a. will explore creating and providing to IItem abstracted rendering or streaming contexts so that items can generate text, imagery, video, and 3D graphics over video-calling channels, e.g., Skype, Zoom, WebRTC, et al.
-        //       i. see also: https://github.com/3DStreamingToolkit/3DStreamingToolkit , https://3dstreamingtoolkit.github.io/docs-3dstk/
-        //       ii. see also: https://docs.unity3d.com/Packages/com.unity.webrtc@2.4/manual/index.html
-        // 3. software training exercises
-        // 4. other
-        //
-        // considering using: Silk.NET which includes OpenGL, OpenCL, OpenAL, OpenXR, GLFW, SDL, Vulkan, Assimp, and DirectX (https://github.com/dotnet/Silk.NET)
-        //
-        // ideally, server-side applications, after initialization, can provide graphics-related interfaces, pointers, and data to dynamically-loaded IItem's
-        // so that the IItem's can render content, text, imagery, video, and 3D graphics, in a manner independent of the video-calling channel, e.g., Skype, Zoom, WebRTC
-        // otherwise, it would only be WebRTC (which the Bot Framework doesn't yet support? see also: https://github.com/microsoft/botframework-sdk/issues/6516)
-        //
-        // with graphics and video-calling channels, possibilities include:
-        // 1. rendering exercise-related content, e.g., interactive 3D mathematics visualizations and diagrams
-        // 2. routing/relaying existing video stream resources through video-call channels
-        //    a. then presenting interactions or menus in the WebRTC content or in accompanying Web content
-        // 3. rendering interactive educational 3D content (see also: https://www.youtube.com/watch?v=wJyUtbn0O5Y , https://www.youtube.com/watch?v=39HTpUG1MwQ) where users could gesture to pan, rotate, and zoom cameras, select objects, etc.
-        // 4. rendering educational game content (see also: https://en.wikipedia.org/wiki/Cloud_gaming)
-        // 5. multimodal dialog systems (see also: https://www.youtube.com/watch?v=FyKYBei9D08)
-    }
-
-    public interface IItemStore : Nifty.Knowledge.Querying.IQueryable, ISessionInitializable, ISessionDisposable
-    {
-        // the stream is a .NET assembly which contains an IItem
-        public Stream Retrieve(IUri uri);
-    }
-}
-
-namespace Nifty.Algorithms
-{
-    public interface IAlgorithm : IComponent
-    {
-        public IAsyncEnumerator<IItem> GetAsyncEnumerator(ISession session, CancellationToken cancellationToken);
-    }
-}
-
-namespace Nifty.Analytics
-{
-    public interface IAnalytics : IComponent { }
-
-    public interface IProgressMonitor
-    {
-        public void Start(string? message = null);
-        public void StartSection(string? message = null);
-        public void FinishSection(string? message = null);
-        public void Finish(string? message = null);
-
-        public void Tick();
-
-        public ulong Ticks { get; }
-        public TimeSpan Time { get; }
-        public ulong SectionTicks { get; }
-        public TimeSpan SectionTime { get; }
-
-        public string Status { get; }
-    }
-}
 
 namespace Nifty.Automata
 {
@@ -251,9 +182,165 @@ namespace Nifty.Extensibility
 
     // considering use of Nifty metadata for describing add-ons, plug-ins, and extensions
     // a "component connecting algorithm" should be able to utilize components' metadata to automatically interconnect components, connecting message sources and message handlers
-    public interface IComponent : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable { }
+    public interface IMessagingComponent : IHasReadOnlyMetadata, ISessionInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, ISessionDisposable { }
 
     public class ComponentMetadata { }
+}
+
+namespace Nifty.Extensibility.Activities
+{
+    // as .NET can dynamically load and unload assemblies, educational items, exercises, and activities can be implemented as components in digitally-signed .NET assemblies
+    // this implies that algorithms for interconnecting components based on their metadata should be devised for, beyond system initialization and shutdown scenarios, loading and unloading components at runtime
+
+    public interface IItem : IMessagingComponent
+    {
+        // use cases:
+        // 1. mathematics exercises
+        // 2. interactive stories (story-based items, digital gamebooks, interactive films, serious games, etc.)
+        //    a. will explore creating and providing to IItem abstracted rendering or streaming contexts so that items can generate text, imagery, video, and 3D graphics over video-calling channels, e.g., Skype, Zoom, WebRTC, et al.
+        //       i. see also: https://github.com/3DStreamingToolkit/3DStreamingToolkit , https://3dstreamingtoolkit.github.io/docs-3dstk/
+        //       ii. see also: https://docs.unity3d.com/Packages/com.unity.webrtc@2.4/manual/index.html
+        // 3. software training exercises
+        // 4. other
+        //
+        // considering using: Silk.NET which includes OpenGL, OpenCL, OpenAL, OpenXR, GLFW, SDL, Vulkan, Assimp, and DirectX (https://github.com/dotnet/Silk.NET)
+        //
+        // ideally, server-side applications, after initialization, can provide graphics-related interfaces, pointers, and data to dynamically-loaded IItem's
+        // so that the IItem's can render content, text, imagery, video, and 3D graphics, in a manner independent of the video-calling channel, e.g., Skype, Zoom, WebRTC
+        // otherwise, it would only be WebRTC (which the Bot Framework doesn't yet support? see also: https://github.com/microsoft/botframework-sdk/issues/6516)
+        //
+        // with graphics and video-calling channels, possibilities include:
+        // 1. rendering exercise-related content, e.g., interactive 3D mathematics visualizations and diagrams
+        // 2. routing/relaying existing video stream resources through video-call channels
+        //    a. then presenting interactions or menus in the WebRTC content or in accompanying Web content
+        // 3. rendering interactive educational 3D content (see also: https://www.youtube.com/watch?v=wJyUtbn0O5Y , https://www.youtube.com/watch?v=39HTpUG1MwQ) where users could gesture to pan, rotate, and zoom cameras, select objects, etc.
+        // 4. rendering educational game content (see also: https://en.wikipedia.org/wiki/Cloud_gaming)
+        // 5. multimodal dialog systems (see also: https://www.youtube.com/watch?v=FyKYBei9D08)
+    }
+
+    public interface IItemStore : Nifty.Knowledge.Querying.IQueryable, ISessionInitializable, ISessionDisposable
+    {
+        // the stream is a .NET assembly which contains an IItem
+        public Stream Retrieve(IUri uri);
+    }
+}
+
+namespace Nifty.Extensibility.Algorithms
+{
+    public interface IAlgorithm : IMessagingComponent
+    {
+        public IAsyncEnumerator<IItem> GetAsyncEnumerator(ISession session, CancellationToken cancellationToken);
+    }
+}
+
+namespace Nifty.Hosting
+{
+    public interface ISessionInitializable
+    {
+        public IDisposable Initialize(IServiceProvider services);
+    }
+    public interface ISessionDisposable
+    {
+        public void Dispose(IServiceProvider services);
+    }
+
+    public interface ISession : IHasReadOnlyMetadata, IInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IItem>
+    {
+        protected CompositionHost? CompositionHost { get; set; }
+
+        [ImportMany]
+        protected IEnumerable<Lazy<IMessagingComponent, ComponentMetadata>> Components { get; set; }
+
+        protected IEnumerable<IMessagingComponent> GetComponents(IAskQuery query)
+        {
+            return Components.Select(n => n.Value).Where(n => n.About.Query(query));
+        }
+
+
+
+        public IServiceProvider Services { get; }
+        public IConfiguration Configuration { get; }
+        public ILogger Log { get; }
+
+
+
+        public IDialogSystem DialogueSystem { get; }
+        public IKnowledgebase Knowledgebase { get; }
+        public IUserModel User { get; }
+        public IDomainModel Domain { get; }
+        public IPedagogicalModel Pedagogical { get; }
+        public IItemStore Store { get; }
+        public IAlgorithm Algorithm { get; }
+
+
+
+        IDisposable IInitializable.Initialize()
+        {
+            Compose();
+
+            var disposables = new List<IDisposable>(new IDisposable[] {
+                Knowledgebase.Initialize(this.Services),
+                Domain.Initialize(this.Services),
+                User.Initialize(this.Services),
+                Pedagogical.Initialize(this.Services),
+                Store.Initialize(this.Services),
+                Algorithm.Initialize(this.Services),
+                DialogueSystem.Initialize(this.Services)
+            });
+
+            foreach (var component in Components)
+            {
+                disposables.Add(component.Value.Initialize(this.Services));
+            }
+
+            return Disposable.All(disposables);
+        }
+
+        private void Compose()
+        {
+            string location = Assembly.GetEntryAssembly()?.Location ?? throw new Exception();
+            string path = Path.GetDirectoryName(location) ?? throw new Exception();
+            path = Path.Combine(path, "Plugins");
+
+            var dlls = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories).Select(AssemblyLoadContext.Default.LoadFromAssemblyPath);
+
+            var configuration = new ContainerConfiguration().WithAssemblies(dlls);
+
+            CompositionHost = configuration.CreateContainer();
+
+            Components = CompositionHost.GetExports<Lazy<IMessagingComponent, ComponentMetadata>>();
+        }
+
+        public Task SaveStateInBackground(CancellationToken cancellationToken);
+
+        void IDisposable.Dispose()
+        {
+            GC.SuppressFinalize(this);
+
+            Algorithm.Dispose(this.Services);
+            Pedagogical.Dispose(this.Services);
+            User.Dispose(this.Services);
+            Domain.Dispose(this.Services);
+            Store.Dispose(this.Services);
+            DialogueSystem.Dispose(this.Services);
+            Knowledgebase.Dispose(this.Services);
+
+            foreach (var component in Components)
+            {
+                component.Value.Dispose(this.Services);
+            }
+
+            CompositionHost?.Dispose();
+            CompositionHost = null;
+
+            GC.ReRegisterForFinalize(this);
+        }
+
+        IAsyncEnumerator<IItem> IAsyncEnumerable<IItem>.GetAsyncEnumerator(CancellationToken cancellationToken)
+        {
+            return Algorithm.GetAsyncEnumerator(this, cancellationToken);
+        }
+    }
 }
 
 namespace Nifty.Knowledge
@@ -1008,118 +1095,9 @@ namespace Nifty.Planning.Constraints
     }
 }
 
-namespace Nifty.Sessions
+namespace Nifty.Telemetry
 {
-    public interface ISessionInitializable
-    {
-        public IDisposable Initialize(ISession session);
-    }
-    public interface ISessionDisposable
-    {
-        public void Dispose(ISession session);
-    }
-
-    public interface ISession : IHasReadOnlyMetadata, IInitializable, IMessageSource, IMessageHandler, IEventSource, IEventHandler, IDisposable, IAsyncEnumerable<IItem>
-    {
-        protected CompositionHost? CompositionHost { get; set; }
-
-        [ImportMany]
-        protected IEnumerable<Lazy<IComponent, ComponentMetadata>> Components { get; set; }
-
-        protected IEnumerable<IComponent> GetComponents(IAskQuery query)
-        {
-            return Components.Select(n => n.Value).Where(n => n.About.Query(query));
-        }
-
-
-
-        public IServiceProvider Services { get; }
-
-        public IConfiguration Configuration { get; }
-        public ILogger Log { get; }
-
-
-
-        public IDialogSystem DialogueSystem { get; }
-        public IKnowledgebase Knowledgebase { get; }
-        public IUserModel User { get; }
-        public IDomainModel Domain { get; }
-        public IPedagogicalModel Pedagogical { get; }
-        public IItemStore Store { get; }
-        public IAlgorithm Algorithm { get; }
-        public IAnalytics Analytics { get; }
-
-
-
-        IDisposable IInitializable.Initialize()
-        {
-            Compose();
-
-            var disposables = new List<IDisposable>(new IDisposable[] {
-                Analytics.Initialize(this),
-                Knowledgebase.Initialize(this),
-                Domain.Initialize(this),
-                User.Initialize(this),
-                Pedagogical.Initialize(this),
-                Store.Initialize(this),
-                Algorithm.Initialize(this),
-                DialogueSystem.Initialize(this)
-            });
-
-            foreach (var component in Components)
-            {
-                disposables.Add(component.Value.Initialize(this));
-            }
-
-            return Disposable.All(disposables);
-        }
-
-        private void Compose()
-        {
-            string location = Assembly.GetEntryAssembly()?.Location ?? throw new Exception();
-            string path = Path.GetDirectoryName(location) ?? throw new Exception();
-            path = Path.Combine(path, "Plugins");
-
-            var dlls = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories).Select(AssemblyLoadContext.Default.LoadFromAssemblyPath);
-
-            var configuration = new ContainerConfiguration().WithAssemblies(dlls);
-
-            CompositionHost = configuration.CreateContainer();
-            
-            Components = CompositionHost.GetExports<Lazy<IComponent, ComponentMetadata>>();
-        }
-
-        public Task SaveStateInBackground(CancellationToken cancellationToken);
-
-        void IDisposable.Dispose()
-        {
-            GC.SuppressFinalize(this);
-
-            Algorithm.Dispose(this);
-            Pedagogical.Dispose(this);
-            User.Dispose(this);
-            Domain.Dispose(this);
-            Store.Dispose(this);
-            DialogueSystem.Dispose(this);
-            Knowledgebase.Dispose(this);
-            Analytics.Dispose(this);
-
-            foreach (var component in Components)
-            {
-                component.Value.Dispose(this);
-            }
-
-            CompositionHost?.Dispose();
-            CompositionHost = null;
-
-            GC.ReRegisterForFinalize(this);
-        }
-
-        IAsyncEnumerator<IItem> IAsyncEnumerable<IItem>.GetAsyncEnumerator(CancellationToken cancellationToken)
-        {
-            return Algorithm.GetAsyncEnumerator(this, cancellationToken);
-        }
-    }
+    // see also: https://opentelemetry.io/ , https://opentelemetry.io/docs/instrumentation/net/getting-started/
 }
 
 namespace Nifty
