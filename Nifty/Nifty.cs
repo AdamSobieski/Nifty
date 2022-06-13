@@ -366,7 +366,7 @@ namespace Nifty.Knowledge
         //public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator);
         //public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator, [NotNullWhen(true)] out ISimpleReadOnlyFormulaCollection? result);
 
-        public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
+        public ISimpleReadOnlyFormulaCollection Clone(ISimpleReadOnlyFormulaCollection removals, ISimpleReadOnlyFormulaCollection additions);
     }
 
     public interface ISimpleFormulaCollection : ISimpleReadOnlyFormulaCollection, IObservableQueryable
