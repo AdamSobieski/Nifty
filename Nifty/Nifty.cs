@@ -349,6 +349,9 @@ namespace Nifty.Knowledge
     {
         public FormulaCollectionType FormulaCollectionType { get; }
 
+        public bool IsReadOnly { get; }
+        //public bool IsValid { get; }
+
         public IReadOnlyFormulaCollection Clone();
     }
 
@@ -356,7 +359,6 @@ namespace Nifty.Knowledge
     {
         FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Simple;
 
-        public bool IsReadOnly { get; }
         public bool IsGround { get; }
         public bool IsGraph { get; }
         public bool IsValid { get; }
@@ -373,6 +375,7 @@ namespace Nifty.Knowledge
     public interface ISimpleFormulaCollection : ISimpleReadOnlyFormulaCollection, IObservableQueryable
     {
         FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Simple;
+        bool IReadOnlyFormulaCollection.IsReadOnly => false;
 
         public bool Add(IFormula formula);
         public bool Add(ISimpleReadOnlyFormulaCollection formulas);
@@ -576,6 +579,8 @@ namespace Nifty.Knowledge.Querying
 
     public interface IConcatReadOnlyFormulaCollection : IReadOnlyFormulaCollection
     {
+        // is concatenation a part of SPARQL with {...}{...} syntax?
+
         FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Concat;
 
         public IReadOnlyFormulaCollection Left { get; }
