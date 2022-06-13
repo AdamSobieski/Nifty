@@ -469,7 +469,7 @@ namespace Nifty.Knowledge
 
 namespace Nifty.Knowledge.Building
 {
-    public interface IFormulaCollectionBuilder : ISimpleReadOnlyFormulaCollection, ISimpleFormulaCollection
+    public interface ISimpleFormulaCollectionBuilder : ISimpleReadOnlyFormulaCollection, ISimpleFormulaCollection
     {
         public bool IsBuilt { get; }
 
@@ -478,14 +478,9 @@ namespace Nifty.Knowledge.Building
         public ISimpleReadOnlyFormulaCollection Build(bool isReadOnly = true); // perhaps other parameters, e.g., bool isSelfSchema = false
     }
 
-    public interface ISchemaBuilder : IFormulaCollectionBuilder
+    public interface ISchemaBuilder : ISimpleFormulaCollectionBuilder
     {
         public new IReadOnlySchema Build(bool isReadOnly = true);
-    }
-
-    internal interface IQueryBuilder : IFormulaCollectionBuilder
-    {
-        public new IQuery Build(bool isReadOnly = true);
     }
 }
 
@@ -1630,11 +1625,11 @@ namespace Nifty
         }
 
 
-        public static IFormulaCollectionBuilder FormulaCollectionBuilder()
+        public static ISimpleFormulaCollectionBuilder FormulaCollectionBuilder()
         {
             throw new NotImplementedException();
         }
-        public static IFormulaCollectionBuilder KnowledgeGraphBuilder()
+        public static ISimpleFormulaCollectionBuilder KnowledgeGraphBuilder()
         {
             throw new NotImplementedException();
         }
@@ -1642,24 +1637,16 @@ namespace Nifty
         {
             throw new NotImplementedException();
         }
-        internal static IQueryBuilder QueryBuilder()
-        {
-            throw new NotImplementedException();
-        }
 
-        public static IFormulaCollectionBuilder FormulaCollectionBuilder(IReadOnlySchema schema)
+        public static ISimpleFormulaCollectionBuilder FormulaCollectionBuilder(IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
-        public static IFormulaCollectionBuilder KnowledgeGraphBuilder(IReadOnlySchema schema)
+        public static ISimpleFormulaCollectionBuilder KnowledgeGraphBuilder(IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
         public static ISchemaBuilder SchemaBuilder(IReadOnlySchema schema)
-        {
-            throw new NotImplementedException();
-        }
-        internal static IQueryBuilder QueryBuilder(IReadOnlySchema schema)
         {
             throw new NotImplementedException();
         }
