@@ -574,15 +574,6 @@ namespace Nifty.Knowledge.Querying
 
 
 
-    public interface IConcatReadOnlyFormulaCollection : IReadOnlyFormulaCollection
-    {
-        // is concatenation a part of SPARQL with {...}{...} syntax?
-
-        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Concat;
-
-        public IReadOnlyFormulaCollection Left { get; }
-        public IReadOnlyFormulaCollection Right { get; }
-    }
     public interface IJoinReadOnlyFormulaCollection : IReadOnlyFormulaCollection
     {
         FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Join;
@@ -596,6 +587,7 @@ namespace Nifty.Knowledge.Querying
 
         public IReadOnlyFormulaCollection Left { get; }
         public IReadOnlyFormulaCollection Right { get; }
+        public ISimpleReadOnlyFormulaCollection Filter { get; }
     }
     public interface IUnionReadOnlyFormulaCollection : IReadOnlyFormulaCollection
     {
@@ -674,7 +666,7 @@ namespace Nifty.Knowledge.Querying
         }
 
 
-        // these methods build queries before they are concluded into one of four query types
+
         public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
         {
             // something like:
@@ -742,15 +734,19 @@ namespace Nifty.Knowledge.Querying
 
 
 
-        public static IConcatReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
-        {
-            throw new NotImplementedException();
-        }
         public static IJoinReadOnlyFormulaCollection Join(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
         public static ILeftJoinReadOnlyFormulaCollection LeftJoin(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        {
+            throw new NotImplementedException();
+        }
+        public static ILeftJoinReadOnlyFormulaCollection LeftJoin(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other, IFormula filter)
+        {
+            throw new NotImplementedException();
+        }
+        public static ILeftJoinReadOnlyFormulaCollection LeftJoin(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other, ISimpleFormulaCollection filter)
         {
             throw new NotImplementedException();
         }
