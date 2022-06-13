@@ -345,7 +345,7 @@ namespace Nifty.Knowledge
         // Values
     }
 
-    public interface IReadOnlyFormulaCollection // : IHasReadOnlyMetadata ?
+    public interface IReadOnlyFormulaCollection // : IHasReadOnlyMetadata ? , IHasReadOnlySchema ?
     {
         public FormulaCollectionType FormulaCollectionType { get; }
 
@@ -501,7 +501,7 @@ namespace Nifty.Knowledge.Querying
     //
     // example syntax:
     //
-    // IReadOnlyFormulaCollection formulas = ...;
+    // ISimpleReadOnlyFormulaCollection formulas = ...;
     //
     // IAskQuery askQuery = Factory.Query().Where(...).Ask();
     // bool result = formulas.Query(askQuery);
@@ -827,10 +827,10 @@ namespace Nifty.Knowledge.Querying
     public static class Composition
     {
         // returns a set of formulas which describes another set of formulas, e.g., using reification
-        public static ISimpleReadOnlyFormulaCollection About(this ISimpleReadOnlyFormulaCollection formulas)
-        {
-            throw new NotImplementedException();
-        }
+        //public static ISimpleReadOnlyFormulaCollection About(this ISimpleReadOnlyFormulaCollection formulas)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }
 
