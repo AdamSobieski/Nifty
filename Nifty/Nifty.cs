@@ -647,6 +647,13 @@ namespace Nifty.Knowledge.Querying
 
     public static class Query
     {
+        public static IQuery Parse(System.Net.Mime.ContentType type, string query)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
         // these conclude a query into one of the four query types
         public static IAskQuery Ask(this IQuery query)
         {
