@@ -669,26 +669,6 @@ namespace Nifty.Knowledge.Querying
 
         public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
         {
-            // something like:
-            //
-            //if (query.GetComposition(out ITerm? qc) && pattern.GetComposition(out ITerm? pc))
-            //{
-            //    var builder = Factory.QueryBuilder(query.Schema);
-            //    var metadata = Factory.FormulaCollectionBuilder(query.About.Schema);
-
-            //    metadata.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.Query));
-            //    metadata.Add(Factory.Formula(Keys.type, builder.Id, Keys.Querying.Types.WhereQuery));
-            //    metadata.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Querying.where, qc, pc)));
-
-            //    builder.About = metadata;
-
-            //    var result = builder.Build();
-            //    if (!result.About.IsValid) throw new Exception();
-
-            //    return result;
-            //}
-            //throw new Exception();
-
             throw new NotImplementedException();
         }
         public static IQuery GroupBy(this IQuery query, IVariable variable)
@@ -752,27 +732,6 @@ namespace Nifty.Knowledge.Querying
         }
         public static IUnionReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
-            // this one should be moved as it could be utilized outside of querying as a basic OR operator
-            // something like:
-            //
-            //if (formulas.GetComposition(out ITerm? fc) && other.GetComposition(out ITerm? oc))
-            //{
-            //    var builder = Factory.FormulaCollectionBuilder();
-            //    var metadata = Factory.FormulaCollectionBuilder(/* there should be builtin schema to use here */);
-
-            //    metadata.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.Expression));
-            //    metadata.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.UnionExpression));
-            //    metadata.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Composition.union, fc, oc)));
-
-            //    builder.About = metadata;
-
-            //    var result = builder.Build();
-            //    if (!result.About.IsValid) throw new Exception();
-
-            //    return result;
-            //}
-            //throw new Exception();
-
             throw new NotImplementedException();
         }
         public static IOptionalReadOnlyFormulaCollection Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
@@ -791,33 +750,8 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-
         public static IFilterReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula filter)
         {
-            // this one should be moved as it could be utilized outside of querying as a basic filtering/constraints operator
-            // something like:
-            //
-            //if (formulas.GetComposition(out ITerm? fc))
-            //{
-            //    var builder = Factory.FormulaCollectionBuilder();
-            //    var metadata = Factory.FormulaCollectionBuilder(/* there should be a builtin schema */);
-
-            //    var qe = Factory.Formula(Keys.quote, expression);
-
-            //    metadata.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.Expression));
-            //    metadata.Add(Factory.Formula(Keys.type, builder.Id, Keys.Composition.Types.FilterExpression));
-            //    metadata.Add(Factory.Formula(Keys.Composition.hasComposition, builder.Id, Factory.Formula(Keys.Composition.filter, fc, qe)));
-            //    metadata.Add(Factory.Formula(Keys.Constraints.hasConstraint, builder.Id, qe));
-
-            //    builder.About = metadata;
-
-            //    var result = builder.Build();
-            //    if (!result.About.IsValid) throw new Exception();
-
-            //    return result;
-            //}
-            //throw new Exception();
-
             throw new NotImplementedException();
         }
         public static IFilterReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, ISimpleReadOnlyFormulaCollection filter)
