@@ -335,6 +335,8 @@ namespace Nifty.Knowledge
         //Empty,
         Simple,
         Concat,
+        Join,
+        LeftJoin,
         Union,
         Optional,
         Exists,
@@ -487,10 +489,10 @@ namespace Nifty.Knowledge.Building
 namespace Nifty.Knowledge.Querying
 {
     // "Fluent N-ary SPARQL"
-    // version 0.2.2
+    // version 0.2.3
     // 
     // the expressiveness for querying n-ary formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
-    // see also: https://www.w3.org/2001/sw/DataAccess/rq23/examples.html
+    // see also: https://www.w3.org/2001/sw/DataAccess/rq23/examples.html , https://www.w3.org/2001/sw/DataAccess/rq23/rq24-algebra.html
     //
     // to do: https://www.w3.org/TR/sparql11-query/#subqueries
     //
@@ -577,6 +579,20 @@ namespace Nifty.Knowledge.Querying
         // is concatenation a part of SPARQL with {...}{...} syntax?
 
         FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Concat;
+
+        public IReadOnlyFormulaCollection Left { get; }
+        public IReadOnlyFormulaCollection Right { get; }
+    }
+    public interface IJoinReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    {
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Join;
+
+        public IReadOnlyFormulaCollection Left { get; }
+        public IReadOnlyFormulaCollection Right { get; }
+    }
+    public interface ILeftJoinReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    {
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.LeftJoin;
 
         public IReadOnlyFormulaCollection Left { get; }
         public IReadOnlyFormulaCollection Right { get; }
@@ -730,8 +746,14 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-
-        // these are operations pertaining to formula patterns utilized by the Where operator
+        public static IJoinReadOnlyFormulaCollection Join(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        {
+            throw new NotImplementedException();
+        }
+        public static ILeftJoinReadOnlyFormulaCollection LeftJoin(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        {
+            throw new NotImplementedException();
+        }
         public static IUnionReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             // this one should be moved as it could be utilized outside of querying as a basic OR operator

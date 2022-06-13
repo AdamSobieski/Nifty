@@ -8,7 +8,7 @@ The [Nifty](https://github.com/AdamSobieski/Nifty) project will be a framework f
 [GIFT](https://gifttutoring.org/), [Bot Framework](https://github.com/microsoft/botframework-sdk)
 
 ### Related Standards
-[RDF](https://www.w3.org/RDF/), [OWL](https://www.w3.org/OWL/), [SPARQL](https://www.w3.org/TR/sparql11-query/), [SPIN](https://spinrdf.org/), [SHACL](https://www.w3.org/TR/shacl/), [xAPI](https://github.com/adlnet/xAPI-Spec), [XES](https://xes-standard.org/), [QTI](https://www.imsglobal.org/question/index.html), [LOM](https://en.wikipedia.org/wiki/Learning_object_metadata)
+[RDF](https://www.w3.org/RDF/), [OWL](https://www.w3.org/OWL/), [SPARQL](https://www.w3.org/TR/sparql11-query/), [SPIN](https://spinrdf.org/), [SHACL](https://www.w3.org/TR/shacl/), [RIF](https://www.w3.org/TR/rif-overview/), [xAPI](https://github.com/adlnet/xAPI-Spec), [XES](https://xes-standard.org/), [QTI](https://www.imsglobal.org/question/index.html), [LOM](https://en.wikipedia.org/wiki/Learning_object_metadata)
 
 ### Related Standards Organizations
 [IEEE Adaptive Instructional Systems Working Group](https://sagroups.ieee.org/2247-1/), [W3C](https://www.w3.org/), [IMS Global](https://www.imsglobal.org/)
