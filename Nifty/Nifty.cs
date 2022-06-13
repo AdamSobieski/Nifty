@@ -330,35 +330,54 @@ namespace Nifty.Hosting
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection : Querying.IQueryable, IHasReadOnlyMetadata, IHasReadOnlySchema
+    public enum FormulaCollectionType
     {
-        public bool IsReadOnly { get; }
-        public bool IsGround { get; }
-        public bool IsInferred { get; }
-        public bool IsValid { get; }
-        public bool IsGraph { get; }
-        public bool IsEnumerable { get; }
+        //Empty,
+        Simple,
+        Concat,
+        Union,
+        Optional,
+        Exists,
+        NotExists,
+        Minus,
+        Filter,
+        Bind
+    }
 
-        public IEnumerable<IDerivation> Derivations(IFormula formula);
-        //public IEnumerable<IDerivation> Derivations(IReadOnlyFormulaCollection formulas);
-
-        public IUpdate DifferenceFrom(IReadOnlyFormulaCollection other);
-
-        public IEnumerable<IVariable> GetVariables();
-        public IReadOnlyFormulaCollection GetConstraints(); // to do: decide whether constraints on a formula collection's variables are stored in its metadata and/or whether they are in their own sub-collection with its own schema and metadata
-        public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator);
-        public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator, [NotNullWhen(true)] out IReadOnlyFormulaCollection? result);
+    public interface IReadOnlyFormulaCollection // : IHasReadOnlyMetadata ?
+    {
+        public FormulaCollectionType FormulaCollectionType { get; }
 
         public IReadOnlyFormulaCollection Clone();
+    }
+
+    public interface ISimpleReadOnlyFormulaCollection : IReadOnlyFormulaCollection, Querying.IQueryable, IEnumerable<IFormula>, IHasReadOnlyMetadata, IHasReadOnlySchema
+    {
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Simple;
+
+        public bool IsReadOnly { get; }
+        public bool IsGround { get; }
+        public bool IsGraph { get; }
+        public bool IsValid { get; }
+
+        public IUpdate DifferenceFrom(ISimpleReadOnlyFormulaCollection other);
+
+        //public IEnumerable<IVariable> GetVariables();
+        //public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator);
+        //public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator, [NotNullWhen(true)] out ISimpleReadOnlyFormulaCollection? result);
+
         public IReadOnlyFormulaCollection Clone(IReadOnlyFormulaCollection removals, IReadOnlyFormulaCollection additions);
     }
-    public interface IFormulaCollection : IObservableQueryable, IReadOnlyFormulaCollection
+
+    public interface ISimpleFormulaCollection : ISimpleReadOnlyFormulaCollection, IObservableQueryable
     {
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Simple;
+
         public bool Add(IFormula formula);
-        public bool Add(IReadOnlyFormulaCollection formulas);
+        public bool Add(ISimpleReadOnlyFormulaCollection formulas);
 
         public bool Remove(IFormula formula);
-        public bool Remove(IReadOnlyFormulaCollection formulas);
+        public bool Remove(ISimpleReadOnlyFormulaCollection formulas);
     }
 
 
@@ -421,11 +440,11 @@ namespace Nifty.Knowledge
 
     public interface IHasReadOnlyMetadata : IHasReadOnlyIdentifier
     {
-        public IReadOnlyFormulaCollection About { get; }
+        public ISimpleReadOnlyFormulaCollection About { get; }
     }
     public interface IHasMetadata : IHasReadOnlyMetadata
     {
-        public new IFormulaCollection About { get; }
+        public new ISimpleFormulaCollection About { get; }
     }
 
 
@@ -441,18 +460,18 @@ namespace Nifty.Knowledge
 
 
 
-    public interface IKnowledgebase : IFormulaCollection, IServiceProviderInitializable, IEventHandler, IServiceProviderDisposable { }
+    public interface IKnowledgebase : ISimpleFormulaCollection, IServiceProviderInitializable, IEventHandler, IServiceProviderDisposable { }
 }
 
 namespace Nifty.Knowledge.Building
 {
-    public interface IFormulaCollectionBuilder : IFormulaCollection
+    public interface IFormulaCollectionBuilder : ISimpleReadOnlyFormulaCollection, ISimpleFormulaCollection
     {
         public bool IsBuilt { get; }
 
-        public new IReadOnlyFormulaCollection About { get; set; }
+        public new ISimpleReadOnlyFormulaCollection About { get; set; }
 
-        public IReadOnlyFormulaCollection Build(bool isReadOnly = true); // perhaps other parameters, e.g., bool isSelfSchema = false
+        public ISimpleReadOnlyFormulaCollection Build(bool isReadOnly = true); // perhaps other parameters, e.g., bool isSelfSchema = false
     }
 
     public interface ISchemaBuilder : IFormulaCollectionBuilder
@@ -469,7 +488,7 @@ namespace Nifty.Knowledge.Building
 namespace Nifty.Knowledge.Querying
 {
     // "Fluent N-ary SPARQL"
-    // version 0.2.1
+    // version 0.2.2
     // 
     // the expressiveness for querying n-ary formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
     // see also: https://www.w3.org/2001/sw/DataAccess/rq23/examples.html
@@ -529,13 +548,13 @@ namespace Nifty.Knowledge.Querying
     {
         public bool Query(IAskQuery query);
         public IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> Query(ISelectQuery query);
-        public IEnumerable<IReadOnlyFormulaCollection> Query(IConstructQuery query);
-        public IReadOnlyFormulaCollection Query(IDescribeQuery query);
+        public IEnumerable<ISimpleReadOnlyFormulaCollection> Query(IConstructQuery query);
+        public ISimpleReadOnlyFormulaCollection Query(IDescribeQuery query);
 
         // public IDisposable Query(IAskQuery query, IObserver<bool> observer);
         public IDisposable Query(ISelectQuery query, IObserver<IReadOnlyDictionary<IVariable, ITerm>> observer);
-        public IDisposable Query(IConstructQuery query, IObserver<IReadOnlyFormulaCollection> observer);
-        //public IDisposable Query(IDescribeQuery query, IObserver<IReadOnlyFormulaCollection> observer);
+        public IDisposable Query(IConstructQuery query, IObserver<ISimpleReadOnlyFormulaCollection> observer);
+        //public IDisposable Query(IDescribeQuery query, IObserver<ISimpleReadOnlyFormulaCollection> observer);
     }
 
     public interface IObservableQueryable : IQueryable
@@ -554,6 +573,69 @@ namespace Nifty.Knowledge.Querying
 
 
 
+    public interface IConcatReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    {
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Concat;
+
+        public IReadOnlyFormulaCollection Left { get; }
+        public IReadOnlyFormulaCollection Right { get; }
+    }
+    public interface IUnionReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    {
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Union;
+
+        public IReadOnlyFormulaCollection Left { get; }
+        public IReadOnlyFormulaCollection Right { get; }
+    }
+    public interface IOptionalReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    {
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Optional;
+
+        public IReadOnlyFormulaCollection Left { get; }
+        public IReadOnlyFormulaCollection Right { get; }
+    }
+    public interface IExistsReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    {
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Exists;
+
+        public IReadOnlyFormulaCollection Left { get; }
+        public IReadOnlyFormulaCollection Right { get; }
+    }
+    public interface INotExistsReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    {
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.NotExists;
+
+        public IReadOnlyFormulaCollection Left { get; }
+        public IReadOnlyFormulaCollection Right { get; }
+    }
+    public interface IMinusReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    {
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Minus;
+
+        public IReadOnlyFormulaCollection Left { get; }
+        public IReadOnlyFormulaCollection Right { get; }
+    }
+    public interface IFilterReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    {
+        // still considering how best to model constraints on formula collections' variables
+
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Filter;
+
+        public IReadOnlyFormulaCollection Collection { get; }
+        public ISimpleReadOnlyFormulaCollection Filter { get; }
+    }
+    public interface IBindReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    {
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Bind;
+
+        public IReadOnlyFormulaCollection Collection { get; }
+
+        public IVariable Variable { get; }
+        public IFormula Formula { get; }
+    }
+
+
+
     public static class Query
     {
         // these conclude a query into one of the four query types
@@ -565,7 +647,7 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-        public static IConstructQuery Construct(this IQuery query, IReadOnlyFormulaCollection template)
+        public static IConstructQuery Construct(this IQuery query, ISimpleReadOnlyFormulaCollection template)
         {
             throw new NotImplementedException();
         }
@@ -642,20 +724,14 @@ namespace Nifty.Knowledge.Querying
         }
 
 
-        // might move some of these general-purpose extension methods, below, from static class Query to static class Composition
 
-        public static IReadOnlyFormulaCollection Merge(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IConcatReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
-        {
-            throw new NotImplementedException();
-        }
-
 
         // these are operations pertaining to formula patterns utilized by the Where operator
-        public static IReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IUnionReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             // this one should be moved as it could be utilized outside of querying as a basic OR operator
             // something like:
@@ -680,24 +756,24 @@ namespace Nifty.Knowledge.Querying
 
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IOptionalReadOnlyFormulaCollection Optional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IExistsReadOnlyFormulaCollection Exists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static INotExistsReadOnlyFormulaCollection NotExists(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IMinusReadOnlyFormulaCollection Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
 
-        public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula filter)
+        public static IFilterReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula filter)
         {
             // this one should be moved as it could be utilized outside of querying as a basic filtering/constraints operator
             // something like:
@@ -725,11 +801,11 @@ namespace Nifty.Knowledge.Querying
 
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection filter)
+        public static IFilterReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, ISimpleReadOnlyFormulaCollection filter)
         {
             throw new NotImplementedException();
         }
-        public static IReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
+        public static IBindReadOnlyFormulaCollection Bind(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
         {
             throw new NotImplementedException();
         }
@@ -740,72 +816,15 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-
-
-        // returns a set of formulas which describes another set of formulas, e.g., using reification
-        public static IReadOnlyFormulaCollection About(this IReadOnlyFormulaCollection formulas)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        internal static IFormula ElementAt(this IReadOnlyFormulaCollection formulas, int index)
-        {
-            if (formulas.IsEnumerable)
-            {
-                if (formulas is IReadOnlyList<IFormula> list)
-                {
-                    return list[index];
-                }
-                else if (formulas is IEnumerable<IFormula> enumerable)
-                {
-                    return Enumerable.ElementAt(enumerable, index);
-                }
-            }
-            throw new ArgumentException("Argument is neither indexed nor enumerable.", nameof(formulas));
-        }
-
-        internal static bool GetComposition(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out ITerm? composition)
-        {
-            if (formulas.About.IsEnumerable && formulas.About is IEnumerable<IFormula> fe)
-            {
-                var hasComposition = fe.Where(f => f.Predicate == Keys.Composition.hasComposition);
-                using (var enumerator = hasComposition.GetEnumerator())
-                {
-                    if (enumerator.MoveNext())
-                    {
-                        composition = enumerator.Current[1];
-                        return true;
-                    }
-                }
-            }
-
-            composition = formulas.Id;
-            return true;
-        }
-        internal static bool GetConstraints(this IReadOnlyFormulaCollection formulas, [NotNullWhen(true)] out IReadOnlyFormulaCollection? constraints)
-        {
-            // a simple approach would be to search for the predicate 'hasConstraint' in metadata and then unquote the quoted formulas
-            constraints = formulas.GetConstraints();
-            return true;
-            // throw new NotImplementedException();
-        }
-
-        //...
-
-        public static bool Contains(this IQueryable queryable, IFormula formula)
-        {
-            throw new NotImplementedException();
-        }
-        public static IEnumerable<IFormula> Find(this IQueryable queryable, IFormula formula)
-        {
-            throw new NotImplementedException();
-        }
     }
 
     public static class Composition
     {
-
+        // returns a set of formulas which describes another set of formulas, e.g., using reification
+        public static ISimpleReadOnlyFormulaCollection About(this ISimpleReadOnlyFormulaCollection formulas)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
@@ -823,15 +842,18 @@ namespace Nifty.Knowledge.Reasoning
     {
         public IConfiguration Configuration { get; }
 
-        public Task<IReasoner> BindRules(IReadOnlyFormulaCollection rules);
+        public Task<IReasoner> BindRules(ISimpleReadOnlyFormulaCollection rules);
 
-        public Task<IInferredReadOnlyFormulaCollection> Bind(IReadOnlyFormulaCollection collection);
+        public Task<IInferredReadOnlyFormulaCollection> Bind(ISimpleReadOnlyFormulaCollection collection);
     }
 
-    public interface IInferredReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    public interface IInferredReadOnlyFormulaCollection : ISimpleReadOnlyFormulaCollection
     {
         public IReasoner Reasoner { get; }
-        public IReadOnlyFormulaCollection Base { get; }
+        public ISimpleReadOnlyFormulaCollection Base { get; }
+
+        public IEnumerable<IDerivation> Derivations(IFormula formula);
+        public IEnumerable<IDerivation> Derivations(ISimpleReadOnlyFormulaCollection formulas);
     }
 
     public interface IDerivation
@@ -847,11 +869,11 @@ namespace Nifty.Knowledge.Reasoning
 
 namespace Nifty.Knowledge.Schema
 {
-    public interface IReadOnlySchema : IReadOnlyFormulaCollection
+    public interface IReadOnlySchema : ISimpleReadOnlyFormulaCollection
     {
-        public Task<bool> Validate(IReadOnlyFormulaCollection formulas);
+        public Task<bool> Validate(ISimpleReadOnlyFormulaCollection formulas);
     }
-    public interface ISchema : IReadOnlySchema, IFormulaCollection { }
+    public interface ISchema : IReadOnlySchema, ISimpleFormulaCollection { }
 
     public interface IHasReadOnlySchema
     {
@@ -878,7 +900,7 @@ namespace Nifty.Knowledge.Serialization
 
     public interface ISerializable
     {
-        public void Serialize(IFormulaCollection formulas);
+        public void Serialize(ISimpleFormulaCollection formulas);
     }
 }
 
@@ -900,16 +922,16 @@ namespace Nifty.Knowledge.Updating
     {
         public UpdateType UpdateType { get; }
 
-        public IReadOnlyFormulaCollection Apply(IReadOnlyFormulaCollection formulas);
-        public void Update(IFormulaCollection formulas);
+        public ISimpleReadOnlyFormulaCollection Apply(ISimpleReadOnlyFormulaCollection formulas);
+        public void Update(ISimpleFormulaCollection formulas);
 
         public ICompositeUpdate Then(IUpdate action);
     }
 
     public interface ISimpleUpdate : IUpdate
     {
-        public IReadOnlyFormulaCollection Removals { get; }
-        public IReadOnlyFormulaCollection Additions { get; }
+        public ISimpleReadOnlyFormulaCollection Removals { get; }
+        public ISimpleReadOnlyFormulaCollection Additions { get; }
     }
 
     public interface IQueryBasedUpdate : IUpdate
@@ -917,8 +939,8 @@ namespace Nifty.Knowledge.Updating
         // for each query result, substitute those variables as they occur in removals and additions and remove and add the resultant contents from a formula collection
 
         public ISelectQuery Query { get; }
-        public IReadOnlyFormulaCollection Removals { get; }
-        public IReadOnlyFormulaCollection Additions { get; }
+        public ISimpleReadOnlyFormulaCollection Removals { get; }
+        public ISimpleReadOnlyFormulaCollection Additions { get; }
     }
 
     public interface ICompositeUpdate : IUpdate
@@ -986,7 +1008,7 @@ namespace Nifty.Messaging.Events
     }
     public interface IEventHandler
     {
-        public Task Handle(IEventSource source, IHasReadOnlyMetadata @event, IReadOnlyFormulaCollection data);
+        public Task Handle(IEventSource source, IHasReadOnlyMetadata @event, ISimpleReadOnlyFormulaCollection data);
     }
 }
 
@@ -1053,7 +1075,7 @@ namespace Nifty.Planning.Actions
     public interface IActionGenerator
     {
         public IEnumerable<IVariable> GetVariables();
-        public IReadOnlyFormulaCollection GetConstraints();
+        public ISimpleReadOnlyFormulaCollection GetConstraints();
         public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator);
         public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator, [NotNullWhen(true)] out IAction? result);
     }
@@ -1521,7 +1543,7 @@ namespace Nifty
 
     public static partial class Factory
     {
-        public static IReadOnlyFormulaCollection EmptyFormulaCollection
+        public static ISimpleReadOnlyFormulaCollection EmptyFormulaCollection
         {
             get
             {
@@ -1564,7 +1586,7 @@ namespace Nifty
         //{
         //    throw new NotImplementedException();
         //}
-        public static IReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        public static ISimpleReadOnlyFormulaCollection ReadOnlyFormulaCollection(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
         {
             var builder = Factory.FormulaCollectionBuilder(schema);
             foreach (var formula in formulas)
@@ -1573,16 +1595,16 @@ namespace Nifty
             }
             return builder.Build(isReadOnly: true);
         }
-        public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        public static ISimpleFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
         {
             var builder = Factory.FormulaCollectionBuilder(schema);
             foreach (var formula in formulas)
             {
                 builder.Add(formula);
             }
-            return builder.Build(isReadOnly: false) as IFormulaCollection ?? throw new InvalidCastException();
+            return builder.Build(isReadOnly: false) as ISimpleFormulaCollection ?? throw new InvalidCastException();
         }
-        public static IReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        public static ISimpleReadOnlyFormulaCollection ReadOnlyKnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
         {
             var builder = Factory.KnowledgeGraphBuilder(schema);
             foreach (var formula in formulas)
@@ -1591,14 +1613,14 @@ namespace Nifty
             }
             return builder.Build(isReadOnly: true);
         }
-        public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
+        public static ISimpleFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, IReadOnlySchema schema)
         {
             var builder = Factory.KnowledgeGraphBuilder(schema);
             foreach (var formula in formulas)
             {
                 builder.Add(formula);
             }
-            return builder.Build(isReadOnly: false) as IFormulaCollection ?? throw new InvalidCastException();
+            return builder.Build(isReadOnly: false) as ISimpleFormulaCollection ?? throw new InvalidCastException();
         }
 
 
