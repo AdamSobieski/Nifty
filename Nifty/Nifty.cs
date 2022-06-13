@@ -341,7 +341,8 @@ namespace Nifty.Knowledge
         NotExists,
         Minus,
         Filter,
-        Bind
+        Bind,
+        // Values
     }
 
     public interface IReadOnlyFormulaCollection // : IHasReadOnlyMetadata ?
@@ -360,7 +361,7 @@ namespace Nifty.Knowledge
         public bool IsGraph { get; }
         public bool IsValid { get; }
 
-        public IUpdate DifferenceFrom(ISimpleReadOnlyFormulaCollection other);
+        public ISimpleUpdate DifferenceFrom(ISimpleReadOnlyFormulaCollection other);
 
         //public IEnumerable<IVariable> GetVariables();
         //public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator);
