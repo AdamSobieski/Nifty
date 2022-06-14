@@ -589,6 +589,13 @@ namespace Nifty.Knowledge.Querying
         public IReadOnlyFormulaCollection Right { get; }
         public IBasicReadOnlyFormulaCollection Filter { get; }
     }
+    public interface IConcatReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    {
+        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Concat;
+
+        public IReadOnlyFormulaCollection Left { get; }
+        public IReadOnlyFormulaCollection Right { get; }
+    }
     public interface IUnionReadOnlyFormulaCollection : IReadOnlyFormulaCollection
     {
         FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Union;
@@ -734,6 +741,10 @@ namespace Nifty.Knowledge.Querying
             throw new NotImplementedException();
         }
         public static ILeftJoinReadOnlyFormulaCollection LeftJoin(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other, IBasicReadOnlyFormulaCollection filter)
+        {
+            throw new NotImplementedException();
+        }
+        public static IConcatReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
         {
             throw new NotImplementedException();
         }
