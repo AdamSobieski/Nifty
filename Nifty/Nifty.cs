@@ -500,12 +500,11 @@ namespace Nifty.Knowledge.Querying
         Describe
     }
 
-    // should IQuery extend IQueryExpression ? could be useful for nested queries
-    public interface IQuery : IQueryExpression
+    public interface IQuery //: IQueryExpression
     {
         public QueryType QueryType { get; }
 
-        // public IQueryExpression Expression { get; }
+        public IQueryExpression Expression { get; }
     }
 
     public interface ISelectQuery : IQuery
@@ -543,7 +542,7 @@ namespace Nifty.Knowledge.Querying
         //public IDisposable Query(IDescribeQuery query, IObserver<IBasicReadOnlyFormulaCollection> observer);
     }
 
-    public interface IObservableQueryable : IQueryable
+    public interface IAdvancedQueryable : IQueryable
     {
         // to do: support advanced querying where observers can receive query results and subsequent notifications as query results change due to formulas being removed from and added to formula collections
 
