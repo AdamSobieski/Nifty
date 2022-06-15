@@ -374,7 +374,9 @@ namespace Nifty.Knowledge
     public interface ITerm
     {
         public TermType TermType { get; }
-        public object Visit(ITermVisitor visitor);
+        public void Visit(ITermVisitor visitor);
+        public ITerm Transform(ITermTransformer transformer);
+
         public bool Matches(ITerm other);
         //public string? ToString(XmlNamespaceManager xmlns, bool quoting);
     }
@@ -472,7 +474,7 @@ namespace Nifty.Knowledge.Building
 namespace Nifty.Knowledge.Querying
 {
     // "Fluent N-ary SPARQL"
-    // version 0.2.3
+    // version 0.2.4
     // 
     // the expressiveness for querying n-ary formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
     // see also: https://www.w3.org/2001/sw/DataAccess/rq23/examples.html , https://www.w3.org/2001/sw/DataAccess/rq23/rq24-algebra.html
@@ -501,6 +503,7 @@ namespace Nifty.Knowledge.Querying
         Describe
     }
 
+    // is IQuery : IQueryExpression ? could be useful for nested queries
     public interface IQuery : IQueryExpression
     {
         public QueryType QueryType { get; }
