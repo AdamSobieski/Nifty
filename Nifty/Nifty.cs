@@ -333,26 +333,23 @@ namespace Nifty.Knowledge
 {
     public interface IBasicReadOnlyFormulaCollection : IQueryExpression, Querying.IQueryable, IEnumerable<IFormula>, IHasReadOnlyMetadata, IHasReadOnlySchema
     {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Basic;
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.BasicPattern;
 
+        public bool IsReadOnly { get; }
         public bool IsGround { get; }
         public bool IsGraph { get; }
         public bool IsValid { get; }
 
         public IBasicUpdate DifferenceFrom(IBasicReadOnlyFormulaCollection other);
 
-        //public IEnumerable<IVariable> GetVariables();
-        //public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator);
-        //public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator, [NotNullWhen(true)] out IBasicReadOnlyFormulaCollection? result);
-
         public new IBasicReadOnlyFormulaCollection Clone(bool isReadOnly = false);
         public IBasicReadOnlyFormulaCollection Clone(IBasicReadOnlyFormulaCollection removals, IBasicReadOnlyFormulaCollection additions, bool isReadOnly = false);
     }
 
-    public interface IBasicFormulaCollection : IBasicReadOnlyFormulaCollection, IObservableQueryable
+    public interface IBasicFormulaCollection : IBasicReadOnlyFormulaCollection //, IObservableQueryable
     {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Basic;
-        bool IQueryExpression.IsReadOnly => false;
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.BasicPattern;
+        bool IBasicReadOnlyFormulaCollection.IsReadOnly => false;
 
         public bool Add(IFormula formula);
         public bool Add(IBasicReadOnlyFormulaCollection formulas);
@@ -503,10 +500,12 @@ namespace Nifty.Knowledge.Querying
         Describe
     }
 
-    // is IQuery : IQueryExpression ? could be useful for nested queries
+    // should IQuery extend IQueryExpression ? could be useful for nested queries
     public interface IQuery : IQueryExpression
     {
         public QueryType QueryType { get; }
+
+        // public IQueryExpression Expression { get; }
     }
 
     public interface ISelectQuery : IQuery
@@ -562,32 +561,62 @@ namespace Nifty.Knowledge.Querying
 
     public enum ExpressionType
     {
-        //Null,
-        Basic,
+        Null,
+        BasicPattern,
+        Filter,
+        Assign,
+        Extend,
         Concat,
         Join,
         LeftJoin,
         Diff,
         Minus,
         Union,
-        Conditional,
-        Filter,
-        Assign
+        Conditional
     }
 
-    public interface IQueryExpression // : IHasReadOnlyMetadata ? , IHasReadOnlySchema ?
+    public interface IQueryExpression : IEquatable<IQueryExpression> // , IHasReadOnlyMetadata ? , IHasReadOnlySchema ?
     {
         public ExpressionType ExpressionType { get; }
 
-        public bool IsReadOnly { get; }
-        //public bool IsValid { get; }
-
-        // void Visit(IReadOnlyFormulaCollectionVisitor visitor);
-        // IReadOnlyFormulaCollection Transform(IReadOnlyFormulaCollectionTransformer transformer);
+        // void Visit(IQueryExpressionVisitor visitor);
+        // IQueryExpression Transform(IQueryExpressionTransformer transformer);
 
         public IQueryExpression Clone(bool isReadOnly = false);
     }
 
+
+    public interface INullExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Null;
+    }
+    public interface IFilterExpression : IQueryExpression
+    {
+        // still considering how best to model constraints on formula collections' variables
+
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Filter;
+
+        public IQueryExpression Expression { get; }
+        public IBasicReadOnlyFormulaCollection Filter { get; }
+    }
+    public interface IAssignExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Assign;
+
+        public IQueryExpression Expression { get; }
+
+        public IVariable Variable { get; }
+        public IFormula Formula { get; }
+    }
+    public interface IExtendExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Extend;
+
+        public IQueryExpression Expression { get; }
+
+        public IVariable Variable { get; }
+        public IFormula Formula { get; }
+    }
     public interface IConcatExpression : IQueryExpression
     {
         ExpressionType IQueryExpression.ExpressionType => ExpressionType.Concat;
@@ -638,25 +667,6 @@ namespace Nifty.Knowledge.Querying
         public IQueryExpression Left { get; }
         public IQueryExpression Right { get; }
     }
-    public interface IFilterExpression : IQueryExpression
-    {
-        // still considering how best to model constraints on formula collections' variables
-
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Filter;
-
-        public IQueryExpression Collection { get; }
-        public IBasicReadOnlyFormulaCollection Filter { get; }
-    }
-    public interface IAssignExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Assign;
-
-        public IQueryExpression Collection { get; }
-
-        public IVariable Variable { get; }
-        public IFormula Formula { get; }
-    }
-
 
 
     public static class Query
