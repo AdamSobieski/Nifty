@@ -331,22 +331,9 @@ namespace Nifty.Hosting
 
 namespace Nifty.Knowledge
 {
-    public interface IReadOnlyFormulaCollection // : IHasReadOnlyMetadata ? , IHasReadOnlySchema ?
+    public interface IBasicReadOnlyFormulaCollection : IQueryExpression, Querying.IQueryable, IEnumerable<IFormula>, IHasReadOnlyMetadata, IHasReadOnlySchema
     {
-        public FormulaCollectionType FormulaCollectionType { get; }
-
-        public bool IsReadOnly { get; }
-        //public bool IsValid { get; }
-
-        // void Visit(IReadOnlyFormulaCollectionVisitor visitor);
-        // IReadOnlyFormulaCollection Transform(IReadOnlyFormulaCollectionTransformer transformer);
-
-        public IReadOnlyFormulaCollection Clone(bool isReadOnly = false);
-    }
-
-    public interface IBasicReadOnlyFormulaCollection : IReadOnlyFormulaCollection, Querying.IQueryable, IEnumerable<IFormula>, IHasReadOnlyMetadata, IHasReadOnlySchema
-    {
-        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Basic;
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Basic;
 
         public bool IsGround { get; }
         public bool IsGraph { get; }
@@ -358,13 +345,14 @@ namespace Nifty.Knowledge
         //public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator);
         //public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator, [NotNullWhen(true)] out IBasicReadOnlyFormulaCollection? result);
 
+        public new IBasicReadOnlyFormulaCollection Clone(bool isReadOnly = false);
         public IBasicReadOnlyFormulaCollection Clone(IBasicReadOnlyFormulaCollection removals, IBasicReadOnlyFormulaCollection additions, bool isReadOnly = false);
     }
 
     public interface IBasicFormulaCollection : IBasicReadOnlyFormulaCollection, IObservableQueryable
     {
-        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Basic;
-        bool IReadOnlyFormulaCollection.IsReadOnly => false;
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Basic;
+        bool IQueryExpression.IsReadOnly => false;
 
         public bool Add(IFormula formula);
         public bool Add(IBasicReadOnlyFormulaCollection formulas);
@@ -513,7 +501,7 @@ namespace Nifty.Knowledge.Querying
         Describe
     }
 
-    public interface IQuery : IReadOnlyFormulaCollection
+    public interface IQuery : IQueryExpression
     {
         public QueryType QueryType { get; }
     }
@@ -569,8 +557,7 @@ namespace Nifty.Knowledge.Querying
 
 
 
-
-    public enum FormulaCollectionType
+    public enum ExpressionType
     {
         //Null,
         Basic,
@@ -585,70 +572,83 @@ namespace Nifty.Knowledge.Querying
         Assign
     }
 
-    public interface IConcatReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    public interface IQueryExpression // : IHasReadOnlyMetadata ? , IHasReadOnlySchema ?
     {
-        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Concat;
+        public ExpressionType ExpressionType { get; }
 
-        public IReadOnlyFormulaCollection Left { get; }
-        public IReadOnlyFormulaCollection Right { get; }
+        public bool IsReadOnly { get; }
+        //public bool IsValid { get; }
+
+        // void Visit(IReadOnlyFormulaCollectionVisitor visitor);
+        // IReadOnlyFormulaCollection Transform(IReadOnlyFormulaCollectionTransformer transformer);
+
+        public IQueryExpression Clone(bool isReadOnly = false);
     }
-    public interface IJoinReadOnlyFormulaCollection : IReadOnlyFormulaCollection
-    {
-        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Join;
 
-        public IReadOnlyFormulaCollection Left { get; }
-        public IReadOnlyFormulaCollection Right { get; }
+    public interface IConcatExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Concat;
+
+        public IQueryExpression Left { get; }
+        public IQueryExpression Right { get; }
     }
-    public interface ILeftJoinReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    public interface IJoinExpression : IQueryExpression
     {
-        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.LeftJoin;
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Join;
 
-        public IReadOnlyFormulaCollection Left { get; }
-        public IReadOnlyFormulaCollection Right { get; }
+        public IQueryExpression Left { get; }
+        public IQueryExpression Right { get; }
+    }
+    public interface ILeftJoinExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.LeftJoin;
+
+        public IQueryExpression Left { get; }
+        public IQueryExpression Right { get; }
         public IBasicReadOnlyFormulaCollection Filter { get; }
     }
-    public interface IDiffReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    public interface IDiffExpression : IQueryExpression
     {
-        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Diff;
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Diff;
 
-        public IReadOnlyFormulaCollection Left { get; }
-        public IReadOnlyFormulaCollection Right { get; }
+        public IQueryExpression Left { get; }
+        public IQueryExpression Right { get; }
     }
-    public interface IMinusReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    public interface IMinusExpression : IQueryExpression
     {
-        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Minus;
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Minus;
 
-        public IReadOnlyFormulaCollection Left { get; }
-        public IReadOnlyFormulaCollection Right { get; }
+        public IQueryExpression Left { get; }
+        public IQueryExpression Right { get; }
     }
-    public interface IUnionReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    public interface IUnionExpression : IQueryExpression
     {
-        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Union;
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Union;
 
-        public IReadOnlyFormulaCollection Left { get; }
-        public IReadOnlyFormulaCollection Right { get; }
+        public IQueryExpression Left { get; }
+        public IQueryExpression Right { get; }
     }
-    public interface IConditionalReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    public interface IConditionalExpression : IQueryExpression
     {
-        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Conditional;
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Conditional;
 
-        public IReadOnlyFormulaCollection Left { get; }
-        public IReadOnlyFormulaCollection Right { get; }
+        public IQueryExpression Left { get; }
+        public IQueryExpression Right { get; }
     }
-    public interface IFilterReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    public interface IFilterExpression : IQueryExpression
     {
         // still considering how best to model constraints on formula collections' variables
 
-        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Filter;
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Filter;
 
-        public IReadOnlyFormulaCollection Collection { get; }
+        public IQueryExpression Collection { get; }
         public IBasicReadOnlyFormulaCollection Filter { get; }
     }
-    public interface IAssignReadOnlyFormulaCollection : IReadOnlyFormulaCollection
+    public interface IAssignExpression : IQueryExpression
     {
-        FormulaCollectionType IReadOnlyFormulaCollection.FormulaCollectionType => FormulaCollectionType.Assign;
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Assign;
 
-        public IReadOnlyFormulaCollection Collection { get; }
+        public IQueryExpression Collection { get; }
 
         public IVariable Variable { get; }
         public IFormula Formula { get; }
@@ -685,7 +685,7 @@ namespace Nifty.Knowledge.Querying
 
 
 
-        public static IQuery Where(this IQuery query, IReadOnlyFormulaCollection pattern)
+        public static IQuery Where(this IQuery query, IQueryExpression pattern)
         {
             throw new NotImplementedException();
         }
@@ -732,51 +732,51 @@ namespace Nifty.Knowledge.Querying
 
 
 
-        public static IConcatReadOnlyFormulaCollection Concat(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IConcatExpression Concat(this IQueryExpression formulas, IQueryExpression other)
         {
             throw new NotImplementedException();
         }
-        public static IJoinReadOnlyFormulaCollection Join(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IJoinExpression Join(this IQueryExpression formulas, IQueryExpression other)
         {
             throw new NotImplementedException();
         }
-        public static ILeftJoinReadOnlyFormulaCollection LeftJoin(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static ILeftJoinExpression LeftJoin(this IQueryExpression formulas, IQueryExpression other)
         {
             throw new NotImplementedException();
         }
-        public static ILeftJoinReadOnlyFormulaCollection LeftJoin(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other, IFormula filter)
+        public static ILeftJoinExpression LeftJoin(this IQueryExpression formulas, IQueryExpression other, IFormula filter)
         {
             throw new NotImplementedException();
         }
-        public static ILeftJoinReadOnlyFormulaCollection LeftJoin(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other, IBasicReadOnlyFormulaCollection filter)
+        public static ILeftJoinExpression LeftJoin(this IQueryExpression formulas, IQueryExpression other, IBasicReadOnlyFormulaCollection filter)
         {
             throw new NotImplementedException();
         }
-        public static IDiffReadOnlyFormulaCollection Diff(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IDiffExpression Diff(this IQueryExpression formulas, IQueryExpression other)
         {
             throw new NotImplementedException();
         }
-        public static IMinusReadOnlyFormulaCollection Minus(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IMinusExpression Minus(this IQueryExpression formulas, IQueryExpression other)
         {
             throw new NotImplementedException();
         }
-        public static IUnionReadOnlyFormulaCollection Union(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IUnionExpression Union(this IQueryExpression formulas, IQueryExpression other)
         {
             throw new NotImplementedException();
         }
-        public static IConditionalReadOnlyFormulaCollection Conditional(this IReadOnlyFormulaCollection formulas, IReadOnlyFormulaCollection other)
+        public static IConditionalExpression Conditional(this IQueryExpression formulas, IQueryExpression other)
         {
             throw new NotImplementedException();
         }
-        public static IFilterReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IFormula filter)
+        public static IFilterExpression Filter(this IQueryExpression formulas, IFormula filter)
         {
             throw new NotImplementedException();
         }
-        public static IFilterReadOnlyFormulaCollection Filter(this IReadOnlyFormulaCollection formulas, IBasicReadOnlyFormulaCollection filter)
+        public static IFilterExpression Filter(this IQueryExpression formulas, IBasicReadOnlyFormulaCollection filter)
         {
             throw new NotImplementedException();
         }
-        public static IAssignReadOnlyFormulaCollection Assign(this IReadOnlyFormulaCollection formulas, IVariable variable, IFormula expression)
+        public static IAssignExpression Assign(this IQueryExpression formulas, IVariable variable, IFormula expression)
         {
             throw new NotImplementedException();
         }
@@ -784,7 +784,7 @@ namespace Nifty.Knowledge.Querying
 
 
         // support for inline data
-        public static IReadOnlyFormulaCollection Values(this IReadOnlyFormulaCollection formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
+        public static IQueryExpression Values(this IQueryExpression formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
         {
             throw new NotImplementedException();
         }
