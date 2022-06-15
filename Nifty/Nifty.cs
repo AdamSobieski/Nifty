@@ -744,6 +744,22 @@ namespace Nifty.Knowledge.Querying
 
 
 
+        public static INullExpression Null()
+        {
+            throw new NotImplementedException();
+        }
+        public static IFilterExpression Filter(this IQueryExpression formulas, IFormula filter)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFilterExpression Filter(this IQueryExpression formulas, IBasicReadOnlyFormulaCollection filter)
+        {
+            throw new NotImplementedException();
+        }
+        public static IAssignExpression Assign(this IQueryExpression formulas, IVariable variable, IFormula expression)
+        {
+            throw new NotImplementedException();
+        }
         public static IConcatExpression Concat(this IQueryExpression formulas, IQueryExpression other)
         {
             throw new NotImplementedException();
@@ -780,19 +796,6 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-        public static IFilterExpression Filter(this IQueryExpression formulas, IFormula filter)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFilterExpression Filter(this IQueryExpression formulas, IBasicReadOnlyFormulaCollection filter)
-        {
-            throw new NotImplementedException();
-        }
-        public static IAssignExpression Assign(this IQueryExpression formulas, IVariable variable, IFormula expression)
-        {
-            throw new NotImplementedException();
-        }
-
 
 
         // support for inline data
