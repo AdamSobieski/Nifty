@@ -791,6 +791,14 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
+        public static IExtendExpression Assign(IQueryExpression formulas, IReadOnlyDictionary<IVariable, ITerm> values)
+        {
+            throw new NotImplementedException();
+        }
+        public static IAssignExpression Extend(IQueryExpression formulas, IVariable variable, IFormula expression)
+        {
+            throw new NotImplementedException();
+        }
         public static IExtendExpression Extend(IQueryExpression formulas, IReadOnlyDictionary<IVariable, ITerm> values)
         {
             throw new NotImplementedException();
