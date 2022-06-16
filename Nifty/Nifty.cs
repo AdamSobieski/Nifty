@@ -457,7 +457,7 @@ namespace Nifty.Knowledge.Building
 namespace Nifty.Knowledge.Querying
 {
     // "Fluent N-ary SPARQL"
-    // version 0.2.4
+    // version 0.2.5
     // 
     // the expressiveness for querying n-ary formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
     // see also: https://www.w3.org/2001/sw/DataAccess/rq23/examples.html , https://www.w3.org/2001/sw/DataAccess/rq23/rq24-algebra.html
@@ -497,17 +497,14 @@ namespace Nifty.Knowledge.Querying
     {
 
     }
-
     public interface IConstructQuery : IQuery
     {
 
     }
-
     public interface IAskQuery : IQuery
     {
 
     }
-
     public interface IDescribeQuery : IQuery
     {
 
@@ -526,7 +523,6 @@ namespace Nifty.Knowledge.Querying
         public IDisposable Query(IConstructQuery query, IObserver<IFormulaCollection> observer);
         //public IDisposable Query(IDescribeQuery query, IObserver<IFormulaCollection> observer);
     }
-
     public interface IAdvancedQueryable : IQueryable
     {
         // to do: support advanced querying where observers can receive query results and subsequent notifications as query results change due to formulas being removed from and added to formula collections
@@ -545,6 +541,7 @@ namespace Nifty.Knowledge.Querying
     public enum ExpressionType
     {
         Null,
+        Table,
         BasicPattern,
         Filter,
         Assign,
@@ -574,10 +571,16 @@ namespace Nifty.Knowledge.Querying
         public IQueryExpression Clone(bool? isReadOnly = null);
     }
 
-
     public interface INullExpression : IQueryExpression
     {
         ExpressionType IQueryExpression.ExpressionType => ExpressionType.Null;
+    }
+    public interface ITableExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Table;
+
+        public IReadOnlyList<IVariable> Variables { get; }
+        public IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> Rows { get; }
     }
     public interface IFilterExpression : IQueryExpression
     {
@@ -690,7 +693,6 @@ namespace Nifty.Knowledge.Querying
         public IQueryExpression Expression { get; }
     }
 
-
     public static class Query
     {
         public static IQuery Parse(ContentType type, string query)
@@ -771,6 +773,10 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
+        public static ITableExpression Values(this IQueryExpression formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
+        {
+            throw new NotImplementedException();
+        }
         public static IFilterExpression Filter(this IQueryExpression formulas, IFormula filter)
         {
             throw new NotImplementedException();
@@ -823,15 +829,6 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-    }
-
-    public static class Composition
-    {
-        // returns a set of formulas which describes another set of formulas, e.g., using reification
-        //public static IFormulaCollection Reify(this IFormulaCollection formulas)
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 }
 
