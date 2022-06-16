@@ -336,9 +336,9 @@ namespace Nifty.Knowledge
         ExpressionType IQueryExpression.ExpressionType => ExpressionType.BasicPattern;
 
         public bool IsReadOnly { get; }
-        public bool IsGround { get; }
         public bool IsGraph { get; }
         public bool IsValid { get; }
+        public bool IsGround { get; }
 
         public IBasicUpdate DifferenceFrom(IFormulaCollection other);
 
@@ -351,7 +351,6 @@ namespace Nifty.Knowledge
         public new IFormulaCollection Clone(bool isReadOnly = false);
         public IFormulaCollection Clone(IFormulaCollection removals, IFormulaCollection additions, bool isReadOnly = false);
     }
-
 
 
     public enum TermType
@@ -371,7 +370,6 @@ namespace Nifty.Knowledge
         public bool Matches(ITerm other);
         //public string? ToString(XmlNamespaceManager xmlns, bool quoting);
     }
-
 
     public interface IVariable : ITerm
     {
@@ -406,17 +404,14 @@ namespace Nifty.Knowledge
     public interface ILambdaFormula : IFormula { }
 
 
-
     public interface IHasIdentifier
     {
         public IConstant Id { get; }
     }
-
     public interface IHasMetadata : IHasIdentifier
     {
         public IFormulaCollection About { get; }
     }
-
 
 
     public interface ITermVisitor
@@ -437,7 +432,6 @@ namespace Nifty.Knowledge
     }
 
 
-
     public interface IKnowledgebase : IFormulaCollection, IServiceProviderInitializable, IEventHandler, IServiceProviderDisposable { }
 }
 
@@ -448,6 +442,8 @@ namespace Nifty.Knowledge.Building
         public bool IsBuilt { get; }
 
         public new IFormulaCollection About { get; set; }
+
+        // public new ISchema Schema { get; set; }
 
         public IFormulaCollection Build(bool isReadOnly = true); // perhaps other parameters, e.g., bool isSelfSchema = false
     }
