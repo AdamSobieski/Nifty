@@ -348,8 +348,8 @@ namespace Nifty.Knowledge
         public bool Remove(IFormula formula);
         public bool Remove(IFormulaCollection formulas);
 
-        public new IFormulaCollection Clone(bool isReadOnly = false);
-        public IFormulaCollection Clone(IFormulaCollection removals, IFormulaCollection additions, bool isReadOnly = false);
+        public new IFormulaCollection Clone(bool? isReadOnly = null);
+        public IFormulaCollection Clone(IFormulaCollection removals, IFormulaCollection additions, bool? isReadOnly = null);
     }
 
 
@@ -514,7 +514,6 @@ namespace Nifty.Knowledge.Querying
     }
 
 
-
     public interface IQueryable
     {
         public bool Query(IAskQuery query);
@@ -543,7 +542,6 @@ namespace Nifty.Knowledge.Querying
     }
 
 
-
     public enum ExpressionType
     {
         Null,
@@ -557,7 +555,13 @@ namespace Nifty.Knowledge.Querying
         Diff,
         Minus,
         Union,
-        Conditional
+        Conditional,
+
+        Group,
+        Order,
+        Project,
+        Reduce,
+        Distinct,
     }
 
     public interface IQueryExpression : IEquatable<IQueryExpression> // , IHasMetadata ? , IHasSchema ?
@@ -567,7 +571,7 @@ namespace Nifty.Knowledge.Querying
         // void Visit(IQueryExpressionVisitor visitor);
         // IQueryExpression Transform(IQueryExpressionTransformer transformer);
 
-        public IQueryExpression Clone(bool isReadOnly = false);
+        public IQueryExpression Clone(bool? isReadOnly = null);
     }
 
 
@@ -577,8 +581,6 @@ namespace Nifty.Knowledge.Querying
     }
     public interface IFilterExpression : IQueryExpression
     {
-        // still considering how best to model constraints on formula collections' variables
-
         ExpressionType IQueryExpression.ExpressionType => ExpressionType.Filter;
 
         public IQueryExpression Expression { get; }
@@ -590,8 +592,7 @@ namespace Nifty.Knowledge.Querying
 
         public IQueryExpression Expression { get; }
 
-        public IVariable Variable { get; }
-        public IFormula Formula { get; }
+        public IReadOnlyDictionary<IVariable, ITerm> Assignments { get; }
     }
     public interface IExtendExpression : IQueryExpression
     {
@@ -599,8 +600,7 @@ namespace Nifty.Knowledge.Querying
 
         public IQueryExpression Expression { get; }
 
-        public IVariable Variable { get; }
-        public IFormula Formula { get; }
+        public IReadOnlyDictionary<IVariable, ITerm> Assignments { get; }
     }
     public interface IConcatExpression : IQueryExpression
     {
@@ -651,6 +651,43 @@ namespace Nifty.Knowledge.Querying
 
         public IQueryExpression Left { get; }
         public IQueryExpression Right { get; }
+    }
+
+    public interface IGroupExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Group;
+
+        public IQueryExpression Expression { get; }
+
+        public IReadOnlyDictionary<IVariable, ITerm> Variables { get; }
+
+        //...
+    }
+    public interface IOrderExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Order;
+
+        // to do...
+    }
+    public interface IProjectExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Project;
+
+        public IQueryExpression Expression { get; }
+
+        public IReadOnlyList<IVariable> Variables { get; }
+    }
+    public interface IReduceExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Reduce;
+
+        public IQueryExpression Expression { get; }
+    }
+    public interface IDistinctExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Distinct;
+
+        public IQueryExpression Expression { get; }
     }
 
 
@@ -746,6 +783,10 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
+        public static IExtendExpression Extend(this IQueryExpression formulas, IReadOnlyDictionary<IVariable, ITerm> values)
+        {
+            throw new NotImplementedException();
+        }
         public static IConcatExpression Concat(this IQueryExpression formulas, IQueryExpression other)
         {
             throw new NotImplementedException();
@@ -779,13 +820,6 @@ namespace Nifty.Knowledge.Querying
             throw new NotImplementedException();
         }
         public static IConditionalExpression Conditional(this IQueryExpression formulas, IQueryExpression other)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        // support for inline data
-        public static IQueryExpression Values(this IQueryExpression formulas, IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> values)
         {
             throw new NotImplementedException();
         }
