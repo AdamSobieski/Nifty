@@ -808,7 +808,7 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-        public static IAssignExpression Assign(IQueryExpression expression, IReadOnlyDictionary<IVariable, ITerm> values)
+        public static IAssignExpression Assign(IQueryExpression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
         {
             throw new NotImplementedException();
         }
@@ -816,7 +816,7 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-        public static IExtendExpression Extend(IQueryExpression expression, IReadOnlyDictionary<IVariable, ITerm> values)
+        public static IExtendExpression Extend(IQueryExpression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
         {
             throw new NotImplementedException();
         }
