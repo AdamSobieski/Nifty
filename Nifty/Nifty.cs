@@ -342,13 +342,13 @@ namespace Nifty.Knowledge
         public IBasicUpdate DifferenceFrom(IFormulaCollection other);
 
         public bool Add(IFormula formula);
-        public bool Add(IFormulaCollection formulas);
+        public bool Add(IEnumerable<IFormula> formulas);
 
         public bool Remove(IFormula formula);
-        public bool Remove(IFormulaCollection formulas);
+        public bool Remove(IEnumerable<IFormula> formulas);
 
         public new IFormulaCollection Clone(bool? isReadOnly = null);
-        public IFormulaCollection Clone(IFormulaCollection removals, IFormulaCollection additions, bool? isReadOnly = null);
+        public IFormulaCollection Clone(IEnumerable<IFormula> removals, IEnumerable<IFormula> additions, bool? isReadOnly = null);
     }
 
     public interface IFormulaDataset : Querying.IQueryable, IEnumerable<IFormulaCollection>
@@ -359,10 +359,10 @@ namespace Nifty.Knowledge
         public IFormulaCollection this[IConstant id] { get; }
 
         public bool Add(IConstant collection, IFormula formula);
-        public bool Add(IConstant collection, IFormulaCollection formulas);
+        public bool Add(IConstant collection, IEnumerable<IFormula> formulas);
 
         public bool Remove(IConstant collection, IFormula formula);
-        public bool Remove(IConstant collection, IFormulaCollection formulas);
+        public bool Remove(IConstant collection, IEnumerable<IFormula> formulas);
 
         public IFormulaDataset Clone(bool? isReadOnly = null);
     }
@@ -471,7 +471,7 @@ namespace Nifty.Knowledge.Building
 namespace Nifty.Knowledge.Querying
 {
     // "Fluent N-ary SPARQL"
-    // version 0.2.5
+    // version 0.2.6
     // 
     // the expressiveness for querying n-ary formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
     // see also: https://www.w3.org/2001/sw/DataAccess/rq23/examples.html , https://www.w3.org/2001/sw/DataAccess/rq23/rq24-algebra.html
@@ -893,7 +893,7 @@ namespace Nifty.Knowledge.Reasoning
         public IFormulaCollection Base { get; }
 
         public IEnumerable<IDerivation> Derivations(IFormula formula);
-        public IEnumerable<IDerivation> Derivations(IFormulaCollection formulas);
+        public IEnumerable<IDerivation> Derivations(IEnumerable<IFormula> formulas);
     }
 
     public interface IDerivation
