@@ -331,13 +331,12 @@ namespace Nifty.Hosting
 
 namespace Nifty.Knowledge
 {
-    public interface IFormulaCollection : IQueryExpression, Querying.IQueryable, IHasMetadata, IHasSchema, IEnumerable<IFormula>
+    public interface IFormulaCollection : IQueryExpression, Querying.IQueryable, IHasIdentifier, IEnumerable<IFormula>
     {
         ExpressionType IQueryExpression.ExpressionType => ExpressionType.BasicPattern;
 
         public bool IsReadOnly { get; }
         public bool IsGraph { get; }
-        public bool IsValid { get; }
         public bool IsGround { get; }
 
         public IBasicUpdate DifferenceFrom(IFormulaCollection other);
@@ -352,11 +351,19 @@ namespace Nifty.Knowledge
         public IFormulaCollection Clone(IFormulaCollection removals, IFormulaCollection additions, bool? isReadOnly = null);
     }
 
-    // to do: queryable collections, or stores, which can include multiple named formula collections, etc.
-    //public interface IFormulaDataset : Querying.IQueryable, IHasMetadata, IHasSchema, IEnumerable<IFormulaCollection>
-    //{
-    //    public IFormulaCollection this[IConstant id] { get; }
-    //}
+    public interface IFormulaDataset : Querying.IQueryable, IEnumerable<IFormulaCollection>
+    {
+        public bool IsReadOnly { get; }
+        public bool IsGraph { get; }
+
+        public IFormulaCollection this[IConstant id] { get; }
+
+        public bool Add(IConstant collection, IFormula formula);
+        public bool Add(IConstant collection, IFormulaCollection formulas);
+
+        public bool Remove(IConstant collection, IFormula formula);
+        public bool Remove(IConstant collection, IFormulaCollection formulas);
+    }
 
     public enum TermType
     {
@@ -446,7 +453,7 @@ namespace Nifty.Knowledge.Building
     {
         public bool IsBuilt { get; }
 
-        public new IFormulaCollection About { get; set; }
+        // public new IFormulaCollection About { get; set; }
 
         // public new ISchema Schema { get; set; }
 
