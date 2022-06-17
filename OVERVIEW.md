@@ -95,10 +95,10 @@ IFormula triple = Term.Triple(...);
 When creating collections of formulas, developers can specify whether they desire for them to be knowledge graphs.
 
 ```cs
-IReadOnlyFormulaCollection formulaCollection = Factory.ReadOnlyFormulaCollection(...);
+IFormulaCollection formulaCollection = Factory.FormulaCollection(...);
 ```
 ```cs
-IReadOnlyFormulaCollection knowledgeGraph = Factory.ReadOnlyKnowledgeGraph(...);
+IFormulaCollection knowledgeGraph = Factory.KnowledgeGraph(...);
 ```
 
 Benefits of this n-ary, URI-based approach include both its expressiveness and modularity.
@@ -135,12 +135,12 @@ WHERE
 Nifty provides a [fluent](https://en.wikipedia.org/wiki/Fluent_interface) approach for constructing queries. This includes constructing all four kinds of SPARQL-based queries: ASK, SELECT, CONSTRUCT, and DESCRIBE.
 
 ```cs
-IReadOnlyFormulaCollection formulas = ...;
+IFormulaCollection formulas = ...;
 IAskQuery askQuery = Factory.Query().Where(...).Ask();
 bool result = formulas.Query(askQuery);
 ```
 ```cs
-IReadOnlyFormulaCollection formulas = ...;
+IFormulaCollection formulas = ...;
 ISelectQuery selectQuery = Factory.Query().Where(...).Select(...);
 foreach(var result in formulas.Query(selectQuery))
 {
@@ -167,7 +167,7 @@ public interface IUpdate
 {
     public UpdateType UpdateType { get; }
 
-    public IReadOnlyFormulaCollection Apply(IReadOnlyFormulaCollection formulas);
+    public IFormulaCollection Apply(IFormulaCollection formulas);
     public void Update(IFormulaCollection formulas);
 
     public ICompositeUpdate Then(IUpdate action);
@@ -193,11 +193,11 @@ Nifty intends to deliver reasoning capabilities for performing inference over co
 The Nifty project's approach to modelling actions utilizes the interfaces for querying and updating collections of n-ary formulas.
 
 ```cs
-public interface IAction : IHasReadOnlyMetadata
+public interface IAction : IHasMetadata
 {
     public IAskQuery Preconditions { get; }
     public IUpdate Effects { get; }
 }
 ```
 
-The inspectable preconditions of actions are represented by Boolean queries for collections of formulas, e.g., those formulas describing a state of a modelled world. The inspectable effects of actions are represented by updates for collections of formulas. By extending `IHasReadOnlyMetadata`, actions can have metadata.
+The inspectable preconditions of actions are represented by Boolean queries for collections of formulas, e.g., those formulas describing a state of a modelled world. The inspectable effects of actions are represented by updates for collections of formulas. By extending `IHasMetadata`, actions can have metadata.
