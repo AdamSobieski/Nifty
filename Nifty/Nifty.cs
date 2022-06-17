@@ -13,6 +13,7 @@ using Nifty.Hosting;
 using Nifty.Knowledge;
 using Nifty.Knowledge.Building;
 using Nifty.Knowledge.Querying;
+using Nifty.Knowledge.Querying.Algebra;
 using Nifty.Knowledge.Reasoning;
 using Nifty.Knowledge.Schema;
 using Nifty.Knowledge.Updating;
@@ -331,9 +332,11 @@ namespace Nifty.Hosting
 
 namespace Nifty.Knowledge
 {
-    public interface IFormulaCollection : IQueryExpression, Querying.IQueryable, IHasIdentifier, IEnumerable<IFormula>
+    public interface IFormulaCollection : Querying.IQueryable, IHasIdentifier, IEnumerable<IFormula>
     {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.BasicPattern;
+        // or is this property superfluous as the value should always be Nifty.Knowledge.Querying.Query.Pattern(this);
+        // also, should consider the nature of inferredformulacollection's expression property's value
+        public IQueryExpression Expression { get; } // { return Nifty.Knowledge.Querying.Query.Pattern(this); }
 
         public bool IsReadOnly { get; }
         public bool IsGraph { get; }
@@ -347,7 +350,7 @@ namespace Nifty.Knowledge
         public bool Remove(IFormula formula);
         public bool Remove(IEnumerable<IFormula> formulas);
 
-        public new IFormulaCollection Clone(bool? isReadOnly = null);
+        public IFormulaCollection Clone(bool? isReadOnly = null);
         public IFormulaCollection Clone(IEnumerable<IFormula> removals, IEnumerable<IFormula> additions, bool? isReadOnly = null);
     }
 
@@ -493,14 +496,14 @@ namespace Nifty.Knowledge.Querying
 
     public enum QueryType
     {
-        None,
+        Undefined,
         Select,
         Construct,
         Ask,
         Describe
     }
 
-    public interface IQuery //: IQueryExpression
+    public interface IQuery
     {
         public QueryType QueryType { get; }
 
@@ -554,6 +557,163 @@ namespace Nifty.Knowledge.Querying
     }
 
 
+    public static class Query
+    {
+        public static IQuery Parse(ContentType type, string query)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        // these conclude a query into one of the four query types
+        public static IAskQuery Ask(this IQuery query)
+        {
+            throw new NotImplementedException();
+        }
+        public static ISelectQuery Select(this IQuery query, params IVariable[] variables)
+        {
+            throw new NotImplementedException();
+        }
+        public static IConstructQuery Construct(this IQuery query, IFormulaCollection template)
+        {
+            throw new NotImplementedException();
+        }
+        public static IDescribeQuery Describe(this IQuery query, params ITerm[] terms)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        public static IQuery Where(this IQuery query, IQueryExpression pattern)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery GroupBy(this IQuery query, IVariable variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery GroupBy(this IQuery query, IVariable variable, IFormula having)
+        {
+            throw new NotImplementedException();
+        }
+        public static IOrderedQuery OrderBy(this IQuery query, IVariable variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IOrderedQuery OrderByDescending(this IQuery query, IVariable variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IOrderedQuery ThenBy(this IOrderedQuery query, IVariable variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IOrderedQuery ThenByDescending(this IOrderedQuery query, IVariable variable)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery Distinct(this IQuery query)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery Reduced(this IQuery query)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery Offset(this IQuery query, int offset)
+        {
+            throw new NotImplementedException();
+        }
+        public static IQuery Limit(this IQuery query, int limit)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        public static INullExpression Null()
+        {
+            throw new NotImplementedException();
+        }
+        public static ITableExpression Values(IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> values)
+        {
+            throw new NotImplementedException();
+        }
+        public static IBasicFormulaCollectionPatternExpression Pattern(IFormulaCollection formulaCollection)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFormulaCollectionExpression FormulaCollection(IQueryExpression expression, ITerm formulaCollection)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFilterExpression Filter(IQueryExpression expression, IFormula filter)
+        {
+            throw new NotImplementedException();
+        }
+        public static IFilterExpression Filter(IQueryExpression expression, IFormulaCollection filter)
+        {
+            throw new NotImplementedException();
+        }
+        public static IAssignExpression Assign(IQueryExpression expression, IVariable variable, IFormula formula)
+        {
+            throw new NotImplementedException();
+        }
+        public static IAssignExpression Assign(IQueryExpression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
+        {
+            throw new NotImplementedException();
+        }
+        public static IExtendExpression Extend(IQueryExpression expression, IVariable variable, IFormula formula)
+        {
+            throw new NotImplementedException();
+        }
+        public static IExtendExpression Extend(IQueryExpression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
+        {
+            throw new NotImplementedException();
+        }
+        public static IConcatExpression Concat(IQueryExpression left, IQueryExpression right)
+        {
+            throw new NotImplementedException();
+        }
+        public static IJoinExpression Join(IQueryExpression left, IQueryExpression right)
+        {
+            throw new NotImplementedException();
+        }
+        public static ILeftJoinExpression LeftJoin(IQueryExpression left, IQueryExpression right)
+        {
+            throw new NotImplementedException();
+        }
+        public static ILeftJoinExpression LeftJoin(IQueryExpression left, IQueryExpression right, IFormula filter)
+        {
+            throw new NotImplementedException();
+        }
+        public static ILeftJoinExpression LeftJoin(IQueryExpression left, IQueryExpression right, IFormulaCollection filter)
+        {
+            throw new NotImplementedException();
+        }
+        public static IDiffExpression Diff(IQueryExpression left, IQueryExpression right)
+        {
+            throw new NotImplementedException();
+        }
+        public static IMinusExpression Minus(IQueryExpression left, IQueryExpression right)
+        {
+            throw new NotImplementedException();
+        }
+        public static IUnionExpression Union(IQueryExpression left, IQueryExpression right)
+        {
+            throw new NotImplementedException();
+        }
+        public static IConditionalExpression Conditional(IQueryExpression left, IQueryExpression right)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace Nifty.Knowledge.Querying.Algebra
+{
     public enum ExpressionType
     {
         Null,
@@ -585,7 +745,7 @@ namespace Nifty.Knowledge.Querying
         // void Visit(IQueryExpressionVisitor visitor);
         // IQueryExpression Transform(IQueryExpressionTransformer transformer);
 
-        public IQueryExpression Clone(bool? isReadOnly = null);
+        public IQueryExpression Clone();
     }
 
     public interface INullExpression : IQueryExpression
@@ -598,6 +758,12 @@ namespace Nifty.Knowledge.Querying
 
         public IReadOnlyList<IVariable> Variables { get; }
         public IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> Rows { get; }
+    }
+    public interface IBasicFormulaCollectionPatternExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.BasicPattern;
+
+        public IFormulaCollection FormulaCollection { get; }
     }
     public interface IFormulaCollectionExpression : IQueryExpression
     {
@@ -715,156 +881,6 @@ namespace Nifty.Knowledge.Querying
         ExpressionType IQueryExpression.ExpressionType => ExpressionType.Distinct;
 
         public IQueryExpression Expression { get; }
-    }
-
-    public static class Query
-    {
-        public static IQuery Parse(ContentType type, string query)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        // these conclude a query into one of the four query types
-        public static IAskQuery Ask(this IQuery query)
-        {
-            throw new NotImplementedException();
-        }
-        public static ISelectQuery Select(this IQuery query, params IVariable[] variables)
-        {
-            throw new NotImplementedException();
-        }
-        public static IConstructQuery Construct(this IQuery query, IFormulaCollection template)
-        {
-            throw new NotImplementedException();
-        }
-        public static IDescribeQuery Describe(this IQuery query, params ITerm[] terms)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        public static IQuery Where(this IQuery query, IQueryExpression pattern)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery GroupBy(this IQuery query, IVariable variable)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery GroupBy(this IQuery query, IVariable variable, IFormula having)
-        {
-            throw new NotImplementedException();
-        }
-        public static IOrderedQuery OrderBy(this IQuery query, IVariable variable)
-        {
-            throw new NotImplementedException();
-        }
-        public static IOrderedQuery OrderByDescending(this IQuery query, IVariable variable)
-        {
-            throw new NotImplementedException();
-        }
-        public static IOrderedQuery ThenBy(this IOrderedQuery query, IVariable variable)
-        {
-            throw new NotImplementedException();
-        }
-        public static IOrderedQuery ThenByDescending(this IOrderedQuery query, IVariable variable)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery Distinct(this IQuery query)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery Reduced(this IQuery query)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery Offset(this IQuery query, int offset)
-        {
-            throw new NotImplementedException();
-        }
-        public static IQuery Limit(this IQuery query, int limit)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        public static INullExpression Null()
-        {
-            throw new NotImplementedException();
-        }
-        public static ITableExpression Values(IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> values)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormulaCollectionExpression FormulaCollection(IQueryExpression expression, ITerm formulaCollection)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFilterExpression Filter(IQueryExpression expression, IFormula filter)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFilterExpression Filter(IQueryExpression expression, IFormulaCollection filter)
-        {
-            throw new NotImplementedException();
-        }
-        public static IAssignExpression Assign(IQueryExpression expression, IVariable variable, IFormula formula)
-        {
-            throw new NotImplementedException();
-        }
-        public static IAssignExpression Assign(IQueryExpression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
-        {
-            throw new NotImplementedException();
-        }
-        public static IExtendExpression Extend(IQueryExpression expression, IVariable variable, IFormula formula)
-        {
-            throw new NotImplementedException();
-        }
-        public static IExtendExpression Extend(IQueryExpression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
-        {
-            throw new NotImplementedException();
-        }
-        public static IConcatExpression Concat(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
-        public static IJoinExpression Join(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
-        public static ILeftJoinExpression LeftJoin(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
-        public static ILeftJoinExpression LeftJoin(IQueryExpression left, IQueryExpression right, IFormula filter)
-        {
-            throw new NotImplementedException();
-        }
-        public static ILeftJoinExpression LeftJoin(IQueryExpression left, IQueryExpression right, IFormulaCollection filter)
-        {
-            throw new NotImplementedException();
-        }
-        public static IDiffExpression Diff(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
-        public static IMinusExpression Minus(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
-        public static IUnionExpression Union(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
-        public static IConditionalExpression Conditional(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 
