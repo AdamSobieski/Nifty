@@ -363,6 +363,8 @@ namespace Nifty.Knowledge
 
         public bool Remove(IConstant collection, IFormula formula);
         public bool Remove(IConstant collection, IFormulaCollection formulas);
+
+        public IFormulaDataset Clone(bool? isReadOnly = null);
     }
 
     public enum TermType
@@ -444,7 +446,7 @@ namespace Nifty.Knowledge
     }
 
 
-    public interface IKnowledgebase : IFormulaCollection, IMessagingComponent { }
+    public interface IKnowledgebase : IFormulaDataset, IMessagingComponent { }
 }
 
 namespace Nifty.Knowledge.Building
