@@ -353,7 +353,7 @@ namespace Nifty.Knowledge
     }
 
     // to do: queryable collections, or stores, which can include multiple named formula collections, etc.
-    //public interface IFormulaStore : Querying.IQueryable, IHasMetadata, IHasSchema, IEnumerable<IFormulaCollection>
+    //public interface IFormulaDataset : Querying.IQueryable, IHasMetadata, IHasSchema, IEnumerable<IFormulaCollection>
     //{
     //    public IFormulaCollection this[IConstant id] { get; }
     //}
@@ -550,6 +550,7 @@ namespace Nifty.Knowledge.Querying
         Null,
         Table,
         BasicPattern,
+        FormulaCollection,
         Filter,
         Assign,
         Extend,
@@ -588,6 +589,13 @@ namespace Nifty.Knowledge.Querying
 
         public IReadOnlyList<IVariable> Variables { get; }
         public IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> Rows { get; }
+    }
+    public interface IFormulaCollectionExpression : IQueryExpression
+    {
+        ExpressionType IQueryExpression.ExpressionType => ExpressionType.FormulaCollection;
+
+        public IQueryExpression Expression { get; }
+        public ITerm Term { get; }
     }
     public interface IFilterExpression : IQueryExpression
     {
