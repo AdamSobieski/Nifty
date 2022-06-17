@@ -792,63 +792,67 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-        public static IFilterExpression Filter(IQueryExpression formulas, IFormula filter)
+        public static IFormulaCollectionExpression FormulaCollection(IQueryExpression expression, ITerm formulaCollection)
         {
             throw new NotImplementedException();
         }
-        public static IFilterExpression Filter(IQueryExpression formulas, IFormulaCollection filter)
+        public static IFilterExpression Filter(IQueryExpression expression, IFormula filter)
         {
             throw new NotImplementedException();
         }
-        public static IAssignExpression Assign(IQueryExpression formulas, IVariable variable, IFormula expression)
+        public static IFilterExpression Filter(IQueryExpression expression, IFormulaCollection filter)
         {
             throw new NotImplementedException();
         }
-        public static IExtendExpression Assign(IQueryExpression formulas, IReadOnlyDictionary<IVariable, ITerm> values)
+        public static IAssignExpression Assign(IQueryExpression expression, IVariable variable, IFormula formula)
         {
             throw new NotImplementedException();
         }
-        public static IAssignExpression Extend(IQueryExpression formulas, IVariable variable, IFormula expression)
+        public static IAssignExpression Assign(IQueryExpression expression, IReadOnlyDictionary<IVariable, ITerm> values)
         {
             throw new NotImplementedException();
         }
-        public static IExtendExpression Extend(IQueryExpression formulas, IReadOnlyDictionary<IVariable, ITerm> values)
+        public static IExtendExpression Extend(IQueryExpression expression, IVariable variable, IFormula formula)
         {
             throw new NotImplementedException();
         }
-        public static IConcatExpression Concat(IQueryExpression formulas, IQueryExpression other)
+        public static IExtendExpression Extend(IQueryExpression expression, IReadOnlyDictionary<IVariable, ITerm> values)
         {
             throw new NotImplementedException();
         }
-        public static IJoinExpression Join(IQueryExpression formulas, IQueryExpression other)
+        public static IConcatExpression Concat(IQueryExpression left, IQueryExpression right)
         {
             throw new NotImplementedException();
         }
-        public static ILeftJoinExpression LeftJoin(IQueryExpression formulas, IQueryExpression other)
+        public static IJoinExpression Join(IQueryExpression left, IQueryExpression right)
         {
             throw new NotImplementedException();
         }
-        public static ILeftJoinExpression LeftJoin(IQueryExpression formulas, IQueryExpression other, IFormula filter)
+        public static ILeftJoinExpression LeftJoin(IQueryExpression left, IQueryExpression right)
         {
             throw new NotImplementedException();
         }
-        public static ILeftJoinExpression LeftJoin(IQueryExpression formulas, IQueryExpression other, IFormulaCollection filter)
+        public static ILeftJoinExpression LeftJoin(IQueryExpression left, IQueryExpression right, IFormula filter)
         {
             throw new NotImplementedException();
         }
-        public static IDiffExpression Diff(IQueryExpression formulas, IQueryExpression other)
+        public static ILeftJoinExpression LeftJoin(IQueryExpression left, IQueryExpression right, IFormulaCollection filter)
         {
             throw new NotImplementedException();
         }
-        public static IMinusExpression Minus(IQueryExpression formulas, IQueryExpression other)
+        public static IDiffExpression Diff(IQueryExpression left, IQueryExpression right)
         {
             throw new NotImplementedException();
         }
-        public static IUnionExpression Union(IQueryExpression formulas, IQueryExpression other)
+        public static IMinusExpression Minus(IQueryExpression left, IQueryExpression right)
         {
             throw new NotImplementedException();
         }
-        public static IConditionalExpression Conditional(IQueryExpression formulas, IQueryExpression other)
+        public static IUnionExpression Union(IQueryExpression left, IQueryExpression right)
+        {
+            throw new NotImplementedException();
+        }
+        public static IConditionalExpression Conditional(IQueryExpression left, IQueryExpression right)
         {
             throw new NotImplementedException();
         }
