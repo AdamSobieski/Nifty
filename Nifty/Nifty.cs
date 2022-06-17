@@ -334,9 +334,9 @@ namespace Nifty.Knowledge
 {
     public interface IFormulaCollection : Querying.IQueryable, IHasIdentifier, IEnumerable<IFormula>
     {
-        // or is this property superfluous as the value should always be Nifty.Knowledge.Querying.Query.Pattern(this);
+        // or is this property superfluous as the value should always be Nifty.Knowledge.Querying.Expressions.Expression.Pattern(this);
         // also, should consider the nature of inferredformulacollection's expression property's value
-        public IQueryExpression Expression { get; } // { return Nifty.Knowledge.Querying.Query.Pattern(this); }
+        public IQueryExpression Expression { get; } // { return Nifty.Knowledge.Querying.Expressions.Expression.Pattern(this); }
 
         public bool IsReadOnly { get; }
         public bool IsGraph { get; }
