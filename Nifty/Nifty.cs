@@ -352,6 +352,11 @@ namespace Nifty.Knowledge
         public IFormulaCollection Clone(IFormulaCollection removals, IFormulaCollection additions, bool? isReadOnly = null);
     }
 
+    // to do: queryable collections, or stores, which can include multiple named formula collections, etc.
+    //public interface IFormulaStore : Querying.IQueryable, IHasMetadata, IHasSchema, IEnumerable<IFormulaCollection>
+    //{
+    //    public IFormulaCollection this[IConstant id] { get; }
+    //}
 
     public enum TermType
     {
@@ -432,7 +437,7 @@ namespace Nifty.Knowledge
     }
 
 
-    public interface IKnowledgebase : IFormulaCollection, IServiceProviderInitializable, IEventHandler, IServiceProviderDisposable { }
+    public interface IKnowledgebase : IFormulaCollection, IMessagingComponent { }
 }
 
 namespace Nifty.Knowledge.Building
