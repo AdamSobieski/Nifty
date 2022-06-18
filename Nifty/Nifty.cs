@@ -336,7 +336,7 @@ namespace Nifty.Knowledge
     {
         // or is this property superfluous as the value should always be Nifty.Knowledge.Querying.Expressions.Expression.Pattern(this);
         // also, should consider the nature of inferredformulacollection's expression property's value
-        public IQueryExpression Expression { get; } // { return Nifty.Knowledge.Querying.Expressions.Expression.Pattern(this); }
+        public Expression Expression { get; } // { return Nifty.Knowledge.Querying.Expressions.Expression.Pattern(this); }
 
         public bool IsReadOnly { get; }
         public bool IsGraph { get; }
@@ -507,18 +507,21 @@ namespace Nifty.Knowledge.Querying
     {
         public QueryType QueryType { get; }
 
-        public IQueryExpression Expression { get; }
+        public Expression Expression { get; }
     }
-    public interface IOrderedQuery : IQuery { }
+    public interface IOrderedQuery : IQuery
+    {
+
+    }
 
 
     public interface ISelectQuery : IQuery
     {
-
+        public IReadOnlyList<IVariable> Variables { get; }
     }
     public interface IConstructQuery : IQuery
     {
-
+        public IFormulaCollection Template { get; }
     }
     public interface IAskQuery : IQuery
     {
@@ -526,7 +529,7 @@ namespace Nifty.Knowledge.Querying
     }
     public interface IDescribeQuery : IQuery
     {
-
+        public IReadOnlyList<ITerm> Terms { get; }
     }
 
 
@@ -586,7 +589,7 @@ namespace Nifty.Knowledge.Querying
 
 
 
-        public static IQuery Where(this IQuery query, IQueryExpression pattern)
+        public static IQuery Where(this IQuery query, Expression pattern)
         {
             throw new NotImplementedException();
         }
@@ -637,14 +640,13 @@ namespace Nifty.Knowledge.Querying.Expressions
 {
     public enum ExpressionType
     {
-        Null,
+        Empty,
         Table,
         BasicPattern,
         FormulaCollection,
         Filter,
         Assign,
         Extend,
-        Concat,
         Join,
         LeftJoin,
         Diff,
@@ -652,235 +654,586 @@ namespace Nifty.Knowledge.Querying.Expressions
         Union,
         Conditional,
 
-        Group,
-        Order,
+        GroupBy,
+        OrderBy,
         Project,
         Reduce,
         Distinct,
+        Slice
     }
 
-    public interface IQueryExpression : IEquatable<IQueryExpression> // , IHasMetadata ? , IHasSchema ?
+    public enum SortDirection
     {
-        public ExpressionType ExpressionType { get; }
+        Descending,
+        Ascending
+    }
+
+    public sealed class EmptyExpression : Expression
+    {
+        internal EmptyExpression() { }
+
+        public override ExpressionType ExpressionType => ExpressionType.Empty;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Empty) return false;
+            return true;
+        }
+    }
+    public sealed class TableExpression : Expression
+    {
+        internal TableExpression(IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> rows)
+        {
+            IEnumerable<IVariable>? m_tmp = null;
+
+            foreach (var row in rows)
+            {
+                if (m_tmp == null)
+                {
+                    m_tmp = row.Keys;
+                }
+                else
+                {
+                    if (!m_tmp.SequenceEqual(row.Keys)) throw new ArgumentException("Each row should have identical variables.", nameof(rows));
+                }
+            }
+
+            m_variables = m_tmp != null ? new List<IVariable>(m_tmp).AsReadOnly() : new List<IVariable>(0).AsReadOnly();
+            m_rows = rows;
+        }
+        private readonly IReadOnlyList<IVariable> m_variables;
+        private readonly IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> m_rows;
+
+        public override ExpressionType ExpressionType => ExpressionType.Table;
+
+        public IReadOnlyList<IVariable> Variables => m_variables;
+        public IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> Rows => m_rows;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Table) return false;
+            if (!(other is TableExpression otherTable)) return false;
+            return m_rows.SequenceEqual(otherTable.m_rows);
+        }
+    }
+    public sealed class BasicFormulaCollectionPatternExpression : Expression
+    {
+        internal BasicFormulaCollectionPatternExpression(IFormulaCollection formulaCollection)
+        {
+            if (!formulaCollection.IsReadOnly) throw new ArgumentException("A formula collection used in a query must be read-only.", nameof(formulaCollection));
+            m_formulaCollection = formulaCollection;
+        }
+        private readonly IFormulaCollection m_formulaCollection;
+
+        public override ExpressionType ExpressionType => ExpressionType.BasicPattern;
+
+        public new IFormulaCollection FormulaCollection => m_formulaCollection;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.BasicPattern) return false;
+            if (!(other is BasicFormulaCollectionPatternExpression otherBasicPattern)) return false;
+            return m_formulaCollection.Equals(otherBasicPattern.m_formulaCollection);
+        }
+    }
+    public sealed class FormulaCollectionExpression : Expression
+    {
+        internal FormulaCollectionExpression(Expression expression, ITerm term)
+        {
+            m_expression = expression;
+            m_term = term;
+        }
+        private readonly Expression m_expression;
+        private readonly ITerm m_term;
+
+        public override ExpressionType ExpressionType => ExpressionType.FormulaCollection;
+
+        public Expression Expression => m_expression;
+        public ITerm Term => m_term;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.FormulaCollection) return false;
+            if (!(other is FormulaCollectionExpression otherFormulaCollection)) return false;
+            return m_expression.Equals(otherFormulaCollection.m_expression) && m_term.Equals(otherFormulaCollection.m_term);
+        }
+    }
+    public sealed class FilterExpression : Expression
+    {
+        internal FilterExpression(Expression expression, IFormulaCollection filter)
+        {
+            m_expression = expression;
+            m_filter = filter;
+        }
+        private readonly Expression m_expression;
+        private readonly IFormulaCollection m_filter;
+
+        public override ExpressionType ExpressionType => ExpressionType.Filter;
+
+        public Expression Expression => m_expression;
+        public new IFormulaCollection Filter => m_filter;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Filter) return false;
+            if (!(other is FilterExpression otherFilter)) return false;
+            return m_expression.Equals(otherFilter.m_expression) && m_filter.Equals(otherFilter.m_filter);
+        }
+    }
+    public sealed class AssignExpression : Expression
+    {
+        internal AssignExpression(Expression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
+        {
+            m_expression = expression;
+            m_assignments = assignments;
+        }
+        private readonly Expression m_expression;
+        private readonly IReadOnlyDictionary<IVariable, ITerm> m_assignments;
+
+        public override ExpressionType ExpressionType => ExpressionType.Assign;
+
+        public Expression Expression => m_expression;
+
+        public IReadOnlyDictionary<IVariable, ITerm> Assignments => m_assignments;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Assign) return false;
+            if (!(other is AssignExpression otherAssign)) return false;
+            return m_expression.Equals(otherAssign.m_expression) && m_assignments.Equals(otherAssign.m_assignments);
+        }
+    }
+    public sealed class ExtendExpression : Expression
+    {
+        internal ExtendExpression(Expression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
+        {
+            m_expression = expression;
+            m_assignments = assignments;
+        }
+        private readonly Expression m_expression;
+        private readonly IReadOnlyDictionary<IVariable, ITerm> m_assignments;
+
+        public override ExpressionType ExpressionType => ExpressionType.Extend;
+
+        public Expression Expression => m_expression;
+
+        public IReadOnlyDictionary<IVariable, ITerm> Assignments => m_assignments;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Extend) return false;
+            if (!(other is ExtendExpression otherExtend)) return false;
+            return m_expression.Equals(otherExtend.m_expression) && m_assignments.Equals(otherExtend.m_assignments);
+        }
+    }
+    public sealed class JoinExpression : Expression
+    {
+        internal JoinExpression(Expression left, Expression right)
+        {
+            m_left = left;
+            m_right = right;
+        }
+        private readonly Expression m_left;
+        private readonly Expression m_right;
+
+        public override ExpressionType ExpressionType => ExpressionType.Join;
+
+        public Expression Left => m_left;
+        public Expression Right => m_right;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Join) return false;
+            if (!(other is JoinExpression otherJoin)) return false;
+            return m_left.Equals(otherJoin.m_left) && m_right.Equals(otherJoin.m_right);
+        }
+    }
+    public sealed class LeftJoinExpression : Expression
+    {
+        internal LeftJoinExpression(Expression left, Expression right, IFormulaCollection filter)
+        {
+            m_left = left;
+            m_right = right;
+            m_filter = filter;
+        }
+        private readonly Expression m_left;
+        private readonly Expression m_right;
+        private readonly IFormulaCollection m_filter;
+
+        public override ExpressionType ExpressionType => ExpressionType.LeftJoin;
+
+        public Expression Left => m_left;
+        public Expression Right => m_right;
+        public new IFormulaCollection Filter => m_filter;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.LeftJoin) return false;
+            if (!(other is LeftJoinExpression otherLeftJoin)) return false;
+            return m_left.Equals(otherLeftJoin.m_left) && m_right.Equals(otherLeftJoin.m_right) && m_filter.Equals(otherLeftJoin.m_filter);
+        }
+    }
+    public sealed class DiffExpression : Expression
+    {
+        internal DiffExpression(Expression left, Expression right)
+        {
+            m_left = left;
+            m_right = right;
+        }
+        private readonly Expression m_left;
+        private readonly Expression m_right;
+
+        public override ExpressionType ExpressionType => ExpressionType.Diff;
+
+        public Expression Left => m_left;
+        public Expression Right => m_right;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Diff) return false;
+            if (!(other is DiffExpression otherDiff)) return false;
+            return m_left.Equals(otherDiff.m_left) && m_right.Equals(otherDiff.m_right);
+        }
+    }
+    public sealed class MinusExpression : Expression
+    {
+        internal MinusExpression(Expression left, Expression right)
+        {
+            m_left = left;
+            m_right = right;
+        }
+        private readonly Expression m_left;
+        private readonly Expression m_right;
+
+        public override ExpressionType ExpressionType => ExpressionType.Minus;
+
+        public Expression Left => m_left;
+        public Expression Right => m_right;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Minus) return false;
+            if (!(other is MinusExpression otherMinus)) return false;
+            return m_left.Equals(otherMinus.m_left) && m_right.Equals(otherMinus.m_right);
+        }
+    }
+    public sealed class UnionExpression : Expression
+    {
+        internal UnionExpression(Expression left, Expression right)
+        {
+            m_left = left;
+            m_right = right;
+        }
+        private readonly Expression m_left;
+        private readonly Expression m_right;
+
+        public override ExpressionType ExpressionType => ExpressionType.Union;
+
+        public Expression Left => m_left;
+        public Expression Right => m_right;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Union) return false;
+            if (!(other is UnionExpression otherUnion)) return false;
+            return m_left.Equals(otherUnion.m_left) && m_right.Equals(otherUnion.m_right);
+        }
+    }
+    public sealed class ConditionalExpression : Expression
+    {
+        internal ConditionalExpression(Expression left, Expression right)
+        {
+            m_left = left;
+            m_right = right;
+        }
+        private readonly Expression m_left;
+        private readonly Expression m_right;
+
+        public override ExpressionType ExpressionType => ExpressionType.Conditional;
+
+        public Expression Left => m_left;
+        public Expression Right => m_right;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Conditional) return false;
+            if (!(other is ConditionalExpression otherConditional)) return false;
+            return m_left.Equals(otherConditional.m_left) && m_right.Equals(otherConditional.m_right);
+        }
+    }
+
+    public sealed class GroupByExpression : Expression
+    {
+        internal GroupByExpression(Expression expression, IReadOnlyDictionary<IVariable, ITerm> groupVariables, IReadOnlyDictionary<IVariable, IFormula> aggregators)
+        {
+            m_expression = expression;
+            m_groupVariables = groupVariables;
+            m_aggregators = aggregators;
+        }
+        private readonly Expression m_expression;
+        private readonly IReadOnlyDictionary<IVariable, ITerm> m_groupVariables;
+        private readonly IReadOnlyDictionary<IVariable, IFormula> m_aggregators;
+
+        public override ExpressionType ExpressionType => ExpressionType.GroupBy;
+
+        public Expression Expression => m_expression;
+
+        public IReadOnlyDictionary<IVariable, ITerm> Variables => m_groupVariables;
+
+        public IReadOnlyDictionary<IVariable, IFormula> Aggregators => m_aggregators;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.GroupBy) return false;
+            if (!(other is GroupByExpression otherGroupBy)) return false;
+            return m_expression.Equals(otherGroupBy.m_expression) && m_groupVariables.Equals(otherGroupBy.m_groupVariables) && m_aggregators.Equals(otherGroupBy.m_aggregators);
+        }
+    }
+    public sealed class OrderByExpression : Expression
+    {
+        internal OrderByExpression(Expression expression, IReadOnlyDictionary<IVariable, SortDirection> sorts)
+        {
+            m_expression = expression;
+            m_sorts = sorts;
+        }
+        private readonly Expression m_expression;
+        private readonly IReadOnlyDictionary<IVariable, SortDirection> m_sorts;
+
+        public override ExpressionType ExpressionType => ExpressionType.OrderBy;
+
+        public Expression Expression => m_expression;
+
+        public IReadOnlyDictionary<IVariable, SortDirection> Sorts => m_sorts;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.OrderBy) return false;
+            if (!(other is OrderByExpression otherOrderBy)) return false;
+            return m_expression.Equals(otherOrderBy.m_expression) && m_sorts.Equals(otherOrderBy.m_sorts);
+        }
+    }
+    public sealed class ProjectExpression : Expression
+    {
+        internal ProjectExpression(Expression expression, IReadOnlyList<IVariable> variables)
+        {
+            m_expression = expression;
+            m_variables = variables;
+        }
+        private readonly Expression m_expression;
+        private readonly IReadOnlyList<IVariable> m_variables;
+
+        public override ExpressionType ExpressionType => ExpressionType.Project;
+
+        public Expression Expression => m_expression;
+
+        public IReadOnlyList<IVariable> Variables => m_variables;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Project) return false;
+            if (!(other is ProjectExpression otherProject)) return false;
+            return m_expression.Equals(otherProject.m_expression) && m_variables.Equals(otherProject.m_variables);
+        }
+    }
+    public sealed class ReduceExpression : Expression
+    {
+        internal ReduceExpression(Expression expression)
+        {
+            m_expression = expression;
+        }
+        private readonly Expression m_expression;
+
+        public override ExpressionType ExpressionType => ExpressionType.Reduce;
+
+        public Expression Expression => m_expression;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Reduce) return false;
+            if (!(other is ReduceExpression otherReduce)) return false;
+            return m_expression.Equals(otherReduce.m_expression);
+        }
+    }
+    public sealed class DistinctExpression : Expression
+    {
+        internal DistinctExpression(Expression expression)
+        {
+            m_expression = expression;
+        }
+        private readonly Expression m_expression;
+
+        public override ExpressionType ExpressionType => ExpressionType.Distinct;
+
+        public Expression Expression => m_expression;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Distinct) return false;
+            if (!(other is DistinctExpression otherDistinct)) return false;
+            return m_expression.Equals(otherDistinct.m_expression);
+        }
+    }
+    public sealed class SliceExpression : Expression
+    {
+        internal SliceExpression(Expression expression, ulong start, ulong length)
+        {
+            m_expression = expression;
+            m_start = start;
+            m_length = length;
+        }
+        private readonly Expression m_expression;
+        private readonly ulong m_start;
+        private readonly ulong m_length;
+
+        public override ExpressionType ExpressionType => ExpressionType.Slice;
+
+        public Expression Expression => m_expression;
+        public ulong Start => m_start;
+        public ulong Length => m_length;
+
+        public override bool Equals(Expression? other)
+        {
+            if (other == null) return false;
+            if (other.ExpressionType != ExpressionType.Slice) return false;
+            if (!(other is SliceExpression otherSlice)) return false;
+            return m_expression.Equals(otherSlice.m_expression) && m_start == otherSlice.m_start && m_length == otherSlice.m_length;
+        }
+    }
+
+
+    public abstract class Expression : IEquatable<Expression>
+    {
+        private static readonly EmptyExpression s_empty = new EmptyExpression();
+
+        public static EmptyExpression Empty()
+        {
+            return s_empty;
+        }
+        public static TableExpression Values(IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> values)
+        {
+            return new TableExpression(values);
+        }
+        public static BasicFormulaCollectionPatternExpression Pattern(IFormulaCollection formulaCollection)
+        {
+            return new BasicFormulaCollectionPatternExpression(formulaCollection);
+        }
+        public static FormulaCollectionExpression FormulaCollection(Expression expression, ITerm term)
+        {
+            return new FormulaCollectionExpression(expression, term);
+        }
+        public static FilterExpression Filter(Expression expression, IFormulaCollection filter)
+        {
+            return new FilterExpression(expression, filter);
+        }
+        public static AssignExpression Assign(Expression expression, IVariable variable, IFormula formula)
+        {
+            var assignments = new Dictionary<IVariable, ITerm> { { variable, formula } };
+            return new AssignExpression(expression, assignments);
+        }
+        public static AssignExpression Assign(Expression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
+        {
+            return new AssignExpression(expression, assignments);
+        }
+        public static ExtendExpression Extend(Expression expression, IVariable variable, IFormula formula)
+        {
+            var assignments = new Dictionary<IVariable, ITerm> { { variable, formula } };
+            return new ExtendExpression(expression, assignments);
+        }
+        public static ExtendExpression Extend(Expression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
+        {
+            return new ExtendExpression(expression, assignments);
+        }
+        public static JoinExpression Join(Expression left, Expression right)
+        {
+            return new JoinExpression(left, right);
+        }
+        public static LeftJoinExpression LeftJoin(Expression left, Expression right)
+        {
+            return new LeftJoinExpression(left, right, Factory.EmptyFormulaCollection);
+        }
+        public static LeftJoinExpression LeftJoin(Expression left, Expression right, IFormulaCollection filter)
+        {
+            return new LeftJoinExpression(left, right, filter);
+        }
+        public static DiffExpression Diff(Expression left, Expression right)
+        {
+            return new DiffExpression(left, right);
+        }
+        public static MinusExpression Minus(Expression left, Expression right)
+        {
+            return new MinusExpression(left, right);
+        }
+        public static UnionExpression Union(Expression left, Expression right)
+        {
+            return new UnionExpression(left, right);
+        }
+        public static ConditionalExpression Conditional(Expression left, Expression right)
+        {
+            return new ConditionalExpression(left, right);
+        }
+
+
+        internal static GroupByExpression GroupBy(Expression expression, IReadOnlyDictionary<IVariable, ITerm> groupVariables, IReadOnlyDictionary<IVariable, IFormula> aggregators)
+        {
+            return new GroupByExpression(expression, groupVariables, aggregators);
+        }
+        internal static OrderByExpression OrderBy(Expression expression, IReadOnlyDictionary<IVariable, SortDirection> sorts)
+        {
+            return new OrderByExpression(expression, sorts);
+        }
+        internal static ProjectExpression Project(Expression expression, IReadOnlyList<IVariable> variables)
+        {
+            return new ProjectExpression(expression, variables);
+        }
+        internal static ReduceExpression Reduce(Expression expression)
+        {
+            return new ReduceExpression(expression);
+        }
+        internal static DistinctExpression Distinct(Expression expression)
+        {
+            return new DistinctExpression(expression);
+        }
+        internal static SliceExpression Slice(Expression expression, ulong start, ulong length)
+        {
+            return new SliceExpression(expression, start, length);
+        }
+
+
+        public abstract ExpressionType ExpressionType { get; }
 
         // void Visit(IQueryExpressionVisitor visitor);
         // IQueryExpression Transform(IQueryExpressionTransformer transformer);
 
-        public IQueryExpression Clone();
-    }
-
-    public interface INullExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Null;
-    }
-    public interface ITableExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Table;
-
-        public IReadOnlyList<IVariable> Variables { get; }
-        public IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> Rows { get; }
-    }
-    public interface IBasicFormulaCollectionPatternExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.BasicPattern;
-
-        public IFormulaCollection FormulaCollection { get; }
-    }
-    public interface IFormulaCollectionExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.FormulaCollection;
-
-        public IQueryExpression Expression { get; }
-        public ITerm Term { get; }
-    }
-    public interface IFilterExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Filter;
-
-        public IQueryExpression Expression { get; }
-        public IFormulaCollection Filter { get; }
-    }
-    public interface IAssignExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Assign;
-
-        public IQueryExpression Expression { get; }
-
-        public IReadOnlyDictionary<IVariable, ITerm> Assignments { get; }
-    }
-    public interface IExtendExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Extend;
-
-        public IQueryExpression Expression { get; }
-
-        public IReadOnlyDictionary<IVariable, ITerm> Assignments { get; }
-    }
-    public interface IConcatExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Concat;
-
-        public IQueryExpression Left { get; }
-        public IQueryExpression Right { get; }
-    }
-    public interface IJoinExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Join;
-
-        public IQueryExpression Left { get; }
-        public IQueryExpression Right { get; }
-    }
-    public interface ILeftJoinExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.LeftJoin;
-
-        public IQueryExpression Left { get; }
-        public IQueryExpression Right { get; }
-        public IFormulaCollection Filter { get; }
-    }
-    public interface IDiffExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Diff;
-
-        public IQueryExpression Left { get; }
-        public IQueryExpression Right { get; }
-    }
-    public interface IMinusExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Minus;
-
-        public IQueryExpression Left { get; }
-        public IQueryExpression Right { get; }
-    }
-    public interface IUnionExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Union;
-
-        public IQueryExpression Left { get; }
-        public IQueryExpression Right { get; }
-    }
-    public interface IConditionalExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Conditional;
-
-        public IQueryExpression Left { get; }
-        public IQueryExpression Right { get; }
-    }
-
-    public interface IGroupExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Group;
-
-        public IQueryExpression Expression { get; }
-
-        public IReadOnlyDictionary<IVariable, ITerm> Variables { get; }
-
-        //...
-    }
-    public interface IOrderExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Order;
-
-        // to do...
-    }
-    public interface IProjectExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Project;
-
-        public IQueryExpression Expression { get; }
-
-        public IReadOnlyList<IVariable> Variables { get; }
-    }
-    public interface IReduceExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Reduce;
-
-        public IQueryExpression Expression { get; }
-    }
-    public interface IDistinctExpression : IQueryExpression
-    {
-        ExpressionType IQueryExpression.ExpressionType => ExpressionType.Distinct;
-
-        public IQueryExpression Expression { get; }
-    }
-
-    public static class Expression
-    {
-        public static INullExpression Null()
+        public abstract bool Equals(Expression? other);
+        public override int GetHashCode()
         {
-            throw new NotImplementedException();
+            return base.GetHashCode();
         }
-        public static ITableExpression Values(IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> values)
+
+        public sealed override bool Equals(object? obj)
         {
-            throw new NotImplementedException();
-        }
-        public static IBasicFormulaCollectionPatternExpression Pattern(IFormulaCollection formulaCollection)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFormulaCollectionExpression FormulaCollection(IQueryExpression expression, ITerm formulaCollection)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFilterExpression Filter(IQueryExpression expression, IFormula filter)
-        {
-            throw new NotImplementedException();
-        }
-        public static IFilterExpression Filter(IQueryExpression expression, IFormulaCollection filter)
-        {
-            throw new NotImplementedException();
-        }
-        public static IAssignExpression Assign(IQueryExpression expression, IVariable variable, IFormula formula)
-        {
-            throw new NotImplementedException();
-        }
-        public static IAssignExpression Assign(IQueryExpression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
-        {
-            throw new NotImplementedException();
-        }
-        public static IExtendExpression Extend(IQueryExpression expression, IVariable variable, IFormula formula)
-        {
-            throw new NotImplementedException();
-        }
-        public static IExtendExpression Extend(IQueryExpression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
-        {
-            throw new NotImplementedException();
-        }
-        public static IConcatExpression Concat(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
-        public static IJoinExpression Join(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
-        public static ILeftJoinExpression LeftJoin(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
-        public static ILeftJoinExpression LeftJoin(IQueryExpression left, IQueryExpression right, IFormula filter)
-        {
-            throw new NotImplementedException();
-        }
-        public static ILeftJoinExpression LeftJoin(IQueryExpression left, IQueryExpression right, IFormulaCollection filter)
-        {
-            throw new NotImplementedException();
-        }
-        public static IDiffExpression Diff(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
-        public static IMinusExpression Minus(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
-        public static IUnionExpression Union(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
-        }
-        public static IConditionalExpression Conditional(IQueryExpression left, IQueryExpression right)
-        {
-            throw new NotImplementedException();
+            if (obj != null && obj is Expression other)
+                return Equals(other);
+            else
+                return false;
         }
     }
 }
