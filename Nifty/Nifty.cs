@@ -116,7 +116,7 @@ namespace Nifty.Common
 
 namespace Nifty.Dialogs
 {
-    public interface IDialogSystem : IBot, IServiceProviderInitializable, IMessageHandler, IMessageSource, IEventHandler, IEventSource, IServiceProviderDisposable
+    public interface IDialogSystem : IBot, IMessagingComponent
     {
         // to do: explore more granular interfaces between dialog systems and items, exercises, and activities
         public void EnterScope(IHasMetadata scope);
@@ -478,7 +478,7 @@ namespace Nifty.Knowledge.Building
 namespace Nifty.Knowledge.Querying
 {
     // "Fluent N-ary SPARQL"
-    // version 0.2.6
+    // version 0.2.7.0
     // 
     // the expressiveness for querying n-ary formula collections with Nifty should be comparable with or exceed that of SPARQL for triple collections
     // see also: https://www.w3.org/2001/sw/DataAccess/rq23/examples.html , https://www.w3.org/2001/sw/DataAccess/rq23/rq24-algebra.html
