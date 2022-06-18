@@ -334,10 +334,6 @@ namespace Nifty.Knowledge
 {
     public interface IFormulaCollection : Querying.IQueryable, IHasIdentifier, IEnumerable<IFormula>
     {
-        // or is this property superfluous as the value should always be Nifty.Knowledge.Querying.Expressions.Expression.Pattern(this);
-        // also, should consider the nature of inferredformulacollection's expression property's value
-        public Expression Expression { get; } // { return Nifty.Knowledge.Querying.Expressions.Expression.Pattern(this); }
-
         public bool IsReadOnly { get; }
         public bool IsGraph { get; }
         public bool IsGround { get; }
@@ -360,12 +356,20 @@ namespace Nifty.Knowledge
         public bool IsGraph { get; }
 
         public IFormulaCollection this[IConstant id] { get; }
+        public IFormulaCollection Default { get; }
 
-        public bool Add(IConstant collection, IFormula formula);
-        public bool Add(IConstant collection, IEnumerable<IFormula> formulas);
+        public bool Add(IFormula formula);
+        public bool Add(IEnumerable<IFormula> formulas);
 
-        public bool Remove(IConstant collection, IFormula formula);
-        public bool Remove(IConstant collection, IEnumerable<IFormula> formulas);
+        public bool Remove(IFormula formula);
+        public bool Remove(IEnumerable<IFormula> formulas);
+
+
+        public bool Add(IFormula formula, IConstant collection);
+        public bool Add(IEnumerable<IFormula> formulas, IConstant collection);
+
+        public bool Remove(IFormula formula, IConstant collection);
+        public bool Remove(IEnumerable<IFormula> formulas, IConstant collection);
 
         public IFormulaDataset Clone(bool? isReadOnly = null);
     }
@@ -569,7 +573,6 @@ namespace Nifty.Knowledge.Querying
 
 
 
-        // these conclude a query into one of the four query types
         public static IAskQuery Ask(this IQuery query)
         {
             throw new NotImplementedException();
@@ -975,7 +978,7 @@ namespace Nifty.Knowledge.Querying.Expressions
         }
     }
 
-    public sealed class GroupByExpression : Expression
+    internal sealed class GroupByExpression : Expression
     {
         internal GroupByExpression(Expression expression, IReadOnlyDictionary<IVariable, ITerm> groupVariables, IReadOnlyDictionary<IVariable, IFormula> aggregators)
         {
@@ -1003,7 +1006,7 @@ namespace Nifty.Knowledge.Querying.Expressions
             return m_expression.Equals(otherGroupBy.m_expression) && m_groupVariables.Equals(otherGroupBy.m_groupVariables) && m_aggregators.Equals(otherGroupBy.m_aggregators);
         }
     }
-    public sealed class OrderByExpression : Expression
+    internal sealed class OrderByExpression : Expression
     {
         internal OrderByExpression(Expression expression, IReadOnlyDictionary<IVariable, SortDirection> sorts)
         {
@@ -1027,7 +1030,7 @@ namespace Nifty.Knowledge.Querying.Expressions
             return m_expression.Equals(otherOrderBy.m_expression) && m_sorts.Equals(otherOrderBy.m_sorts);
         }
     }
-    public sealed class ProjectExpression : Expression
+    internal sealed class ProjectExpression : Expression
     {
         internal ProjectExpression(Expression expression, IReadOnlyList<IVariable> variables)
         {
@@ -1051,7 +1054,7 @@ namespace Nifty.Knowledge.Querying.Expressions
             return m_expression.Equals(otherProject.m_expression) && m_variables.Equals(otherProject.m_variables);
         }
     }
-    public sealed class ReduceExpression : Expression
+    internal sealed class ReduceExpression : Expression
     {
         internal ReduceExpression(Expression expression)
         {
@@ -1071,7 +1074,7 @@ namespace Nifty.Knowledge.Querying.Expressions
             return m_expression.Equals(otherReduce.m_expression);
         }
     }
-    public sealed class DistinctExpression : Expression
+    internal sealed class DistinctExpression : Expression
     {
         internal DistinctExpression(Expression expression)
         {
@@ -1091,7 +1094,7 @@ namespace Nifty.Knowledge.Querying.Expressions
             return m_expression.Equals(otherDistinct.m_expression);
         }
     }
-    public sealed class SliceExpression : Expression
+    internal sealed class SliceExpression : Expression
     {
         internal SliceExpression(Expression expression, ulong start, ulong length)
         {
