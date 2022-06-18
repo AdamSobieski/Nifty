@@ -739,7 +739,7 @@ namespace Nifty.Knowledge.Querying.Expressions
             if (other == null) return false;
             if (other.ExpressionType != ExpressionType.BasicPattern) return false;
             if (!(other is BasicFormulaCollectionPatternExpression otherBasicPattern)) return false;
-            return m_formulaCollection.Equals(otherBasicPattern.m_formulaCollection);
+            return m_formulaCollection.SequenceEqual(otherBasicPattern.m_formulaCollection);
         }
     }
     public sealed class FormulaCollectionExpression : Expression
@@ -785,7 +785,7 @@ namespace Nifty.Knowledge.Querying.Expressions
             if (other == null) return false;
             if (other.ExpressionType != ExpressionType.Filter) return false;
             if (!(other is FilterExpression otherFilter)) return false;
-            return m_expression.Equals(otherFilter.m_expression) && m_filter.Equals(otherFilter.m_filter);
+            return m_expression.Equals(otherFilter.m_expression) && m_filter.SequenceEqual(otherFilter.m_filter);
         }
     }
     public sealed class AssignExpression : Expression
@@ -809,7 +809,7 @@ namespace Nifty.Knowledge.Querying.Expressions
             if (other == null) return false;
             if (other.ExpressionType != ExpressionType.Assign) return false;
             if (!(other is AssignExpression otherAssign)) return false;
-            return m_expression.Equals(otherAssign.m_expression) && m_assignments.Equals(otherAssign.m_assignments);
+            return m_expression.Equals(otherAssign.m_expression) && m_assignments.SequenceEqual(otherAssign.m_assignments);
         }
     }
     public sealed class ExtendExpression : Expression
@@ -833,7 +833,7 @@ namespace Nifty.Knowledge.Querying.Expressions
             if (other == null) return false;
             if (other.ExpressionType != ExpressionType.Extend) return false;
             if (!(other is ExtendExpression otherExtend)) return false;
-            return m_expression.Equals(otherExtend.m_expression) && m_assignments.Equals(otherExtend.m_assignments);
+            return m_expression.Equals(otherExtend.m_expression) && m_assignments.SequenceEqual(otherExtend.m_assignments);
         }
     }
     public sealed class JoinExpression : Expression
@@ -1003,7 +1003,7 @@ namespace Nifty.Knowledge.Querying.Expressions
             if (other == null) return false;
             if (other.ExpressionType != ExpressionType.GroupBy) return false;
             if (!(other is GroupByExpression otherGroupBy)) return false;
-            return m_expression.Equals(otherGroupBy.m_expression) && m_groupVariables.Equals(otherGroupBy.m_groupVariables) && m_aggregators.Equals(otherGroupBy.m_aggregators);
+            return m_expression.Equals(otherGroupBy.m_expression) && m_groupVariables.SequenceEqual(otherGroupBy.m_groupVariables) && m_aggregators.SequenceEqual(otherGroupBy.m_aggregators);
         }
     }
     internal sealed class OrderByExpression : Expression
@@ -1027,7 +1027,7 @@ namespace Nifty.Knowledge.Querying.Expressions
             if (other == null) return false;
             if (other.ExpressionType != ExpressionType.OrderBy) return false;
             if (!(other is OrderByExpression otherOrderBy)) return false;
-            return m_expression.Equals(otherOrderBy.m_expression) && m_sorts.Equals(otherOrderBy.m_sorts);
+            return m_expression.Equals(otherOrderBy.m_expression) && m_sorts.SequenceEqual(otherOrderBy.m_sorts);
         }
     }
     internal sealed class ProjectExpression : Expression
@@ -1051,7 +1051,7 @@ namespace Nifty.Knowledge.Querying.Expressions
             if (other == null) return false;
             if (other.ExpressionType != ExpressionType.Project) return false;
             if (!(other is ProjectExpression otherProject)) return false;
-            return m_expression.Equals(otherProject.m_expression) && m_variables.Equals(otherProject.m_variables);
+            return m_expression.Equals(otherProject.m_expression) && m_variables.SequenceEqual(otherProject.m_variables);
         }
     }
     internal sealed class ReduceExpression : Expression
@@ -1096,21 +1096,21 @@ namespace Nifty.Knowledge.Querying.Expressions
     }
     internal sealed class SliceExpression : Expression
     {
-        internal SliceExpression(Expression expression, ulong start, ulong length)
+        internal SliceExpression(Expression expression, uint start, uint? length)
         {
             m_expression = expression;
             m_start = start;
             m_length = length;
         }
         private readonly Expression m_expression;
-        private readonly ulong m_start;
-        private readonly ulong m_length;
+        private readonly uint m_start;
+        private readonly uint? m_length;
 
         public override ExpressionType ExpressionType => ExpressionType.Slice;
 
         public Expression Expression => m_expression;
-        public ulong Start => m_start;
-        public ulong Length => m_length;
+        public uint Start => m_start;
+        public uint? Length => m_length;
 
         public override bool Equals(Expression? other)
         {
@@ -1120,7 +1120,6 @@ namespace Nifty.Knowledge.Querying.Expressions
             return m_expression.Equals(otherSlice.m_expression) && m_start == otherSlice.m_start && m_length == otherSlice.m_length;
         }
     }
-
 
     public abstract class Expression : IEquatable<Expression>
     {
@@ -1214,7 +1213,7 @@ namespace Nifty.Knowledge.Querying.Expressions
         {
             return new DistinctExpression(expression);
         }
-        internal static SliceExpression Slice(Expression expression, ulong start, ulong length)
+        internal static SliceExpression Slice(Expression expression, uint start, uint? length)
         {
             return new SliceExpression(expression, start, length);
         }
