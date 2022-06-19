@@ -431,6 +431,10 @@ namespace Nifty.Knowledge
         {
             m_name = Common.String.Add(name);
         }
+        ~Variable()
+        {
+            Common.String.Dereference(m_name);
+        }
 
         private readonly ulong m_name;
         public string Name => Common.String.Lookup(m_name);
@@ -465,6 +469,10 @@ namespace Nifty.Knowledge
         internal Blank(string id)
         {
             m_id = Common.String.Add(id);
+        }
+        ~Blank()
+        {
+            Common.String.Dereference(m_id);
         }
 
         private readonly ulong m_id;
@@ -501,6 +509,10 @@ namespace Nifty.Knowledge
         internal Uri(string uri)
         {
             m_uri = Common.String.Add(uri);
+        }
+        ~Uri()
+        {
+            Common.String.Dereference(m_uri);
         }
 
         private readonly ulong m_uri;
@@ -613,7 +625,7 @@ namespace Nifty.Knowledge
         {
             int hash = m_predicate.GetHashCode();
             int length = m_args.Length;
-            for(int i = 0; i < length; ++i)
+            for (int i = 0; i < length; ++i)
             {
                 hash ^= m_args[i].GetHashCode() * hash;
             }
