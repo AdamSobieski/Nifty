@@ -402,7 +402,7 @@ namespace Nifty.Knowledge
         Formula
     }
 
-    public abstract class Term : IEquatable<Term>
+    public abstract partial class Term : IEquatable<Term>
     {
         public abstract TermType TermType { get; }
 
@@ -651,6 +651,166 @@ namespace Nifty.Knowledge
 
 
     public interface IKnowledgebase : IFormulaDataset, IMessagingComponent { }
+
+
+
+    public abstract partial class Term
+    {
+        public static Knowledge.Uri Uri(string uri)
+        {
+            return new Knowledge.Uri(uri);
+        }
+        public static Blank Blank()
+        {
+            throw new NotImplementedException();
+        }
+        public static Blank Blank(string id)
+        {
+            return new Blank(id);
+        }
+        public static Variable Variable()
+        {
+            throw new NotImplementedException();
+        }
+        public static Variable Variable(string name)
+        {
+            return new Variable(name);
+        }
+
+
+
+        public static Box Box(bool value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(sbyte value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(byte value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(short value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(ushort value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(int value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(uint value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(long value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(ulong value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(float value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(double value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(string value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(object value)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        public static Box Literal(bool value)
+        {
+            // return Box(new Literal(value.ToString(), null, Keys.Semantics.Xsd.boolean.Uri));
+            throw new NotImplementedException();
+        }
+        public static Box Literal(sbyte value)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(byte value)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(short value)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(ushort value)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(int value)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(uint value)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(long value)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(ulong value)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(float value)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(double value)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(string value)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(string value, string language)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(string value, string language, Knowledge.Uri datatypeUri)
+        {
+            throw new NotImplementedException();
+        }
+        public static Box Literal(string value, Knowledge.Uri datatypeUri)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        public static Knowledge.Formula Formula(Knowledge.Term predicate, params Knowledge.Term[] arguments)
+        {
+            return new Knowledge.Formula(predicate, arguments);
+        }
+        public static Knowledge.Formula Triple(Knowledge.Term predicate, Knowledge.Term subject, Knowledge.Term @object)
+        {
+            return new Knowledge.Formula(predicate, new Knowledge.Term[] { subject, @object });
+        }
+        public static Knowledge.Formula TripleSPO(Knowledge.Term subject, Knowledge.Term predicate, Knowledge.Term @object)
+        {
+            return new Knowledge.Formula(predicate, new Knowledge.Term[] { subject, @object });
+        }
+    }
 }
 
 namespace Nifty.Knowledge.Building
@@ -1891,164 +2051,6 @@ namespace Nifty
 
         public static readonly Knowledge.Uri type = Term.Uri("urn:builtin:type");
         public static readonly Knowledge.Uri quote = Term.Uri("urn:builtin:quote");
-    }
-
-    public static partial class Term
-    {
-        public static Knowledge.Uri Uri(string uri)
-        {
-            return new Knowledge.Uri(uri);
-        }
-        public static Blank Blank()
-        {
-            throw new NotImplementedException();
-        }
-        public static Blank Blank(string id)
-        {
-            return new Blank(id);
-        }
-        public static Variable Variable()
-        {
-            throw new NotImplementedException();
-        }
-        public static Variable Variable(string name)
-        {
-            return new Variable(name);
-        }
-
-
-
-        public static Box Box(bool value)
-        {
-            return new Box(value);
-        }
-        public static Box Box(sbyte value)
-        {
-            return new Box(value);
-        }
-        public static Box Box(byte value)
-        {
-            return new Box(value);
-        }
-        public static Box Box(short value)
-        {
-            return new Box(value);
-        }
-        public static Box Box(ushort value)
-        {
-            return new Box(value);
-        }
-        public static Box Box(int value)
-        {
-            return new Box(value);
-        }
-        public static Box Box(uint value)
-        {
-            return new Box(value);
-        }
-        public static Box Box(long value)
-        {
-            return new Box(value);
-        }
-        public static Box Box(ulong value)
-        {
-            return new Box(value);
-        }
-        public static Box Box(float value)
-        {
-            return new Box(value);
-        }
-        public static Box Box(double value)
-        {
-            return new Box(value);
-        }
-        public static Box Box(string value)
-        {
-            return new Box(value);
-        }
-        public static Box Box(object value)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        public static Box Literal(bool value)
-        {
-            // return Box(new Literal(value.ToString(), null, Keys.Semantics.Xsd.boolean.Uri));
-            throw new NotImplementedException();
-        }
-        public static Box Literal(sbyte value)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(byte value)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(short value)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(ushort value)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(int value)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(uint value)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(long value)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(ulong value)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(float value)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(double value)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(string value)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(string value, string language)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(string value, string language, Knowledge.Uri datatypeUri)
-        {
-            throw new NotImplementedException();
-        }
-        public static Box Literal(string value, Knowledge.Uri datatypeUri)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        public static Knowledge.Formula Formula(Knowledge.Term predicate, params Knowledge.Term[] arguments)
-        {
-            return new Knowledge.Formula(predicate, arguments);
-        }
-        public static Knowledge.Formula Triple(Knowledge.Term predicate, Knowledge.Term subject, Knowledge.Term @object)
-        {
-            return new Knowledge.Formula(predicate, new Knowledge.Term[] { subject, @object });
-        }
-        public static Knowledge.Formula TripleSPO(Knowledge.Term subject, Knowledge.Term predicate, Knowledge.Term @object)
-        {
-            return new Knowledge.Formula(predicate, new Knowledge.Term[] { subject, @object });
-        }
     }
 
     // there might be other, possibly better, ways, to generate builtin formulas,
