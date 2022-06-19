@@ -112,6 +112,22 @@ namespace Nifty.Common
             return new CombinedDisposable(scopes);
         }
     }
+
+    public static class String
+    {
+        public static ulong Add(string text)
+        {
+            throw new NotImplementedException();
+        }
+        public static void Dereference(ulong value)
+        {
+            throw new NotImplementedException();
+        }
+        public static string Lookup(ulong value)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
 
 namespace Nifty.Dialogs
@@ -128,7 +144,8 @@ namespace Nifty.Dialogs
     // see also: https://github.com/microsoft/BotBuilder-Samples/blob/main/samples/csharp_dotnetcore/19.custom-dialogs/Bots/DialogBot.cs
     // see also: https://github.com/microsoft/BotBuilder-Samples/blob/main/samples/csharp_dotnetcore/45.state-management/Bots/StateManagementBot.cs
 
-    public class DialogBot<T> : ActivityHandler where T : Dialog
+    public class DialogBot<T> : ActivityHandler
+        where T : Dialog
     {
         protected readonly BotState m_conversationState;
         protected readonly Dialog m_dialog;
@@ -206,7 +223,7 @@ namespace Nifty.Extensibility.Activities
     public interface IItemStore : Nifty.Knowledge.Querying.IQueryable, IServiceProviderInitializable, IServiceProviderDisposable
     {
         // the stream is a .NET assembly which contains an IItem
-        public Stream Retrieve(IUri uri);
+        public Stream Retrieve(Knowledge.Uri uri);
         public Stream Retrieve(AssemblyName uri);
     }
 }
@@ -332,7 +349,7 @@ namespace Nifty.Hosting
 
 namespace Nifty.Knowledge
 {
-    public interface IFormulaCollection : Querying.IQueryable, IHasIdentifier, IEnumerable<IFormula>
+    public interface IFormulaCollection : Querying.IQueryable, IHasIdentifier, IEnumerable<Formula>
     {
         public bool IsReadOnly { get; }
         public bool IsGraph { get; }
@@ -340,14 +357,14 @@ namespace Nifty.Knowledge
 
         public IBasicUpdate DifferenceFrom(IFormulaCollection other);
 
-        public bool Add(IFormula formula);
-        public bool Add(IEnumerable<IFormula> formulas);
+        public bool Add(Formula formula);
+        public bool Add(IEnumerable<Formula> formulas);
 
-        public bool Remove(IFormula formula);
-        public bool Remove(IEnumerable<IFormula> formulas);
+        public bool Remove(Formula formula);
+        public bool Remove(IEnumerable<Formula> formulas);
 
         public IFormulaCollection Clone(bool? isReadOnly = null);
-        public IFormulaCollection Clone(IEnumerable<IFormula> removals, IEnumerable<IFormula> additions, bool? isReadOnly = null);
+        public IFormulaCollection Clone(IEnumerable<Formula> removals, IEnumerable<Formula> additions, bool? isReadOnly = null);
     }
 
     public interface IFormulaDataset : Querying.IQueryable, IEnumerable<IFormulaCollection>
@@ -355,21 +372,23 @@ namespace Nifty.Knowledge
         public bool IsReadOnly { get; }
         public bool IsGraph { get; }
 
-        public IFormulaCollection this[IConstant id] { get; }
+        public IEnumerable<Knowledge.Uri> Keys { get; }
+
+        public IFormulaCollection this[Knowledge.Uri id] { get; }
         public IFormulaCollection Default { get; }
 
-        public bool Add(IFormula formula);
-        public bool Add(IEnumerable<IFormula> formulas);
+        public bool Add(Formula formula);
+        public bool Add(IEnumerable<Formula> formulas);
 
-        public bool Remove(IFormula formula);
-        public bool Remove(IEnumerable<IFormula> formulas);
+        public bool Remove(Formula formula);
+        public bool Remove(IEnumerable<Formula> formulas);
 
 
-        public bool Add(IFormula formula, IConstant collection);
-        public bool Add(IEnumerable<IFormula> formulas, IConstant collection);
+        public bool Add(Formula formula, Knowledge.Uri collection);
+        public bool Add(IEnumerable<Formula> formulas, Knowledge.Uri collection);
 
-        public bool Remove(IFormula formula, IConstant collection);
-        public bool Remove(IEnumerable<IFormula> formulas, IConstant collection);
+        public bool Remove(Formula formula, Knowledge.Uri collection);
+        public bool Remove(IEnumerable<Formula> formulas, Knowledge.Uri collection);
 
         public IFormulaDataset Clone(bool? isReadOnly = null);
     }
@@ -382,52 +401,230 @@ namespace Nifty.Knowledge
         Uri,
         Formula
     }
-    public interface ITerm
-    {
-        public TermType TermType { get; }
-        public void Visit(ITermVisitor visitor);
-        public ITerm Transform(ITermTransformer transformer);
 
-        public bool Matches(ITerm other);
+    public abstract class Term : IEquatable<Term>
+    {
+        public abstract TermType TermType { get; }
+
+        public abstract void Visit(ITermVisitor visitor);
+        public abstract Term Transform(ITermTransformer transformer);
+
+        public abstract bool Matches(Term other);
+        public abstract bool Equals(Term? other);
+        public sealed override bool Equals(object? obj)
+        {
+            if (obj is Term otherTerm)
+            {
+                return Equals(otherTerm);
+            }
+            return false;
+        }
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
+        }
         //public string? ToString(XmlNamespaceManager xmlns, bool quoting);
     }
-
-    public interface IVariable : ITerm
+    public sealed class Variable : Term
     {
-        public string Name { get; }
+        internal Variable(string name)
+        {
+            m_name = Common.String.Add(name);
+        }
+
+        private readonly ulong m_name;
+        public string Name => Common.String.Lookup(m_name);
+
+        public override TermType TermType => TermType.Variable;
+
+        public override void Visit(ITermVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+        public override Term Transform(ITermTransformer transformer)
+        {
+            return transformer.Visit(this);
+        }
+
+        public override bool Matches(Term other)
+        {
+            throw new NotImplementedException();
+        }
+        public override bool Equals(Term? other)
+        {
+            throw new NotImplementedException();
+        }
+        public override int GetHashCode()
+        {
+            return m_name.GetHashCode();
+        }
+    }
+    public abstract class Constant : Term { }
+    public sealed class Blank : Constant
+    {
+        internal Blank(string id)
+        {
+            m_id = Common.String.Add(id);
+        }
+
+        private readonly ulong m_id;
+
+        public string Value => Common.String.Lookup(m_id);
+
+        public override TermType TermType => TermType.Blank;
+
+        public override void Visit(ITermVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+
+        public override Term Transform(ITermTransformer transformer)
+        {
+            return transformer.Visit(this);
+        }
+
+        public override bool Matches(Term other)
+        {
+            throw new NotImplementedException();
+        }
+        public override bool Equals(Term? other)
+        {
+            throw new NotImplementedException();
+        }
+        public override int GetHashCode()
+        {
+            return m_id.GetHashCode();
+        }
+    }
+    public sealed class Uri : Constant
+    {
+        internal Uri(string uri)
+        {
+            m_uri = Common.String.Add(uri);
+        }
+
+        private readonly ulong m_uri;
+
+        public string Value => Common.String.Lookup(m_uri);
+
+        public override TermType TermType => TermType.Uri;
+
+        public override void Visit(ITermVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+        public override Term Transform(ITermTransformer transformer)
+        {
+            return transformer.Visit(this);
+        }
+
+        public override bool Matches(Term other)
+        {
+            throw new NotImplementedException();
+        }
+        public override bool Equals(Term? other)
+        {
+            throw new NotImplementedException();
+        }
+        public override int GetHashCode()
+        {
+            return m_uri.GetHashCode();
+        }
+    }
+    public sealed class Box : Constant
+    {
+        internal Box(object value)
+        {
+            m_value = value;
+        }
+
+        private readonly object m_value;
+
+        public object Value => m_value;
+
+        public override TermType TermType => TermType.Box;
+
+        public override void Visit(ITermVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+        public override Term Transform(ITermTransformer transformer)
+        {
+            return transformer.Visit(this);
+        }
+
+        public override bool Matches(Term other)
+        {
+            throw new NotImplementedException();
+        }
+        public override bool Equals(Term? other)
+        {
+            throw new NotImplementedException();
+        }
+        public override int GetHashCode()
+        {
+            return m_value.GetHashCode();
+        }
     }
 
-    public interface IConstant : ITerm
+    public sealed class Formula : Term
     {
-        public object Value { get; }
-    }
-    public interface IBlank : IConstant
-    {
-        public new string Value { get; }
-    }
-    public interface IUri : IConstant
-    {
-        // public new Uri Value { get; } ?
-        public new string Value { get; }
-    }
-    public interface IBox : IConstant { }
+        internal Formula(Term predicate, Term[] args)
+        {
+            m_predicate = predicate;
+            m_args = args;
+        }
+        private readonly Term m_predicate;
+        private readonly Term[] m_args;
 
-    public interface IFormula : ITerm
-    {
-        public ITerm Predicate { get; }
+        public Term Predicate => m_predicate;
 
-        // or is this an extension method?
-        // public bool IsGround { get; }
+        public Term this[int index]
+        {
+            get
+            {
+                return m_args[index];
+            }
+        }
 
-        public int Count { get; }
-        public ITerm this[int index] { get; }
+        public int Count => m_args.Length;
+
+        public override TermType TermType => TermType.Formula;
+
+        public override void Visit(ITermVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+
+        public override Term Transform(ITermTransformer transformer)
+        {
+            return transformer.Visit(this);
+        }
+
+        public override bool Matches(Term other)
+        {
+            throw new NotImplementedException();
+        }
+        public override bool Equals(Term? other)
+        {
+            throw new NotImplementedException();
+        }
+        public override int GetHashCode()
+        {
+            int hash = m_predicate.GetHashCode();
+            int length = m_args.Length;
+            for(int i = 0; i < length; ++i)
+            {
+                hash ^= m_args[i].GetHashCode() * hash;
+            }
+            return hash;
+        }
     }
-    public interface ILambdaFormula : IFormula { }
 
 
     public interface IHasIdentifier
     {
-        public IConstant Id { get; }
+        public Knowledge.Uri Id { get; }
     }
     public interface IHasMetadata : IHasIdentifier
     {
@@ -437,19 +634,19 @@ namespace Nifty.Knowledge
 
     public interface ITermVisitor
     {
-        public void Visit(IVariable term);
-        public void Visit(IBox term);
-        public void Visit(IBlank term);
-        public void Visit(IUri term);
-        public void Visit(IFormula formula);
+        public void Visit(Variable term);
+        public void Visit(Box term);
+        public void Visit(Blank term);
+        public void Visit(Uri term);
+        public void Visit(Formula formula);
     }
     public interface ITermTransformer
     {
-        public ITerm Visit(IVariable term);
-        public ITerm Visit(IBox term);
-        public ITerm Visit(IBlank term);
-        public ITerm Visit(IUri term);
-        public ITerm Visit(IFormula formula);
+        public Term Visit(Variable term);
+        public Term Visit(Box term);
+        public Term Visit(Blank term);
+        public Term Visit(Uri term);
+        public Term Visit(Formula formula);
     }
 
 
@@ -521,7 +718,7 @@ namespace Nifty.Knowledge.Querying
 
     public interface ISelectQuery : IQuery
     {
-        public IReadOnlyList<IVariable> Variables { get; }
+        public IReadOnlyList<Variable> Variables { get; }
     }
     public interface IConstructQuery : IQuery
     {
@@ -533,19 +730,19 @@ namespace Nifty.Knowledge.Querying
     }
     public interface IDescribeQuery : IQuery
     {
-        public IReadOnlyList<ITerm> Terms { get; }
+        public IReadOnlyList<Term> Terms { get; }
     }
 
 
     public interface IQueryable
     {
         public bool Query(IAskQuery query);
-        public IEnumerable<IReadOnlyDictionary<IVariable, ITerm>> Query(ISelectQuery query);
+        public IEnumerable<IReadOnlyDictionary<Variable, Term>> Query(ISelectQuery query);
         public IEnumerable<IFormulaCollection> Query(IConstructQuery query);
         public IFormulaCollection Query(IDescribeQuery query);
 
         // public IDisposable Query(IAskQuery query, IObserver<bool> observer);
-        public IDisposable Query(ISelectQuery query, IObserver<IReadOnlyDictionary<IVariable, ITerm>> observer);
+        public IDisposable Query(ISelectQuery query, IObserver<IReadOnlyDictionary<Variable, Term>> observer);
         public IDisposable Query(IConstructQuery query, IObserver<IFormulaCollection> observer);
         //public IDisposable Query(IDescribeQuery query, IObserver<IFormulaCollection> observer);
     }
@@ -577,7 +774,7 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-        public static ISelectQuery Select(this IQuery query, params IVariable[] variables)
+        public static ISelectQuery Select(this IQuery query, params Variable[] variables)
         {
             throw new NotImplementedException();
         }
@@ -585,7 +782,7 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-        public static IDescribeQuery Describe(this IQuery query, params ITerm[] terms)
+        public static IDescribeQuery Describe(this IQuery query, params Term[] terms)
         {
             throw new NotImplementedException();
         }
@@ -596,27 +793,27 @@ namespace Nifty.Knowledge.Querying
         {
             throw new NotImplementedException();
         }
-        public static IQuery GroupBy(this IQuery query, IVariable variable)
+        public static IQuery GroupBy(this IQuery query, Variable variable)
         {
             throw new NotImplementedException();
         }
-        public static IQuery GroupBy(this IQuery query, IVariable variable, IFormula having)
+        public static IQuery GroupBy(this IQuery query, Variable variable, Formula having)
         {
             throw new NotImplementedException();
         }
-        public static IOrderedQuery OrderBy(this IQuery query, IVariable variable)
+        public static IOrderedQuery OrderBy(this IQuery query, Variable variable)
         {
             throw new NotImplementedException();
         }
-        public static IOrderedQuery OrderByDescending(this IQuery query, IVariable variable)
+        public static IOrderedQuery OrderByDescending(this IQuery query, Variable variable)
         {
             throw new NotImplementedException();
         }
-        public static IOrderedQuery ThenBy(this IOrderedQuery query, IVariable variable)
+        public static IOrderedQuery ThenBy(this IOrderedQuery query, Variable variable)
         {
             throw new NotImplementedException();
         }
-        public static IOrderedQuery ThenByDescending(this IOrderedQuery query, IVariable variable)
+        public static IOrderedQuery ThenByDescending(this IOrderedQuery query, Variable variable)
         {
             throw new NotImplementedException();
         }
@@ -686,9 +883,9 @@ namespace Nifty.Knowledge.Querying.Expressions
     }
     public sealed class TableExpression : Expression
     {
-        internal TableExpression(IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> rows)
+        internal TableExpression(IEnumerable<IReadOnlyDictionary<Variable, Term?>> rows)
         {
-            IEnumerable<IVariable>? m_tmp = null;
+            IEnumerable<Variable>? m_tmp = null;
 
             foreach (var row in rows)
             {
@@ -702,16 +899,16 @@ namespace Nifty.Knowledge.Querying.Expressions
                 }
             }
 
-            m_variables = m_tmp != null ? new List<IVariable>(m_tmp).AsReadOnly() : new List<IVariable>(0).AsReadOnly();
+            m_variables = m_tmp != null ? new List<Variable>(m_tmp).AsReadOnly() : new List<Variable>(0).AsReadOnly();
             m_rows = rows;
         }
-        private readonly IReadOnlyList<IVariable> m_variables;
-        private readonly IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> m_rows;
+        private readonly IReadOnlyList<Variable> m_variables;
+        private readonly IEnumerable<IReadOnlyDictionary<Variable, Term?>> m_rows;
 
         public override ExpressionType ExpressionType => ExpressionType.Table;
 
-        public IReadOnlyList<IVariable> Variables => m_variables;
-        public IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> Rows => m_rows;
+        public IReadOnlyList<Variable> Variables => m_variables;
+        public IEnumerable<IReadOnlyDictionary<Variable, Term?>> Rows => m_rows;
 
         public override bool Equals(Expression? other)
         {
@@ -744,18 +941,18 @@ namespace Nifty.Knowledge.Querying.Expressions
     }
     public sealed class FormulaCollectionExpression : Expression
     {
-        internal FormulaCollectionExpression(Expression expression, ITerm term)
+        internal FormulaCollectionExpression(Expression expression, Term term)
         {
             m_expression = expression;
             m_term = term;
         }
         private readonly Expression m_expression;
-        private readonly ITerm m_term;
+        private readonly Term m_term;
 
         public override ExpressionType ExpressionType => ExpressionType.FormulaCollection;
 
         public Expression Expression => m_expression;
-        public ITerm Term => m_term;
+        public Term Term => m_term;
 
         public override bool Equals(Expression? other)
         {
@@ -790,19 +987,19 @@ namespace Nifty.Knowledge.Querying.Expressions
     }
     public sealed class AssignExpression : Expression
     {
-        internal AssignExpression(Expression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
+        internal AssignExpression(Expression expression, IReadOnlyDictionary<Variable, Term> assignments)
         {
             m_expression = expression;
             m_assignments = assignments;
         }
         private readonly Expression m_expression;
-        private readonly IReadOnlyDictionary<IVariable, ITerm> m_assignments;
+        private readonly IReadOnlyDictionary<Variable, Term> m_assignments;
 
         public override ExpressionType ExpressionType => ExpressionType.Assign;
 
         public Expression Expression => m_expression;
 
-        public IReadOnlyDictionary<IVariable, ITerm> Assignments => m_assignments;
+        public IReadOnlyDictionary<Variable, Term> Assignments => m_assignments;
 
         public override bool Equals(Expression? other)
         {
@@ -814,19 +1011,19 @@ namespace Nifty.Knowledge.Querying.Expressions
     }
     public sealed class ExtendExpression : Expression
     {
-        internal ExtendExpression(Expression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
+        internal ExtendExpression(Expression expression, IReadOnlyDictionary<Variable, Term> assignments)
         {
             m_expression = expression;
             m_assignments = assignments;
         }
         private readonly Expression m_expression;
-        private readonly IReadOnlyDictionary<IVariable, ITerm> m_assignments;
+        private readonly IReadOnlyDictionary<Variable, Term> m_assignments;
 
         public override ExpressionType ExpressionType => ExpressionType.Extend;
 
         public Expression Expression => m_expression;
 
-        public IReadOnlyDictionary<IVariable, ITerm> Assignments => m_assignments;
+        public IReadOnlyDictionary<Variable, Term> Assignments => m_assignments;
 
         public override bool Equals(Expression? other)
         {
@@ -980,23 +1177,23 @@ namespace Nifty.Knowledge.Querying.Expressions
 
     internal sealed class GroupByExpression : Expression
     {
-        internal GroupByExpression(Expression expression, IReadOnlyDictionary<IVariable, ITerm> groupVariables, IReadOnlyDictionary<IVariable, IFormula> aggregators)
+        internal GroupByExpression(Expression expression, IReadOnlyDictionary<Variable, Term> groupVariables, IReadOnlyDictionary<Variable, Formula> aggregators)
         {
             m_expression = expression;
             m_groupVariables = groupVariables;
             m_aggregators = aggregators;
         }
         private readonly Expression m_expression;
-        private readonly IReadOnlyDictionary<IVariable, ITerm> m_groupVariables;
-        private readonly IReadOnlyDictionary<IVariable, IFormula> m_aggregators;
+        private readonly IReadOnlyDictionary<Variable, Term> m_groupVariables;
+        private readonly IReadOnlyDictionary<Variable, Formula> m_aggregators;
 
         public override ExpressionType ExpressionType => ExpressionType.GroupBy;
 
         public Expression Expression => m_expression;
 
-        public IReadOnlyDictionary<IVariable, ITerm> Variables => m_groupVariables;
+        public IReadOnlyDictionary<Variable, Term> Variables => m_groupVariables;
 
-        public IReadOnlyDictionary<IVariable, IFormula> Aggregators => m_aggregators;
+        public IReadOnlyDictionary<Variable, Formula> Aggregators => m_aggregators;
 
         public override bool Equals(Expression? other)
         {
@@ -1008,19 +1205,19 @@ namespace Nifty.Knowledge.Querying.Expressions
     }
     internal sealed class OrderByExpression : Expression
     {
-        internal OrderByExpression(Expression expression, IReadOnlyDictionary<IVariable, SortDirection> sorts)
+        internal OrderByExpression(Expression expression, IReadOnlyDictionary<Variable, SortDirection> sorts)
         {
             m_expression = expression;
             m_sorts = sorts;
         }
         private readonly Expression m_expression;
-        private readonly IReadOnlyDictionary<IVariable, SortDirection> m_sorts;
+        private readonly IReadOnlyDictionary<Variable, SortDirection> m_sorts;
 
         public override ExpressionType ExpressionType => ExpressionType.OrderBy;
 
         public Expression Expression => m_expression;
 
-        public IReadOnlyDictionary<IVariable, SortDirection> Sorts => m_sorts;
+        public IReadOnlyDictionary<Variable, SortDirection> Sorts => m_sorts;
 
         public override bool Equals(Expression? other)
         {
@@ -1032,19 +1229,19 @@ namespace Nifty.Knowledge.Querying.Expressions
     }
     internal sealed class ProjectExpression : Expression
     {
-        internal ProjectExpression(Expression expression, IReadOnlyList<IVariable> variables)
+        internal ProjectExpression(Expression expression, IReadOnlyList<Variable> variables)
         {
             m_expression = expression;
             m_variables = variables;
         }
         private readonly Expression m_expression;
-        private readonly IReadOnlyList<IVariable> m_variables;
+        private readonly IReadOnlyList<Variable> m_variables;
 
         public override ExpressionType ExpressionType => ExpressionType.Project;
 
         public Expression Expression => m_expression;
 
-        public IReadOnlyList<IVariable> Variables => m_variables;
+        public IReadOnlyList<Variable> Variables => m_variables;
 
         public override bool Equals(Expression? other)
         {
@@ -1129,7 +1326,7 @@ namespace Nifty.Knowledge.Querying.Expressions
         {
             return s_empty;
         }
-        public static TableExpression Values(IEnumerable<IReadOnlyDictionary<IVariable, ITerm?>> values)
+        public static TableExpression Values(IEnumerable<IReadOnlyDictionary<Variable, Term?>> values)
         {
             return new TableExpression(values);
         }
@@ -1137,7 +1334,7 @@ namespace Nifty.Knowledge.Querying.Expressions
         {
             return new BasicFormulaCollectionPatternExpression(formulaCollection);
         }
-        public static FormulaCollectionExpression FormulaCollection(Expression expression, ITerm term)
+        public static FormulaCollectionExpression FormulaCollection(Expression expression, Term term)
         {
             return new FormulaCollectionExpression(expression, term);
         }
@@ -1145,21 +1342,21 @@ namespace Nifty.Knowledge.Querying.Expressions
         {
             return new FilterExpression(expression, filter);
         }
-        public static AssignExpression Assign(Expression expression, IVariable variable, IFormula formula)
+        public static AssignExpression Assign(Expression expression, Variable variable, Formula formula)
         {
-            var assignments = new Dictionary<IVariable, ITerm> { { variable, formula } };
+            var assignments = new Dictionary<Variable, Term> { { variable, formula } };
             return new AssignExpression(expression, assignments);
         }
-        public static AssignExpression Assign(Expression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
+        public static AssignExpression Assign(Expression expression, IReadOnlyDictionary<Variable, Term> assignments)
         {
             return new AssignExpression(expression, assignments);
         }
-        public static ExtendExpression Extend(Expression expression, IVariable variable, IFormula formula)
+        public static ExtendExpression Extend(Expression expression, Variable variable, Formula formula)
         {
-            var assignments = new Dictionary<IVariable, ITerm> { { variable, formula } };
+            var assignments = new Dictionary<Variable, Term> { { variable, formula } };
             return new ExtendExpression(expression, assignments);
         }
-        public static ExtendExpression Extend(Expression expression, IReadOnlyDictionary<IVariable, ITerm> assignments)
+        public static ExtendExpression Extend(Expression expression, IReadOnlyDictionary<Variable, Term> assignments)
         {
             return new ExtendExpression(expression, assignments);
         }
@@ -1193,15 +1390,15 @@ namespace Nifty.Knowledge.Querying.Expressions
         }
 
 
-        internal static GroupByExpression GroupBy(Expression expression, IReadOnlyDictionary<IVariable, ITerm> groupVariables, IReadOnlyDictionary<IVariable, IFormula> aggregators)
+        internal static GroupByExpression GroupBy(Expression expression, IReadOnlyDictionary<Variable, Term> groupVariables, IReadOnlyDictionary<Variable, Formula> aggregators)
         {
             return new GroupByExpression(expression, groupVariables, aggregators);
         }
-        internal static OrderByExpression OrderBy(Expression expression, IReadOnlyDictionary<IVariable, SortDirection> sorts)
+        internal static OrderByExpression OrderBy(Expression expression, IReadOnlyDictionary<Variable, SortDirection> sorts)
         {
             return new OrderByExpression(expression, sorts);
         }
-        internal static ProjectExpression Project(Expression expression, IReadOnlyList<IVariable> variables)
+        internal static ProjectExpression Project(Expression expression, IReadOnlyList<Variable> variables)
         {
             return new ProjectExpression(expression, variables);
         }
@@ -1264,8 +1461,8 @@ namespace Nifty.Knowledge.Reasoning
         public IReasoner Reasoner { get; }
         public IFormulaCollection Base { get; }
 
-        public IEnumerable<IDerivation> Derivations(IFormula formula);
-        public IEnumerable<IDerivation> Derivations(IEnumerable<IFormula> formulas);
+        public IEnumerable<IDerivation> Derivations(Formula formula);
+        public IEnumerable<IDerivation> Derivations(IEnumerable<Formula> formulas);
     }
 
     public interface IDerivation
@@ -1275,7 +1472,7 @@ namespace Nifty.Knowledge.Reasoning
 
     public interface IFormulaEvaluator
     {
-        public bool Evaluate(IFormula formula, [NotNullWhen(true)] out ITerm? evaluation);
+        public bool Evaluate(Formula formula, [NotNullWhen(true)] out Term? evaluation);
     }
 }
 
@@ -1299,10 +1496,10 @@ namespace Nifty.Knowledge.Serialization
     {
         public UriAttribute(string uri)
         {
-            m_uri = new Uri(uri);
+            m_uri = new System.Uri(uri);
         }
-        private readonly Uri m_uri;
-        public Uri Uri => m_uri;
+        private readonly System.Uri m_uri;
+        public System.Uri Uri => m_uri;
     }
 
     public interface ISerializable
@@ -1481,10 +1678,10 @@ namespace Nifty.Planning.Actions
 
     public interface IActionGenerator
     {
-        public IEnumerable<IVariable> GetVariables();
+        public IEnumerable<Variable> GetVariables();
         public IFormulaCollection GetConstraints();
-        public bool CanReplace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator);
-        public bool Replace(IReadOnlyDictionary<IVariable, ITerm> map, IFormulaEvaluator evaluator, [NotNullWhen(true)] out IAction? result);
+        public bool CanReplace(IReadOnlyDictionary<Variable, Knowledge.Term> map, IFormulaEvaluator evaluator);
+        public bool Replace(IReadOnlyDictionary<Variable, Knowledge.Term> map, IFormulaEvaluator evaluator, [NotNullWhen(true)] out IAction? result);
     }
 }
 
@@ -1613,9 +1810,11 @@ namespace Nifty
 
         public static class Builtins
         {
-            public static readonly IUri add = Term.Uri("urn:builtin:add");
-            public static readonly IUri and = Term.Uri("urn:builtin:and");
+            public static readonly Knowledge.Uri add = Term.Uri("urn:builtin:add");
+            public static readonly Knowledge.Uri and = Term.Uri("urn:builtin:and");
             // ...
+
+            public static readonly Knowledge.Uri lambda = Term.Uri("urn:builtin:lambda");
 
             public static class Types
             {
@@ -1625,228 +1824,228 @@ namespace Nifty
 
         public static class Composition
         {
-            public static readonly IUri hasComposition = Term.Uri("urn:builtin:hasComposition");
+            public static readonly Knowledge.Uri hasComposition = Term.Uri("urn:builtin:hasComposition");
 
-            public static readonly IUri exists = Term.Uri("urn:builtin:exists");
-            public static readonly IUri notExists = Term.Uri("urn:builtin:notExists");
-            public static readonly IUri filter = Term.Uri("urn:builtin:filter");
-            public static readonly IUri optional = Term.Uri("urn:builtin:optional");
-            public static readonly IUri minus = Term.Uri("urn:builtin:minus");
-            public static readonly IUri union = Term.Uri("urn:builtin:union");
-            public static readonly IUri bind = Term.Uri("urn:builtin:bind");
-            public static readonly IUri values = Term.Uri("urn:builtin:values");
+            public static readonly Knowledge.Uri exists = Term.Uri("urn:builtin:exists");
+            public static readonly Knowledge.Uri notExists = Term.Uri("urn:builtin:notExists");
+            public static readonly Knowledge.Uri filter = Term.Uri("urn:builtin:filter");
+            public static readonly Knowledge.Uri optional = Term.Uri("urn:builtin:optional");
+            public static readonly Knowledge.Uri minus = Term.Uri("urn:builtin:minus");
+            public static readonly Knowledge.Uri union = Term.Uri("urn:builtin:union");
+            public static readonly Knowledge.Uri bind = Term.Uri("urn:builtin:bind");
+            public static readonly Knowledge.Uri values = Term.Uri("urn:builtin:values");
 
             public static class Types
             {
-                public static readonly IUri Expression = Term.Uri("urn:builtin:Expression");
+                public static readonly Knowledge.Uri Expression = Term.Uri("urn:builtin:Expression");
 
-                public static readonly IUri ExistsExpression = Term.Uri("urn:builtin:ExistsExpression");
-                public static readonly IUri NotExistsExpression = Term.Uri("urn:builtin:NotExistsExpression");
-                public static readonly IUri FilterExpression = Term.Uri("urn:builtin:FilterExpression");
-                public static readonly IUri OptionalExpression = Term.Uri("urn:builtin:OptionalExpression");
-                public static readonly IUri MinusExpression = Term.Uri("urn:builtin:MinusExpression");
-                public static readonly IUri UnionExpression = Term.Uri("urn:builtin:UnionExpression");
-                public static readonly IUri BindExpression = Term.Uri("urn:builtin:BindExpression");
-                public static readonly IUri ValuesExpression = Term.Uri("urn:builtin:ValuesExpression");
+                public static readonly Knowledge.Uri ExistsExpression = Term.Uri("urn:builtin:ExistsExpression");
+                public static readonly Knowledge.Uri NotExistsExpression = Term.Uri("urn:builtin:NotExistsExpression");
+                public static readonly Knowledge.Uri FilterExpression = Term.Uri("urn:builtin:FilterExpression");
+                public static readonly Knowledge.Uri OptionalExpression = Term.Uri("urn:builtin:OptionalExpression");
+                public static readonly Knowledge.Uri MinusExpression = Term.Uri("urn:builtin:MinusExpression");
+                public static readonly Knowledge.Uri UnionExpression = Term.Uri("urn:builtin:UnionExpression");
+                public static readonly Knowledge.Uri BindExpression = Term.Uri("urn:builtin:BindExpression");
+                public static readonly Knowledge.Uri ValuesExpression = Term.Uri("urn:builtin:ValuesExpression");
             }
         }
 
         public static class Constraints
         {
-            public static readonly IUri hasConstraint = Term.Uri("urn:builtin:hasConstraint");
+            public static readonly Knowledge.Uri hasConstraint = Term.Uri("urn:builtin:hasConstraint");
         }
 
         public static class Querying
         {
-            public static readonly IUri where = Term.Uri("urn:builtin:where");
-            public static readonly IUri groupBy = Term.Uri("urn:builtin:groupBy");
-            public static readonly IUri orderBy = Term.Uri("urn:builtin:orderBy");
-            public static readonly IUri distinct = Term.Uri("urn:builtin:distinct");
-            public static readonly IUri reduced = Term.Uri("urn:builtin:reduced");
-            public static readonly IUri offset = Term.Uri("urn:builtin:offset");
-            public static readonly IUri limit = Term.Uri("urn:builtin:limit");
+            public static readonly Knowledge.Uri where = Term.Uri("urn:builtin:where");
+            public static readonly Knowledge.Uri groupBy = Term.Uri("urn:builtin:groupBy");
+            public static readonly Knowledge.Uri orderBy = Term.Uri("urn:builtin:orderBy");
+            public static readonly Knowledge.Uri distinct = Term.Uri("urn:builtin:distinct");
+            public static readonly Knowledge.Uri reduced = Term.Uri("urn:builtin:reduced");
+            public static readonly Knowledge.Uri offset = Term.Uri("urn:builtin:offset");
+            public static readonly Knowledge.Uri limit = Term.Uri("urn:builtin:limit");
 
-            public static readonly IUri ask = Term.Uri("urn:builtin:ask");
-            public static readonly IUri select = Term.Uri("urn:builtin:select");
-            public static readonly IUri construct = Term.Uri("urn:builtin:construct");
-            public static readonly IUri describe = Term.Uri("urn:builtin:describe");
+            public static readonly Knowledge.Uri ask = Term.Uri("urn:builtin:ask");
+            public static readonly Knowledge.Uri select = Term.Uri("urn:builtin:select");
+            public static readonly Knowledge.Uri construct = Term.Uri("urn:builtin:construct");
+            public static readonly Knowledge.Uri describe = Term.Uri("urn:builtin:describe");
 
             public static class Types
             {
-                public static readonly IUri Query = Term.Uri("urn:builtin:Query");
+                public static readonly Knowledge.Uri Query = Term.Uri("urn:builtin:Query");
 
-                public static readonly IUri WhereQuery = Term.Uri("urn:builtin:WhereQuery");
-                public static readonly IUri GroupByQuery = Term.Uri("urn:builtin:GroupByQuery");
-                public static readonly IUri OrderByQuery = Term.Uri("urn:builtin:OrderByQuery");
-                public static readonly IUri DistinctQuery = Term.Uri("urn:builtin:DistinctQuery");
-                public static readonly IUri ReducedQuery = Term.Uri("urn:builtin:ReducedQuery");
-                public static readonly IUri OffsetQuery = Term.Uri("urn:builtin:OffsetQuery");
-                public static readonly IUri LimitQuery = Term.Uri("urn:builtin:LimitQuery");
+                public static readonly Knowledge.Uri WhereQuery = Term.Uri("urn:builtin:WhereQuery");
+                public static readonly Knowledge.Uri GroupByQuery = Term.Uri("urn:builtin:GroupByQuery");
+                public static readonly Knowledge.Uri OrderByQuery = Term.Uri("urn:builtin:OrderByQuery");
+                public static readonly Knowledge.Uri DistinctQuery = Term.Uri("urn:builtin:DistinctQuery");
+                public static readonly Knowledge.Uri ReducedQuery = Term.Uri("urn:builtin:ReducedQuery");
+                public static readonly Knowledge.Uri OffsetQuery = Term.Uri("urn:builtin:OffsetQuery");
+                public static readonly Knowledge.Uri LimitQuery = Term.Uri("urn:builtin:LimitQuery");
 
-                public static readonly IUri AskQuery = Term.Uri("urn:builtin:AskQuery");
-                public static readonly IUri SelectQuery = Term.Uri("urn:builtin:SelectQuery");
-                public static readonly IUri ConstructQuery = Term.Uri("urn:builtin:ConstructQuery");
-                public static readonly IUri DescribeQuery = Term.Uri("urn:builtin:DescribeQuery");
+                public static readonly Knowledge.Uri AskQuery = Term.Uri("urn:builtin:AskQuery");
+                public static readonly Knowledge.Uri SelectQuery = Term.Uri("urn:builtin:SelectQuery");
+                public static readonly Knowledge.Uri ConstructQuery = Term.Uri("urn:builtin:ConstructQuery");
+                public static readonly Knowledge.Uri DescribeQuery = Term.Uri("urn:builtin:DescribeQuery");
             }
         }
 
-        public static readonly IUri type = Term.Uri("urn:builtin:type");
-        public static readonly IUri quote = Term.Uri("urn:builtin:quote");
+        public static readonly Knowledge.Uri type = Term.Uri("urn:builtin:type");
+        public static readonly Knowledge.Uri quote = Term.Uri("urn:builtin:quote");
     }
 
     public static partial class Term
     {
-        public static IUri Uri(string uri)
+        public static Knowledge.Uri Uri(string uri)
+        {
+            return new Knowledge.Uri(uri);
+        }
+        public static Blank Blank()
         {
             throw new NotImplementedException();
         }
-        public static IBlank Blank()
+        public static Blank Blank(string id)
+        {
+            return new Blank(id);
+        }
+        public static Variable Variable()
         {
             throw new NotImplementedException();
         }
-        public static IBlank Blank(string id)
+        public static Variable Variable(string name)
         {
-            throw new NotImplementedException();
+            return new Variable(name);
         }
-        public static IVariable Variable()
+
+
+
+        public static Box Box(bool value)
         {
-            throw new NotImplementedException();
+            return new Box(value);
         }
-        public static IVariable Variable(string name)
+        public static Box Box(sbyte value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(byte value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(short value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(ushort value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(int value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(uint value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(long value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(ulong value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(float value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(double value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(string value)
+        {
+            return new Box(value);
+        }
+        public static Box Box(object value)
         {
             throw new NotImplementedException();
         }
 
 
 
-        public static IBox Box(bool value)
-        {
-            throw new NotImplementedException();
-        }
-        public static IBox Box(sbyte value)
-        {
-            throw new NotImplementedException();
-        }
-        public static IBox Box(byte value)
-        {
-            throw new NotImplementedException();
-        }
-        public static IBox Box(short value)
-        {
-            throw new NotImplementedException();
-        }
-        public static IBox Box(ushort value)
-        {
-            throw new NotImplementedException();
-        }
-        public static IBox Box(int value)
-        {
-            throw new NotImplementedException();
-        }
-        public static IBox Box(uint value)
-        {
-            throw new NotImplementedException();
-        }
-        public static IBox Box(long value)
-        {
-            throw new NotImplementedException();
-        }
-        public static IBox Box(ulong value)
-        {
-            throw new NotImplementedException();
-        }
-        public static IBox Box(float value)
-        {
-            throw new NotImplementedException();
-        }
-        public static IBox Box(double value)
-        {
-            throw new NotImplementedException();
-        }
-        public static IBox Box(string value)
-        {
-            throw new NotImplementedException();
-        }
-        public static IBox Box(object value)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        public static IBox Literal(bool value)
+        public static Box Literal(bool value)
         {
             // return Box(new Literal(value.ToString(), null, Keys.Semantics.Xsd.boolean.Uri));
             throw new NotImplementedException();
         }
-        public static IBox Literal(sbyte value)
+        public static Box Literal(sbyte value)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(byte value)
+        public static Box Literal(byte value)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(short value)
+        public static Box Literal(short value)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(ushort value)
+        public static Box Literal(ushort value)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(int value)
+        public static Box Literal(int value)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(uint value)
+        public static Box Literal(uint value)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(long value)
+        public static Box Literal(long value)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(ulong value)
+        public static Box Literal(ulong value)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(float value)
+        public static Box Literal(float value)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(double value)
+        public static Box Literal(double value)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(string value)
+        public static Box Literal(string value)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(string value, string language)
+        public static Box Literal(string value, string language)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(string value, string language, IUri datatypeUri)
+        public static Box Literal(string value, string language, Knowledge.Uri datatypeUri)
         {
             throw new NotImplementedException();
         }
-        public static IBox Literal(string value, IUri datatypeUri)
+        public static Box Literal(string value, Knowledge.Uri datatypeUri)
         {
             throw new NotImplementedException();
         }
 
 
 
-        public static IFormula Formula(ITerm predicate, params ITerm[] arguments)
+        public static Knowledge.Formula Formula(Knowledge.Term predicate, params Knowledge.Term[] arguments)
         {
             throw new NotImplementedException();
         }
-        public static IFormula Triple(ITerm predicate, ITerm subject, ITerm @object)
+        public static Knowledge.Formula Triple(Knowledge.Term predicate, Knowledge.Term subject, Knowledge.Term @object)
         {
             throw new NotImplementedException();
         }
-        public static IFormula TripleSPO(ITerm subject, ITerm predicate, ITerm @object)
+        public static Knowledge.Formula TripleSPO(Knowledge.Term subject, Knowledge.Term predicate, Knowledge.Term @object)
         {
             throw new NotImplementedException();
         }
@@ -1871,81 +2070,81 @@ namespace Nifty
         //    throw new NotImplementedException();
         //}
 
-        public static IFormula Add(ITerm x, ITerm y)
+        public static Knowledge.Formula Add(Knowledge.Term x, Knowledge.Term y)
         {
             return Term.Formula(Keys.Builtins.add, x, y);
         }
-        public static IFormula And(ITerm x, ITerm y)
+        public static Knowledge.Formula And(Knowledge.Term x, Knowledge.Term y)
         {
             return Term.Formula(Keys.Builtins.and, x, y);
         }
-        public static IFormula AndAlso(ITerm x, ITerm y)
+        public static Knowledge.Formula AndAlso(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
-        public static IFormula Divide(ITerm x, ITerm y)
+        public static Knowledge.Formula Divide(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
-        public static IFormula Equals(ITerm x, ITerm y)
+        public static Knowledge.Formula Equals(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
-        public static IFormula ExclusiveOr(ITerm x, ITerm y)
+        public static Knowledge.Formula ExclusiveOr(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
-        public static IFormula GreaterThan(ITerm x, ITerm y)
+        public static Knowledge.Formula GreaterThan(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
-        public static IFormula GreaterThanOrEqual(ITerm x, ITerm y)
+        public static Knowledge.Formula GreaterThanOrEqual(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
-        public static IFormula LessThan(ITerm x, ITerm y)
+        public static Knowledge.Formula LessThan(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
-        public static IFormula LessThanOrEqual(ITerm x, ITerm y)
+        public static Knowledge.Formula LessThanOrEqual(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
-        public static IFormula Multiply(ITerm x, ITerm y)
+        public static Knowledge.Formula Multiply(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
-        public static IFormula Negate(ITerm x)
+        public static Knowledge.Formula Negate(Knowledge.Term x)
         {
             throw new NotImplementedException();
         }
-        public static IFormula Not(ITerm x)
+        public static Knowledge.Formula Not(Knowledge.Term x)
         {
             throw new NotImplementedException();
         }
-        public static IFormula NotEquals(ITerm x, ITerm y)
+        public static Knowledge.Formula NotEquals(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
-        public static IFormula Or(ITerm x, ITerm y)
+        public static Knowledge.Formula Or(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
-        public static IFormula OrElse(ITerm x, ITerm y)
+        public static Knowledge.Formula OrElse(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
-        public static IFormula Subtract(ITerm x, ITerm y)
+        public static Knowledge.Formula Subtract(Knowledge.Term x, Knowledge.Term y)
         {
             throw new NotImplementedException();
         }
 
         // ...
 
-        public static ILambdaFormula Lambda(ITerm body, params IVariable[]? parameters)
-        {
-            throw new NotImplementedException();
-        }
+        //public static LambdaFormula Lambda(Knowledge.Term body, params Variable[]? parameters)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 
     public static partial class Factory
@@ -1969,7 +2168,7 @@ namespace Nifty
         // considering expression trees and Constant(value)...
         // however, if the factory methods are desired, can encapsulate use of the builders inside these factory methods
 
-        public static IFormulaCollection FormulaCollection(IEnumerable<IFormula> formulas, ISchema schema, bool isReadOnly = true)
+        public static IFormulaCollection FormulaCollection(IEnumerable<Knowledge.Formula> formulas, ISchema schema, bool isReadOnly = true)
         {
             var builder = Factory.FormulaCollectionBuilder(schema);
             foreach (var formula in formulas)
@@ -1978,7 +2177,7 @@ namespace Nifty
             }
             return builder.Build(isReadOnly: isReadOnly);
         }
-        public static IFormulaCollection KnowledgeGraph(IEnumerable<IFormula> formulas, ISchema schema, bool isReadOnly = true)
+        public static IFormulaCollection KnowledgeGraph(IEnumerable<Knowledge.Formula> formulas, ISchema schema, bool isReadOnly = true)
         {
             var builder = Factory.KnowledgeGraphBuilder(schema);
             foreach (var formula in formulas)
