@@ -2039,15 +2039,15 @@ namespace Nifty
 
         public static Knowledge.Formula Formula(Knowledge.Term predicate, params Knowledge.Term[] arguments)
         {
-            throw new NotImplementedException();
+            return new Knowledge.Formula(predicate, arguments);
         }
         public static Knowledge.Formula Triple(Knowledge.Term predicate, Knowledge.Term subject, Knowledge.Term @object)
         {
-            throw new NotImplementedException();
+            return new Knowledge.Formula(predicate, new Knowledge.Term[] { subject, @object });
         }
         public static Knowledge.Formula TripleSPO(Knowledge.Term subject, Knowledge.Term predicate, Knowledge.Term @object)
         {
-            throw new NotImplementedException();
+            return new Knowledge.Formula(predicate, new Knowledge.Term[] { subject, @object });
         }
     }
 
