@@ -567,7 +567,7 @@ namespace Nifty.Knowledge
         }
     }
 
-    public sealed class Formula : Term
+    public sealed partial class Formula : Term
     {
         internal Formula(Term predicate, Term[] args)
         {
@@ -810,6 +810,102 @@ namespace Nifty.Knowledge
         {
             return new Knowledge.Formula(predicate, new Knowledge.Term[] { subject, @object });
         }
+    }
+
+    // there might be other, possibly better, ways, to generate builtin formulas,
+    // e.g., allowing developers to provide formula collections which describe the terms to be combined into formulas
+    // in these cases, these methods would be generators which bind to the most specific predicates depending on the types of the terms, e.g., integers or complex numbers
+    public sealed partial class Formula
+    {
+        // these could be extension methods
+        //public static bool IsPredicate(this ITerm term, ISchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static int HasArity(this ITerm term, ISchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public static IEnumerable<ITerm> ClassesOfArgument(this ITerm term, int index, ISchema schema)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public static Knowledge.Formula Add(Knowledge.Term x, Knowledge.Term y)
+        {
+            return new Formula(Keys.Builtins.add, new Knowledge.Term[] { x, y });
+        }
+        public static Knowledge.Formula And(Knowledge.Term x, Knowledge.Term y)
+        {
+            return new Formula(Keys.Builtins.and, new Knowledge.Term[] { x, y });
+        }
+        public static Knowledge.Formula AndAlso(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula Divide(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula Equals(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula ExclusiveOr(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula GreaterThan(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula GreaterThanOrEqual(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula LessThan(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula LessThanOrEqual(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula Multiply(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula Negate(Knowledge.Term x)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula Not(Knowledge.Term x)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula NotEquals(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula Or(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula OrElse(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+        public static Knowledge.Formula Subtract(Knowledge.Term x, Knowledge.Term y)
+        {
+            throw new NotImplementedException();
+        }
+
+        // ...
+
+        //public static LambdaFormula Lambda(Knowledge.Term body, params Variable[]? parameters)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }
 
@@ -2051,102 +2147,6 @@ namespace Nifty
 
         public static readonly Knowledge.Uri type = Term.Uri("urn:builtin:type");
         public static readonly Knowledge.Uri quote = Term.Uri("urn:builtin:quote");
-    }
-
-    // there might be other, possibly better, ways, to generate builtin formulas,
-    // e.g., allowing developers to provide formula collections which describe the terms to be combined into formulas
-    // in these cases, these methods would be generators which bind to the most specific predicates depending on the types of the terms, e.g., integers or complex numbers
-    public static partial class Formula
-    {
-        // these could be extension methods
-        //public static bool IsPredicate(this ITerm term, ISchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static int HasArity(this ITerm term, ISchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public static IEnumerable<ITerm> ClassesOfArgument(this ITerm term, int index, ISchema schema)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        public static Knowledge.Formula Add(Knowledge.Term x, Knowledge.Term y)
-        {
-            return Term.Formula(Keys.Builtins.add, x, y);
-        }
-        public static Knowledge.Formula And(Knowledge.Term x, Knowledge.Term y)
-        {
-            return Term.Formula(Keys.Builtins.and, x, y);
-        }
-        public static Knowledge.Formula AndAlso(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula Divide(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula Equals(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula ExclusiveOr(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula GreaterThan(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula GreaterThanOrEqual(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula LessThan(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula LessThanOrEqual(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula Multiply(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula Negate(Knowledge.Term x)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula Not(Knowledge.Term x)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula NotEquals(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula Or(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula OrElse(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-        public static Knowledge.Formula Subtract(Knowledge.Term x, Knowledge.Term y)
-        {
-            throw new NotImplementedException();
-        }
-
-        // ...
-
-        //public static LambdaFormula Lambda(Knowledge.Term body, params Variable[]? parameters)
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 
     public static partial class Factory
