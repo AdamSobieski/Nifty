@@ -607,7 +607,6 @@ namespace Nifty.Knowledge
         {
             visitor.Visit(this);
         }
-
         public override Term Transform(ITermTransformer transformer)
         {
             return transformer.Visit(this);
@@ -1972,6 +1971,17 @@ namespace Nifty.Planning.Constraints
 
         public new IRecognitionContext<TAlphabet> OnNext(TAlphabet value);
     }
+}
+
+namespace Nifty.Speech.Recognition.Coqui
+{
+    // https://github.com/coqui-ai/STT
+    // https://github.com/coqui-ai/STT/tree/main/native_client/dotnet
+}
+
+namespace Nifty.Speech.Synthesis.Coqui
+{
+    // https://github.com/coqui-ai/TTS
 }
 
 namespace Nifty.Telemetry
