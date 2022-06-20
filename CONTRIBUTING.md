@@ -16,9 +16,10 @@ Here is a list of tasks that are being worked on:
    - Could also create a new message queueing service technology, utilizing existing protocols, which supports "semantics-enhanced message filtering", using n-ary SPARQL queries on messages or their metadata.
 6. Educational items, exercises, and activities. These can be components in .NET assemblies which are dynamically loaded and unloaded at runtime. Educational items, exercises, and activities in other formats, e.g., QTI, can be "compiled" for use with Nifty.
    - Per the [use cases](https://github.com/AdamSobieski/Nifty/blob/master/OVERVIEW.md#use-cases), scenarios for educational items, exercises, and activities include mathematics exercises, interactive stories, and software training exercises.
-7. Implement learner, domain, pedagogical, and other models and modules.
-8. Implement a rough-draft dialog system of an intelligent tutoring system in the Microsoft Bot Framework style.
-9. Your ideas for contributions and tasks are welcomed!
+7. State-of-the-art speech recognition and speech synthesis. Will explore interoperation with [Coqui](https://github.com/coqui-ai/) speech-to-text and text-to-speech.
+8. Implement learner, domain, pedagogical, and other models and modules.
+9. Implement a rough-draft dialog system of an intelligent tutoring system in the [Microsoft Bot Framework](https://github.com/microsoft/botframework-sdk/) style.
+10. Your ideas for contributions and tasks are welcomed!
 
 # Have a Question, Comment, Idea or Discussion Topic?
 
