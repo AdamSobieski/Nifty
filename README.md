@@ -24,6 +24,3 @@ A preliminary technical overview of the project is available [here](OVERVIEW.md)
 
 ### Contributing
 Some notes for potential contributors are available [here](CONTRIBUTING.md).
-
-### Adaptive Instructional Systems Diagram
-![AIS](Images/AIS.png)

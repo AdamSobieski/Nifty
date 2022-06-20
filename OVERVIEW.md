@@ -12,6 +12,11 @@ It will provide scalability, enabling the development of solutions which serve a
 
 
 
+## Adaptive Instructional Systems
+![AIS](Images/AIS.png)
+
+
+
 ## Use Cases
 
 ### Mathematics Education
