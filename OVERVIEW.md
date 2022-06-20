@@ -47,6 +47,10 @@ Learners could use [conversational user interfaces](https://en.wikipedia.org/wik
 
 Learners could engage in meaningful, contextual dialogues with adaptive instructional systems about educational items, exercises, and activities.
 
+### Speech Recognition and Synthesis
+
+[Coqui](https://coqui.ai/) (available on GitHub [here](https://github.com/coqui-ai/)) is a state-of-the-art, open-source software system for speech-to-text and text-to-speech. The Nifty project will explore the utilization of Coqui and its interoperability with the Bot Framework.
+
 
 
 ## Educational Items, Exercises and Activities
