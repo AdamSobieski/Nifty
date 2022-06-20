@@ -51,6 +51,8 @@ Learners could engage in meaningful, contextual dialogues with adaptive instruct
 
 [Coqui](https://coqui.ai/) (available on GitHub [here](https://github.com/coqui-ai/)) is a state-of-the-art, open-source software system for speech-to-text and text-to-speech. The Nifty project will explore the utilization of Coqui and its interoperability with the Bot Framework.
 
+Scenarios of interest include the capability to train and utilize models which support the recognition and synthesis of mathematical expressions.
+
 
 
 ## Educational Items, Exercises and Activities
