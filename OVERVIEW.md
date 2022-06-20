@@ -10,9 +10,7 @@ It will support configurability, enabling end-users – learners, parents, educato
 
 It will provide scalability, enabling the development of solutions which serve a large number of learners simultaneously.
 
-
-
-## Adaptive Instructional Systems
+### Adaptive Instructional Systems
 ![AIS](Images/AIS.png)
 
 
