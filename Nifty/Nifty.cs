@@ -1973,17 +1973,6 @@ namespace Nifty.Planning.Constraints
     }
 }
 
-namespace Nifty.Speech.Recognition.Coqui
-{
-    // https://github.com/coqui-ai/STT
-    // https://github.com/coqui-ai/STT/tree/main/native_client/dotnet
-}
-
-namespace Nifty.Speech.Synthesis.Coqui
-{
-    // https://github.com/coqui-ai/TTS
-}
-
 namespace Nifty.Telemetry
 {
     // see also: https://opentelemetry.io/ , https://opentelemetry.io/docs/instrumentation/net/getting-started/
