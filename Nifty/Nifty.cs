@@ -141,15 +141,15 @@ namespace Nifty.Common
 
     public static class String
     {
-        public static ulong Add(string text)
+        public static int Add(string text)
         {
             throw new NotImplementedException();
         }
-        public static void Dereference(ulong value)
+        public static void Dereference(int key)
         {
             throw new NotImplementedException();
         }
-        public static string Lookup(ulong value)
+        public static string Lookup(int key)
         {
             throw new NotImplementedException();
         }
@@ -462,7 +462,7 @@ namespace Nifty.Knowledge
             Common.String.Dereference(m_name);
         }
 
-        private readonly ulong m_name;
+        private readonly int m_name;
         public string Name => Common.String.Lookup(m_name);
 
         public override TermType TermType => TermType.Variable;
@@ -490,7 +490,7 @@ namespace Nifty.Knowledge
         }
         public override int GetHashCode()
         {
-            return m_name.GetHashCode();
+            return m_name;
         }
     }
     public abstract class Constant : Term { }
@@ -505,7 +505,7 @@ namespace Nifty.Knowledge
             Common.String.Dereference(m_id);
         }
 
-        private readonly ulong m_id;
+        private readonly int m_id;
 
         public string Value => Common.String.Lookup(m_id);
 
@@ -535,7 +535,7 @@ namespace Nifty.Knowledge
         }
         public override int GetHashCode()
         {
-            return m_id.GetHashCode();
+            return m_id;
         }
     }
     public sealed class Uri : Constant
@@ -549,7 +549,7 @@ namespace Nifty.Knowledge
             Common.String.Dereference(m_uri);
         }
 
-        private readonly ulong m_uri;
+        private readonly int m_uri;
 
         public string Value => Common.String.Lookup(m_uri);
 
@@ -578,7 +578,7 @@ namespace Nifty.Knowledge
         }
         public override int GetHashCode()
         {
-            return m_uri.GetHashCode();
+            return m_uri;
         }
     }
     // should this be an abstract base type for a dozen or so other, internal, classes... one per builtin type?
