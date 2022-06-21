@@ -437,7 +437,7 @@ namespace Nifty.Knowledge
 
         public abstract bool Matches(Term other);
         public abstract bool Equals(Term? other);
-        public sealed override bool Equals(object? obj)
+        public sealed override bool Equals([NotNullWhen(true)] object? obj)
         {
             if (obj is Term otherTerm)
             {
@@ -480,7 +480,7 @@ namespace Nifty.Knowledge
         {
             throw new NotImplementedException();
         }
-        public override bool Equals(Term? other)
+        public override bool Equals([NotNullWhen(true)] Term? other)
         {
             if(other is Variable otherVariable)
             {
@@ -525,7 +525,7 @@ namespace Nifty.Knowledge
         {
             throw new NotImplementedException();
         }
-        public override bool Equals(Term? other)
+        public override bool Equals([NotNullWhen(true)] Term? other)
         {
             if(other is Blank otherBlank)
             {
@@ -568,7 +568,7 @@ namespace Nifty.Knowledge
         {
             throw new NotImplementedException();
         }
-        public override bool Equals(Term? other)
+        public override bool Equals([NotNullWhen(true)] Term? other)
         {
             if(other is Uri otherUri)
             {
@@ -608,7 +608,7 @@ namespace Nifty.Knowledge
         {
             throw new NotImplementedException();
         }
-        public override bool Equals(Term? other)
+        public override bool Equals([NotNullWhen(true)] Term? other)
         {
             if(other is Box otherBox)
             {
@@ -659,7 +659,7 @@ namespace Nifty.Knowledge
         {
             throw new NotImplementedException();
         }
-        public override bool Equals(Term? other)
+        public override bool Equals([NotNullWhen(true)] Term? other)
         {
             if(other is Formula otherFormula)
             {
