@@ -31,7 +31,7 @@ using System.Runtime.Loader;
 
 namespace Nifty.Common
 {
-    public struct Literal
+    public struct Literal : IEquatable<Literal>
     {
         public Literal(string value, string? language, string? datatype)
         {
@@ -48,6 +48,32 @@ namespace Nifty.Common
         public string Value { get { return value; } }
         public string? Language { get { return language; } }
         public string? Datatype { get { return datatype; } } // or is this IUri Datatype ?
+
+        public bool Equals(Literal other)
+        {
+            throw new NotImplementedException();
+        }
+        public override bool Equals([NotNullWhen(true)] object? obj)
+        {
+            if(obj is Literal other)
+            {
+                return Equals(other);
+            }
+            return false;
+        }
+        public override int GetHashCode()
+        {
+            int hash = value.GetHashCode();
+            if(language != null)
+            {
+                hash ^= language.GetHashCode() * 31;
+            }
+            if(datatype != null)
+            {
+                hash ^= datatype.GetHashCode() * 31;
+            }
+            return hash;
+        }
     }
 
     public interface IInitializable
@@ -456,7 +482,11 @@ namespace Nifty.Knowledge
         }
         public override bool Equals(Term? other)
         {
-            throw new NotImplementedException();
+            if(other is Variable otherVariable)
+            {
+                return m_name == otherVariable.m_name;
+            }
+            return false;
         }
         public override int GetHashCode()
         {
@@ -497,7 +527,11 @@ namespace Nifty.Knowledge
         }
         public override bool Equals(Term? other)
         {
-            throw new NotImplementedException();
+            if(other is Blank otherBlank)
+            {
+                return m_id == otherBlank.m_id;
+            }
+            return false;
         }
         public override int GetHashCode()
         {
@@ -536,13 +570,18 @@ namespace Nifty.Knowledge
         }
         public override bool Equals(Term? other)
         {
-            throw new NotImplementedException();
+            if(other is Uri otherUri)
+            {
+                return m_uri == otherUri.m_uri;
+            }
+            return false;
         }
         public override int GetHashCode()
         {
             return m_uri.GetHashCode();
         }
     }
+    // should this be an abstract base type for a dozen or so other, internal, classes... one per builtin type?
     public sealed class Box : Constant
     {
         internal Box(object value)
@@ -571,7 +610,11 @@ namespace Nifty.Knowledge
         }
         public override bool Equals(Term? other)
         {
-            throw new NotImplementedException();
+            if(other is Box otherBox)
+            {
+                return m_value.Equals(otherBox.m_value);
+            }
+            return false;
         }
         public override int GetHashCode()
         {
@@ -618,7 +661,18 @@ namespace Nifty.Knowledge
         }
         public override bool Equals(Term? other)
         {
-            throw new NotImplementedException();
+            if(other is Formula otherFormula)
+            {
+                if (!m_predicate.Equals(otherFormula.m_predicate)) return false;
+                int length = m_args.Length;
+                if (length != otherFormula.m_args.Length) return false;
+                for(int i = 0; i < length; ++i)
+                {
+                    if (!m_args[i].Equals(otherFormula.m_args[i])) return false;
+                }
+                return true;
+            }
+            return false;
         }
         public override int GetHashCode()
         {

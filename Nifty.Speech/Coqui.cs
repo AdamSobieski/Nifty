@@ -197,7 +197,7 @@ namespace Nifty.Speech.Recognition.Coqui
 
     public static class SpeechToText
     {
-        public static ISpeechToText CreateLocalInstallation(string modelPath)
+        public static ISpeechToText CreateUsingLocalInstallation(string modelPath)
         {
             return new LocalInstallation(modelPath);
         }
