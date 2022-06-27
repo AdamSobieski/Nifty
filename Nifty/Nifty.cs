@@ -203,6 +203,8 @@ namespace Nifty.Dialogs
 
 namespace Nifty.Extensibility
 {
+    // see also: http://semantic-web-journal.org/content/componentsjs-semantic-dependency-injection-0
+
     public interface IHostBuildingComponent
     {
         public IHostBuilder Build(IHostBuilder builder);
