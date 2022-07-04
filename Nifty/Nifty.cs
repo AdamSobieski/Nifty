@@ -1884,36 +1884,6 @@ namespace Nifty.Knowledge.Updating
     }
 }
 
-namespace Nifty.MachineLearning
-{
-
-}
-
-namespace Nifty.MachineLearning.Probabilistic
-{
-    // see also: https://dotnet.github.io/infer/userguide/Recommender%20System.html
-}
-
-namespace Nifty.MachineLearning.ReinforcementLearning
-{
-    // see also: Afsar, M. Mehdi, Trafford Crump, and Behrouz Far. "Reinforcement learning based recommender systems: A survey." arXiv preprint arXiv:2101.06286 (2021). (https://arxiv.org/abs/2101.06286)
-
-    // see also: https://www.gymlibrary.ml/content/api/
-    // see also: https://www.gymlibrary.ml/_images/AE_loop.png
-
-    public interface IAgent<out TAction, in TObservation, in TReward> : IDisposable
-    {
-        public bool MoveNext(TObservation observation, TReward reward);
-        public TAction Current { get; }
-    }
-
-    public interface IEnvironment<in TAction, TObservation, TReward> : IDisposable
-    {
-        public (TObservation Observation, TReward Reward, bool Done, IDictionary<string, object> Info) Reset(int seed = 0, bool return_info = false, IDictionary<string, object>? options = null);
-        public (TObservation Observation, TReward Reward, bool Done, IDictionary<string, object> Info) Step(TAction action);
-    }
-}
-
 namespace Nifty.Messaging
 {
     public interface IMessageSource : IHasMetadata
