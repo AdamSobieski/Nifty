@@ -13,6 +13,9 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
     <PackageReference Include="Microsoft.ML" Version="1.7.1" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.11.0" />
+    <PackageReference Include="Microsoft.ML.Probabilistic" Version="0.4.2203.202" />
+    <PackageReference Include="Microsoft.ML.Probabilistic.Compiler" Version="0.4.2203.202" />
     <PackageReference Include="System.Composition" Version="6.0.0" />
   </ItemGroup>
 
