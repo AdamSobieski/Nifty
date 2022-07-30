@@ -2,10 +2,7 @@
 The [Nifty](https://github.com/AdamSobieski/Nifty) project will be a framework for creating adaptive instructional systems. The project intends to simplify and accelerate the development of AIS software, e.g., [intelligent tutoring systems](https://en.wikipedia.org/wiki/Intelligent_tutoring_system) and educational [recommender systems](https://en.wikipedia.org/wiki/Recommender_system).
 
 ### Related Projects
-[GIFT](https://gifttutoring.org/), [Bot Framework](https://github.com/microsoft/botframework-sdk)
-
-### Related Standards
-[RDF](https://www.w3.org/RDF/), [OWL](https://www.w3.org/OWL/), [SPARQL](https://www.w3.org/TR/sparql11-query/), [SPIN](https://spinrdf.org/), [SHACL](https://www.w3.org/TR/shacl/), [RIF](https://www.w3.org/TR/rif-overview/), [TriG](https://www.w3.org/TR/trig/), [xAPI](https://github.com/adlnet/xAPI-Spec), [XES](https://xes-standard.org/), [QTI](https://www.imsglobal.org/question/index.html), [LOM](https://en.wikipedia.org/wiki/Learning_object_metadata)
+[GIFT](https://gifttutoring.org/), [Bot Framework](https://github.com/microsoft/botframework-sdk), [Merlin](https://github.com/NVIDIA-Merlin/Merlin)
 
 ### Related Standards Organizations
 [IEEE Adaptive Instructional Systems Working Group](https://sagroups.ieee.org/2247-1/), [W3C](https://www.w3.org/), [IMS Global](https://www.imsglobal.org/)
